@@ -67,9 +67,11 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    // دمج مفتاح الدولة مع رقم الهاتف للمستخدم العادي
-    String fullIdentifier = '$_selectedCountryCode $phone';
-    _proceedLogin(fullIdentifier, false);
+    // دمج مفتاح الدولة مع رقم الهاتف للمستخدم العادي أو التحقق من الرمز السري
+    bool isAdmin = (phone == adminSecretKey || '$_selectedCountryCode $phone' == adminSecretKey);
+    String fullIdentifier = isAdmin ? adminSecretKey : '$_selectedCountryCode $phone';
+    
+    _proceedLogin(fullIdentifier, isAdmin);
   }
 
   // دالة تسجيل الدخول عبر بصمة الوجه أو الإصبع (تمنحك صلاحية المدير مباشرة)
@@ -127,7 +129,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 40),
                 
-                // صف اختيار مفتاح الدولة ورقم الهاتف (مثل المنصات العالمية)
+                // صف اختيار مفتاح الدولة ورقم الهاتف
                 Row(
                   children: [
                     Container(
@@ -161,7 +163,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         controller: _phoneController,
                         keyboardType: TextInputType.phone,
                         decoration: InputDecoration(
-                          labelText: 'رقم الهاتف (مثال: 7713258169)',
+                          labelText: 'رقم الهاتف',
                           prefixIcon: const Icon(Icons.phone, color: Colors.green),
                           filled: true,
                           fillColor: const Color(0xFF1E2A27),
