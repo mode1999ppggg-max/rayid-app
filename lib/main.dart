@@ -24,7 +24,7 @@ class CashPlusApp extends StatelessWidget {
   }
 }
 
-// ================= 1. شاشة تسجيل الدخول مع الرمز السري الحصري والبصمة =================
+// ================= 1. شاشة تسجيل الدخول الرسمية للمستخدمين =================
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -36,7 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _inputController = TextEditingController();
   final LocalAuthentication _auth = LocalAuthentication();
 
-  // الرمز السري الحصري الخاص بك كمدير للتطبيق
+  // الرمز السري الحصري الخاص بك كمدير للتطبيق (مخفي عن المستخدمين)
   final String adminSecretKey = "Mooamalfared1999%£#&@"; 
 
   void _proceedLogin(String identifier, bool isManager) {
@@ -55,17 +55,17 @@ class _LoginScreenState extends State<LoginScreen> {
     String input = _inputController.text.trim();
     if (input.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('الرجاء إدخال رقم الهاتف أو البريد أو الرمز السري')),
+        const SnackBar(content: Text('الرجاء إدخال رقم الهاتف أو البريد الإلكتروني')),
       );
       return;
     }
 
-    // التحقق هل المدخل هو الرمز السري الحصري للمدير؟
+    // التحقق هل المدخل هو رمز المدير السري أم مستخدم عادي
     bool isAdmin = (input == adminSecretKey);
     _proceedLogin(input, isAdmin);
   }
 
-  // دالة تسجيل الدخول عبر بصمة الوجه أو الإصبع (تمنحك صلاحية المدير مباشرة)
+  // دالة تسجيل الدخول عبر البصمة (تمنحك صلاحية المدير مباشرة)
   Future<void> _authenticateWithBiometrics() async {
     try {
       bool canCheckBiometrics = await _auth.canCheckBiometrics;
@@ -109,21 +109,20 @@ class _LoginScreenState extends State<LoginScreen> {
                 const Icon(Icons.security, color: Colors.green, size: 70),
                 const SizedBox(height: 16),
                 const Text(
-                  'Cash Plus Secure',
+                  'Cash Plus',
                   style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'سجل دخولك أو أدخل رمز المطور السري',
+                  'سجل دخولك برقم الهاتف أو البريد الإلكتروني',
                   style: TextStyle(color: Colors.grey, fontSize: 14),
                 ),
                 const SizedBox(height: 40),
                 TextField(
                   controller: _inputController,
-                  obscureText: true, // لإخفاء الرمز السري عند الكتابة
                   decoration: InputDecoration(
-                    labelText: 'رقم الهاتف، البريد أو الرمز السري',
-                    prefixIcon: const Icon(Icons.vpn_key, color: Colors.green),
+                    labelText: 'رقم الهاتف أو البريد الإلكتروني',
+                    prefixIcon: const Icon(Icons.person, color: Colors.green),
                     filled: true,
                     fillColor: const Color(0xFF1E2A27),
                     border: OutlineInputBorder(
@@ -142,7 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: const Text('دخول آمن', style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
+                    child: const Text('تسجيل الدخول', style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -168,7 +167,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-// ================= 2. الصفحة الرئيسية وصلاحيات المدير =================
+// ================= 2. الصفحة الرئيسية للمستخدم والمدير =================
 class CashPlusHomePage extends StatefulWidget {
   final String userIdentifier;
   final bool isAdmin;
@@ -307,7 +306,7 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
             ),
             const SizedBox(height: 25),
             const Text(
-              'Earn More Points (Protected)',
+              'Earn More Points',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
             ),
             const SizedBox(height: 12),
