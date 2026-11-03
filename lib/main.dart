@@ -19,7 +19,7 @@ class RayidApp extends StatelessWidget {
         );
       },
       theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color(0xff080c10), // خلفية داكنة عميقة بطابع سايبر
+        scaffoldBackgroundColor: const Color(0xff080c10),
         primaryColor: const Color(0xff00ff88),
         colorScheme: const ColorScheme.dark(
           primary: Color(0xff00ff88),
@@ -32,7 +32,7 @@ class RayidApp extends StatelessWidget {
   }
 }
 
-// ================= 1. شاشة تسجيل الدخول بتصميم سايبر =================
+// ================= 1. شاشة تسجيل الدخول =================
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -67,28 +67,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: const Color(0xff121b26),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xff00ff88).withOpacity(0.3),
-                          blurRadius: 20,
-                          spreadRadius: 2,
-                        ),
-                      ],
+                      boxShadow: [BoxShadow(color: const Color(0xff00ff88).withOpacity(0.3), blurRadius: 20, spreadRadius: 2)],
                       border: Border.all(color: const Color(0xff00ff88), width: 2),
                     ),
                     child: const Icon(Icons.bolt_rounded, color: Color(0xff00ff88), size: 60),
                   ),
                   const SizedBox(height: 24),
-                  const Text(
-                    'RAYID PAY',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                      letterSpacing: 3,
-                      shadows: [Shadow(color: Color(0xff00ff88), blurRadius: 10)],
-                    ),
-                  ),
+                  const Text('RAYID PAY', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 3, shadows: [Shadow(color: Color(0xff00ff88), blurRadius: 10)])),
                   const SizedBox(height: 8),
                   Text('منصة الترفيه والأموال الذكية', style: TextStyle(color: Colors.grey[400], fontSize: 13)),
                   const SizedBox(height: 40),
@@ -100,14 +85,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       labelStyle: const TextStyle(color: Colors.grey, fontSize: 13),
                       filled: true,
                       fillColor: const Color(0xff121b26),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: Color(0xff00ff88), width: 1.5),
-                      ),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Colors.white.withOpacity(0.1))),
+                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xff00ff88), width: 1.5)),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -120,14 +99,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       labelStyle: const TextStyle(color: Colors.grey, fontSize: 13),
                       filled: true,
                       fillColor: const Color(0xff121b26),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: Color(0xff00ff88), width: 1.5),
-                      ),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Colors.white.withOpacity(0.1))),
+                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xff00ff88), width: 1.5)),
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -193,15 +166,7 @@ class MainNavigationHubState extends State<MainNavigationHub> {
     return Scaffold(
       body: _pages[_currentIndex],
       bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.5),
-              blurRadius: 10,
-              offset: const Offset(0, -5),
-            ),
-          ],
-        ),
+        decoration: BoxDecoration(boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 10, offset: const Offset(0, -5))]),
         child: BottomNavigationBar(
           currentIndex: _currentIndex,
           onTap: (index) => setState(() => _currentIndex = index),
@@ -224,7 +189,7 @@ class MainNavigationHubState extends State<MainNavigationHub> {
   }
 }
 
-// ================= 3. الشاشة الرئيسية بتصميم 3D Cyber =================
+// ================= 3. الشاشة الرئيسية =================
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -240,22 +205,13 @@ class HomeScreen extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'RAYID PAY',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      letterSpacing: 1.5,
-                    ),
-                  ),
+                  const Text('RAYID PAY', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 1.5)),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: Colors.green.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: Colors.green, width: 1),
-                      boxShadow: [BoxShadow(color: Colors.green.withOpacity(0.2), blurRadius: 8)],
                     ),
                     child: Row(
                       children: const [
@@ -268,23 +224,12 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 20),
-              // بطاقة الملف الشخصي بتأثير 3D بارز
               Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xff162231), Color(0xff0e151f)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  gradient: const LinearGradient(colors: [Color(0xff162231), Color(0xff0e151f)], begin: Alignment.topLeft, end: Alignment.bottomRight),
                   borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.6),
-                      blurRadius: 15,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
+                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.6), blurRadius: 15, offset: const Offset(0, 8))],
                   border: Border.all(color: Colors.white.withOpacity(0.08), width: 1.5),
                 ),
                 child: Column(
@@ -298,18 +243,10 @@ class HomeScreen extends StatelessWidget {
                       children: [
                         Expanded(
                           child: GestureDetector(
-                            onTap: () {
-                              final hub = context.findAncestorStateOfType<MainNavigationHubState>();
-                              hub?.changeTab(2);
-                            },
+                            onTap: () => context.findAncestorStateOfType<MainNavigationHubState>()?.changeTab(2),
                             child: Container(
                               padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: const Color(0xff1b2635),
-                                borderRadius: BorderRadius.circular(14),
-                                border: Border.all(color: Colors.amber.withOpacity(0.3)),
-                                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 5, offset: const Offset(0, 4))],
-                              ),
+                              decoration: BoxDecoration(color: const Color(0xff1b2635), borderRadius: BorderRadius.circular(14), border: Border.all(color: Colors.amber.withOpacity(0.3))),
                               child: Row(
                                 children: const [
                                   Text('🪙', style: TextStyle(fontSize: 22)),
@@ -329,18 +266,10 @@ class HomeScreen extends StatelessWidget {
                         const SizedBox(width: 12),
                         Expanded(
                           child: GestureDetector(
-                            onTap: () {
-                              final hub = context.findAncestorStateOfType<MainNavigationHubState>();
-                              hub?.changeTab(2);
-                            },
+                            onTap: () => context.findAncestorStateOfType<MainNavigationHubState>()?.changeTab(2),
                             child: Container(
                               padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: const Color(0xff1b2635),
-                                borderRadius: BorderRadius.circular(14),
-                                border: Border.all(color: Colors.greenAccent.withOpacity(0.3)),
-                                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 5, offset: const Offset(0, 4))],
-                              ),
+                              decoration: BoxDecoration(color: const Color(0xff1b2635), borderRadius: BorderRadius.circular(14), border: Border.all(color: Colors.greenAccent.withOpacity(0.3))),
                               child: Row(
                                 children: const [
                                   Text('💵', style: TextStyle(fontSize: 22)),
@@ -363,24 +292,12 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 24),
-              // بطاقة التحدي البارزة بتأثير نيون 3D
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
-                  gradient: const LinearGradient(
-                    colors: [Color(0xff122623), Color(0xff0b161f)],
-                    begin: Alignment.topRight,
-                    end: Alignment.bottomLeft,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xff00ff88).withOpacity(0.15),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
+                  gradient: const LinearGradient(colors: [Color(0xff122623), Color(0xff0b161f)], begin: Alignment.topRight, end: Alignment.bottomLeft),
                   border: Border.all(color: const Color(0xff00ff88).withOpacity(0.6), width: 1.5),
                 ),
                 child: Column(
@@ -402,59 +319,66 @@ class HomeScreen extends StatelessWidget {
                         foregroundColor: Colors.black,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                        elevation: 6,
-                        shadowColor: const Color(0xff00ff88).withOpacity(0.5),
                       ),
                       onPressed: () {
-                        final hub = context.findAncestorStateOfType<MainNavigationHubState>();
-                        hub?.changeTab(1);
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const GameDetailScreen(gameTitle: 'Neon Cyber Run')));
                       },
                       child: const Text('ابدأ التحدي الآن', style: TextStyle(fontWeight: FontWeight.bold)),
                     )
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
-              const Text('النشاطات والمعاملات الأخيرة', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
-              const SizedBox(height: 12),
-              _buildActivityTile('🎁', 'مكافأة تسجيل الدخول اليومي', '+30 نقطة', Colors.greenAccent),
-              _buildActivityTile('🎮', 'جلسة لعب Neon Cyber Run', '+120 نقطة', Colors.greenAccent),
-              _buildActivityTile('🛡️', 'حالة المحفظة الآمنة', 'نشطة ومؤمنة', const Color(0xff00ff88)),
             ],
           ),
         ),
       ),
     );
   }
+}
 
-  Widget _buildActivityTile(String emoji, String title, String trailingText, Color trailingColor) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        color: const Color(0xff121b26),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.4), blurRadius: 8, offset: const Offset(0, 4))],
-        border: Border.all(color: Colors.white.withOpacity(0.04)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Text(emoji, style: const TextStyle(fontSize: 22)),
-              const SizedBox(width: 12),
-              Text(title, style: const TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.w500)),
-            ],
-          ),
-          Text(trailingText, style: TextStyle(fontSize: 14, color: trailingColor, fontWeight: FontWeight.bold)),
-        ],
+// ================= 4. شاشة تفاصيل اللعبة (تفتح عند الضغط على أي لعبة) =================
+class GameDetailScreen extends StatelessWidget {
+  final String gameTitle;
+  const GameDetailScreen({super.key, required this.gameTitle});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(gameTitle), backgroundColor: const Color(0xff0b1017)),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 180,
+              decoration: BoxDecoration(
+                color: const Color(0xff121b26),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xff00ff88), width: 1.5),
+              ),
+              child: const Center(child: Icon(Icons.sports_esports, size: 80, color: Color(0xff00ff88))),
+            ),
+            const SizedBox(height: 20),
+            Text(gameTitle, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+            const SizedBox(height: 8),
+            const Text('استعد للمنافسة واجمع النقاط واربح جوائز نقدية حقيقية مباشرة عبر السحابة.', style: TextStyle(color: Colors.grey, fontSize: 14)),
+            const Spacer(),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00ff88), foregroundColor: Colors.black, minimumSize: const Size(double.infinity, 50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم بدء جلسة اللعب بنجاح!'), backgroundColor: Colors.green));
+              },
+              child: const Text('دخول اللعبة الآن', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-// ================= 4. شاشة الألعاب بتصميم 3D =================
+// ================= 5. شاشة الألعاب =================
 class GamesScreen extends StatelessWidget {
   const GamesScreen({super.key});
 
@@ -480,13 +404,6 @@ class GamesScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xff121b26),
         borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: color.withOpacity(0.1),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
         border: Border.all(color: color.withOpacity(0.4), width: 1.2),
       ),
       child: Row(
@@ -496,11 +413,7 @@ class GamesScreen extends StatelessWidget {
             children: [
               Container(
                 padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: [BoxShadow(color: color.withOpacity(0.2), blurRadius: 8)],
-                ),
+                decoration: BoxDecoration(color: color.withOpacity(0.15), borderRadius: BorderRadius.circular(14)),
                 child: Icon(icon, color: color, size: 28),
               ),
               const SizedBox(width: 14),
@@ -515,17 +428,9 @@ class GamesScreen extends StatelessWidget {
             ],
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: color,
-              foregroundColor: Colors.black,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              elevation: 4,
-              shadowColor: color.withOpacity(0.5),
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: color, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('جاري بدء لعبة $title...'), backgroundColor: Colors.grey[900]),
-              );
+              Navigator.push(context, MaterialPageRoute(builder: (context) => GameDetailScreen(gameTitle: title)));
             },
             child: const Text('العب', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
@@ -535,7 +440,7 @@ class GamesScreen extends StatelessWidget {
   }
 }
 
-// ================= 5. شاشة المحفظة بتصميم 3D =================
+// ================= 6. شاشة المحفظة =================
 class WalletScreen extends StatelessWidget {
   const WalletScreen({super.key});
 
@@ -549,19 +454,8 @@ class WalletScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(22),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xff122b20), Color(0xff0e171f)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              gradient: const LinearGradient(colors: [Color(0xff122b20), Color(0xff0e171f)], begin: Alignment.topLeft, end: Alignment.bottomRight),
               borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.greenAccent.withOpacity(0.15),
-                  blurRadius: 15,
-                  offset: const Offset(0, 8),
-                ),
-              ],
               border: Border.all(color: Colors.greenAccent.withOpacity(0.5), width: 1.5),
             ),
             child: Column(
@@ -569,21 +463,12 @@ class WalletScreen extends StatelessWidget {
               children: [
                 const Text('الرصيد المتاح للسحب', style: TextStyle(color: Colors.grey, fontSize: 13)),
                 const SizedBox(height: 8),
-                const Text('\$45.50 USD', style: TextStyle(color: Colors.greenAccent, fontSize: 30, fontWeight: FontWeight.bold, shadows: [Shadow(color: Colors.greenAccent, blurRadius: 10)])),
+                const Text('\$45.50 USD', style: TextStyle(color: Colors.greenAccent, fontSize: 30, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 18),
                 ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xff00ff88),
-                    foregroundColor: Colors.black,
-                    minimumSize: const Size(double.infinity, 48),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                    elevation: 6,
-                    shadowColor: const Color(0xff00ff88).withOpacity(0.5),
-                  ),
+                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00ff88), foregroundColor: Colors.black, minimumSize: const Size(double.infinity, 48), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('تم استلام طلب السحب بنجاح، سيتم المعالجة قريباً'), backgroundColor: Colors.green),
-                    );
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تقديم طلب السحب بنجاح!'), backgroundColor: Colors.green));
                   },
                   icon: const Icon(Icons.account_balance_wallet),
                   label: const Text('طلب سحب الأرباح', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
@@ -605,28 +490,74 @@ class WalletScreen extends StatelessWidget {
   Widget _buildWalletTile(BuildContext context, String title, String subtitle, Color color, IconData icon) {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
-      decoration: BoxDecoration(
-        color: const Color(0xff121b26),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.4), blurRadius: 8, offset: const Offset(0, 4))],
-        border: Border.all(color: color.withOpacity(0.3), width: 1),
-      ),
+      decoration: BoxDecoration(color: const Color(0xff121b26), borderRadius: BorderRadius.circular(16), border: Border.all(color: color.withOpacity(0.3))),
       child: ListTile(
         leading: Icon(icon, color: color, size: 28),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
         subtitle: Text(subtitle, style: const TextStyle(color: Color(0xff00ff88), fontSize: 11)),
         trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
         onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('تم اختيار طريقة الدفع: $title'), backgroundColor: Colors.grey[850]),
-          );
+          Navigator.push(context, MaterialPageRoute(builder: (context) => WithdrawalScreen(methodName: title)));
         },
       ),
     );
   }
 }
 
-// ================= 6. شاشة الدردشة بتصميم 3D =================
+// ================= 7. شاشة تأكيد السحب (تفتح عند الضغط على طريقة السحب) =================
+class WithdrawalScreen extends StatelessWidget {
+  final String methodName;
+  const WithdrawalScreen({super.key, required this.methodName});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('سحب عبر $methodName'), backgroundColor: const Color(0xff0b1017)),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('أنت على وشك سحب أرباحك عبر $methodName', style: const TextStyle(color: Colors.white, fontSize: 16)),
+            const SizedBox(height: 20),
+            TextField(
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'رقم الحساب أو المحفظة',
+                labelStyle: const TextStyle(color: Colors.grey),
+                filled: true,
+                fillColor: const Color(0xff121b26),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+              ),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'المبلغ المراد سحبه (\$ USD)',
+                labelStyle: const TextStyle(color: Colors.grey),
+                filled: true,
+                fillColor: const Color(0xff121b26),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+              ),
+            ),
+            const Spacer(),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00ff88), foregroundColor: Colors.black, minimumSize: const Size(double.infinity, 50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+              onPressed: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تأكيد إرسال طلب السحب بنجاح!'), backgroundColor: Colors.green));
+              },
+              child: const Text('تأكيد وإرسال الطلب', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ================= 8. شاشة الدردشة =================
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
 
@@ -654,28 +585,17 @@ class ChatScreen extends StatelessWidget {
                 Expanded(
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14),
-                    decoration: BoxDecoration(
-                      color: const Color(0xff121b26),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white.withOpacity(0.1)),
-                    ),
+                    decoration: BoxDecoration(color: const Color(0xff121b26), borderRadius: BorderRadius.circular(16)),
                     child: const TextField(
                       style: TextStyle(color: Colors.white),
-                      decoration: InputDecoration(
-                        hintText: 'اكتب رسالتك للمجتمع...',
-                        hintStyle: TextStyle(color: Colors.grey),
-                        border: InputBorder.none,
-                      ),
+                      decoration: InputDecoration(hintText: 'اكتب رسالتك للمجتمع...', hintStyle: TextStyle(color: Colors.grey), border: InputBorder.none),
                     ),
                   ),
                 ),
                 const SizedBox(width: 10),
                 CircleAvatar(
                   backgroundColor: const Color(0xff00ff88),
-                  child: IconButton(
-                    icon: const Icon(Icons.send_rounded, color: Colors.black, size: 20),
-                    onPressed: () {},
-                  ),
+                  child: IconButton(icon: const Icon(Icons.send_rounded, color: Colors.black, size: 20), onPressed: () {}),
                 ),
               ],
             ),
@@ -696,12 +616,7 @@ class ChatBubble extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xff121b26),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.4), blurRadius: 8, offset: const Offset(0, 4))],
-        border: Border.all(color: const Color(0xff00ff88).withOpacity(0.2)),
-      ),
+      decoration: BoxDecoration(color: const Color(0xff121b26), borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0xff00ff88).withOpacity(0.2))),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -714,7 +629,7 @@ class ChatBubble extends StatelessWidget {
   }
 }
 
-// ================= 7. شاشة الإعدادات بتصميم 3D =================
+// ================= 9. شاشة الإعدادات وربط كل أزرارها بشاشات مستقلة =================
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
@@ -729,7 +644,6 @@ class SettingsScreen extends StatelessWidget {
             decoration: BoxDecoration(
               color: const Color(0xff121b26),
               borderRadius: BorderRadius.circular(16),
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.4), blurRadius: 8, offset: const Offset(0, 4))],
               border: Border.all(color: Colors.white.withOpacity(0.04)),
             ),
             child: Column(
@@ -739,9 +653,7 @@ class SettingsScreen extends StatelessWidget {
                   title: const Text('تعديل الملف الشخصي', style: TextStyle(color: Colors.white)),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('شاشة الملف الشخصي قيد التحديث')),
-                    );
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileEditScreen()));
                   },
                 ),
                 const Divider(color: Colors.white12, height: 1),
@@ -750,23 +662,7 @@ class SettingsScreen extends StatelessWidget {
                   title: const Text('سياسة الخصوصية والشروط', style: TextStyle(color: Colors.white)),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
                   onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        backgroundColor: const Color(0xff121b26),
-                        title: const Text('سياسة الخصوصية', style: TextStyle(color: Colors.white)),
-                        content: const Text(
-                          'تطبيق RAYID PAY يلتزم بحماية بياناتك الشخصية ومعاملاتك المالية وفق أعلى معايير الأمان الرقمي والتشفير السحابي.',
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: const Text('حسناً', style: TextStyle(color: Color(0xff00ff88))),
-                          ),
-                        ],
-                      ),
-                    );
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const PrivacyPolicyScreen()));
                   },
                 ),
                 const Divider(color: Colors.white12, height: 1),
@@ -775,9 +671,7 @@ class SettingsScreen extends StatelessWidget {
                   title: const Text('أمان الحساب والمصادقة', style: TextStyle(color: Colors.white)),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('الحساب محمي ومؤمن بالكامل')),
-                    );
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const SecurityScreen()));
                   },
                 ),
               ],
@@ -797,9 +691,99 @@ class SettingsScreen extends StatelessWidget {
               backgroundColor: Colors.red[800],
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              elevation: 6,
-              shadowColor: Colors.red.withOpacity(0.5),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ================= شاشات الإعدادات الفرعية المستقلة =================
+
+class ProfileEditScreen extends StatelessWidget {
+  const ProfileEditScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('تعديل الملف الشخصي'), backgroundColor: const Color(0xff0b1017)),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          children: [
+            const CircleAvatar(radius: 40, backgroundColor: Color(0xff121b26), child: Icon(Icons.person, size: 40, color: Color(0xff00ff88))),
+            const SizedBox(height: 20),
+            TextField(
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(labelText: 'اسم اللاعب', labelStyle: const TextStyle(color: Colors.grey), filled: true, fillColor: const Color(0xff121b26), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none)),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(labelText: 'البريد الإلكتروني', labelStyle: const TextStyle(color: Colors.grey), filled: true, fillColor: const Color(0xff121b26), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none)),
+            ),
+            const Spacer(),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00ff88), foregroundColor: Colors.black, minimumSize: const Size(double.infinity, 50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+              onPressed: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم حفظ التعديلات بنجاح!'), backgroundColor: Colors.green));
+              },
+              child: const Text('حفظ التغييرات', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class PrivacyPolicyScreen extends StatelessWidget {
+  const PrivacyPolicyScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('سياسة الخصوصية والشروط'), backgroundColor: const Color(0xff0b1017)),
+      body: const Padding(
+        padding: EdgeInsets.all(20.0),
+        child: SingleChildScrollView(
+          child: Text(
+            'تطبيق RAYID PAY يلتزم بحماية بياناتك الشخصية ومعاملاتك المالية وفق أعلى معايير الأمان الرقمي والتشفير السحابي.\n\n'
+            '1. جمع البيانات: يتم جمع البيانات الضرورية فقط لتقديم خدمات الألعاب والمحفظة.\n'
+            '2. الأمان: جميع المعاملات المالية مشفرة وآمنة تماماً.\n'
+            '3. الاستخدام: لا يتم مشاركة بياناتك مع أي طرف ثالث.',
+            style: TextStyle(color: Colors.grey, fontSize: 15, height: 1.6),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class SecurityScreen extends StatelessWidget {
+  const SecurityScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('أمان الحساب والمصادقة'), backgroundColor: const Color(0xff0b1017)),
+      body: ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          const ListTile(
+            leading: Icon(Icons.lock_outline, color: Color(0xff00ff88)),
+            title: Text('تغيير كلمة المرور', style: TextStyle(color: Colors.white)),
+            trailing: Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
+          ),
+          const Divider(color: Colors.white12),
+          SwitchListTile(
+            title: const Text('المصادقة الثنائية (2FA)', style: TextStyle(color: Colors.white)),
+            subtitle: const Text('تأمين إضافي للحساب والأموال', style: TextStyle(color: Colors.grey, fontSize: 12)),
+            value: true,
+            activeColor: const Color(0xff00ff88),
+            onChanged: (val) {},
           ),
         ],
       ),
