@@ -23,7 +23,7 @@ class CashPlusApp extends StatelessWidget {
   }
 }
 
-// ================= 1. شاشة تسجيل الدخول الآمنة =================
+// ================= 1. شاشة تسجيل الدخول مع زر المطور الخاص =================
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -34,18 +34,27 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _inputController = TextEditingController();
 
+  // دخول المستخدم العادي برقم أو إيميل
   void _validateAndLogin() {
     String input = _inputController.text.trim();
-    if (input.isEmpty || input.length < 6) {
+    if (input.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('الرجاء إدخال رقم هاتف أو بريد إلكتروني صحيح')),
+        constSnackBar(content: Text('الرجاء إدخال رقم الهاتف أو البريد الإلكتروني')),
       );
       return;
     }
 
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => CashPlusHomePage(userIdentifier: input)),
+      MaterialPageRoute(builder: (context) => CashPlusHomePage(userIdentifier: input, isAdmin: false)),
+    );
+  }
+
+  // دخول المطور / مدير التطبيق بضغطة زر واحدة
+  void _loginAsAdmin() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const CashPlusHomePage(userIdentifier: 'مدير التطبيق (Admin)', isAdmin: true)),
     );
   }
 
@@ -67,14 +76,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'سجل دخولك برقم الهاتف أو البريد الإلكتروني',
+                  'سجل دخولك أو ادخل مباشرة كـ مطور',
                   style: TextStyle(color: Colors.grey, fontSize: 14),
                 ),
                 const SizedBox(height: 40),
                 TextField(
                   controller: _inputController,
                   decoration: InputDecoration(
-                    labelText: 'رقم الهاتف أو البريد الإلكتروني',
+                    labelText: 'رقم الهاتف أو البريد الإلكتروني (للمستخدمين)',
                     prefixIcon: const Icon(Icons.person, color: Colors.green),
                     filled: true,
                     fillColor: const Color(0xFF1E2A27),
@@ -85,6 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
+                // زر الدخول العادي للمستخدمين
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -94,7 +104,22 @@ class _LoginScreenState extends State<LoginScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: const Text('دخول آمن', style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
+                    child: const Text('دخول المستخدم', style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                // زر خاص ومميز لدخول المطور / مدير التطبيق مباشرة
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: _loginAsAdmin,
+                    icon: const Icon(Icons.admin_panel_settings, color: Colors.amber),
+                    label: const Text('دخول المطور (مدير التطبيق)', style: TextStyle(fontSize: 16, color: Colors.amber, fontWeight: FontWeight.bold)),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Colors.amber, width: 1.5),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
                   ),
                 ),
               ],
@@ -106,17 +131,18 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-// ================= 2. الصفحة الرئيسية وحماية الإعلانات =================
+// ================= 2. الصفحة الرئيسية وصلاحيات المدير =================
 class CashPlusHomePage extends StatefulWidget {
   final String userIdentifier;
-  const CashPlusHomePage({super.key, required this.userIdentifier});
+  final bool isAdmin;
+  const CashPlusHomePage({super.key, required this.userIdentifier, required this.isAdmin});
 
   @override
   State<CashPlusHomePage> createState() => _CashPlusHomePageState();
 }
 
 class _CashPlusHomePageState extends State<CashPlusHomePage> {
-  int _points = 0; // الرصيد يبدأ من الصفر حصراً لكل مستخدم جديد
+  int _points = 0; 
   bool _canWatchAd = true;
   int _countdownSeconds = 0;
   Timer? _timer;
@@ -127,11 +153,10 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
     });
   }
 
-  // دالة لمنع مشاهدة الإعلانات بشكل متكرر (حماية التلاعب)
   void _startAdCooldown() {
     setState(() {
       _canWatchAd = false;
-      _countdownSeconds = 15; // 15 ثانية انتظار بين كل إعلان وإعلان
+      _countdownSeconds = 15; 
     });
 
     _addPoints(30);
@@ -168,9 +193,9 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
         backgroundColor: const Color(0xFF1A2321),
         title: Row(
           children: [
-            const Icon(Icons.monetization_on, color: Colors.green, size: 28),
+            Icon(widget.isAdmin ? Icons.admin_panel_settings : Icons.monetization_on, color: widget.isAdmin ? Colors.amber : Colors.green, size: 28),
             const SizedBox(width: 8),
-            Text('Cash Plus (${widget.userIdentifier})', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
+            Text('Cash Plus (${widget.userIdentifier})', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white)),
           ],
         ),
       ),
@@ -179,6 +204,26 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // شاشة لوحة تحكم خاصة بالمطور إذا كان هو المدير
+            if (widget.isAdmin)
+              Container(
+                width: double.infinity,
+                margin: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.amber),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.star, color: Colors.amber),
+                    SizedBox(width: 8),
+                    Text('أهلاً بك يا بطل! أنت الآن بصلاحيات (مدير التطبيق الكاملة)', style: TextStyle(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 12)),
+                  ],
+                ),
+              ),
+
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -238,7 +283,6 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
               mainAxisSpacing: 12,
               childAspectRatio: 1.5,
               children: [
-                // زر مشاهدة الإعلان المحمي بـ Cooldown
                 _buildTaskCard(
                   _canWatchAd ? 'Watch Ad Video' : 'انتظر (${_countdownSeconds}ث)',
                   _canWatchAd ? '+30 Pts' : 'مغلق مؤقتاً',
@@ -246,7 +290,7 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
                   _canWatchAd ? Colors.blue : Colors.grey,
                   _canWatchAd ? _startAdCooldown : () {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('يرجى الانتظار حتى ينتهي العداد المشاهدة الإعلان مجدداً')),
+                      const SnackBar(content: Text('يرجى الانتظار حتى ينتهي عداد الإعلان')),
                     );
                   },
                 ),
