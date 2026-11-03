@@ -461,7 +461,7 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.between,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween, // تم التصحيح هنا
                     children: [
                       const Text('رصيدك الحالي', style: TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.w500)),
                       Icon(Icons.account_balance_wallet_rounded, color: Colors.greenAccent.withOpacity(0.7), size: 22),
