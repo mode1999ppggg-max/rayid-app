@@ -24,7 +24,7 @@ class CashPlusApp extends StatelessWidget {
   }
 }
 
-// ================= 1. شاشة تسجيل الدخول الرسمية للمستخدمين =================
+// ================= 1. شاشة تسجيل الدخول مع مفاتيح الدول والبصمة =================
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -33,10 +33,16 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _inputController = TextEditingController();
+  final _phoneController = TextEditingController();
   final LocalAuthentication _auth = LocalAuthentication();
 
-  // الرمز السري الحصري الخاص بك كمدير للتطبيق (مخفي عن المستخدمين)
+  // مفتاح الدولة الافتراضي
+  String _selectedCountryCode = '+964';
+  
+  // قائمة مفاتيح الدول الشهيرة
+  final List<String> _countryCodes = ['+964', '+966', '+971', '+965', '+20', '+1', '+44'];
+
+  // الرمز السري الحصري الخاص بك كمدير للتطبيق (مخفي)
   final String adminSecretKey = "Mooamalfared1999%£#&@"; 
 
   void _proceedLogin(String identifier, bool isManager) {
@@ -52,20 +58,21 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _validateAndLogin() {
-    String input = _inputController.text.trim();
-    if (input.isEmpty) {
+    String phone = _phoneController.text.trim();
+    
+    if (phone.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('الرجاء إدخال رقم الهاتف أو البريد الإلكتروني')),
+        const SnackBar(content: Text('الرجاء إدخال رقم الهاتف')),
       );
       return;
     }
 
-    // التحقق هل المدخل هو رمز المدير السري أم مستخدم عادي
-    bool isAdmin = (input == adminSecretKey);
-    _proceedLogin(input, isAdmin);
+    // دمج مفتاح الدولة مع رقم الهاتف للمستخدم العادي
+    String fullIdentifier = '$_selectedCountryCode $phone';
+    _proceedLogin(fullIdentifier, false);
   }
 
-  // دالة تسجيل الدخول عبر البصمة (تمنحك صلاحية المدير مباشرة)
+  // دالة تسجيل الدخول عبر بصمة الوجه أو الإصبع (تمنحك صلاحية المدير مباشرة)
   Future<void> _authenticateWithBiometrics() async {
     try {
       bool canCheckBiometrics = await _auth.canCheckBiometrics;
@@ -114,22 +121,58 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'سجل دخولك برقم الهاتف أو البريد الإلكتروني',
+                  'سجل دخولك باستخدام رقم هاتفك والمفتاح الدولي',
                   style: TextStyle(color: Colors.grey, fontSize: 14),
+                  textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 40),
-                TextField(
-                  controller: _inputController,
-                  decoration: InputDecoration(
-                    labelText: 'رقم الهاتف أو البريد الإلكتروني',
-                    prefixIcon: const Icon(Icons.person, color: Colors.green),
-                    filled: true,
-                    fillColor: const Color(0xFF1E2A27),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
+                
+                // صف اختيار مفتاح الدولة ورقم الهاتف (مثل المنصات العالمية)
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1E2A27),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: _selectedCountryCode,
+                          dropdownColor: const Color(0xFF1E2A27),
+                          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                          items: _countryCodes.map((String code) {
+                            return DropdownMenuItem<String>(
+                              value: code,
+                              child: Text(code),
+                            );
+                          }).toList(),
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              _selectedCountryCode = newValue!;
+                            });
+                          },
+                        ),
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextField(
+                        controller: _phoneController,
+                        keyboardType: TextInputType.phone,
+                        decoration: InputDecoration(
+                          labelText: 'رقم الهاتف (مثال: 7713258169)',
+                          prefixIcon: const Icon(Icons.phone, color: Colors.green),
+                          filled: true,
+                          fillColor: const Color(0xFF1E2A27),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 20),
                 SizedBox(
@@ -231,7 +274,7 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
           children: [
             Icon(widget.isAdmin ? Icons.admin_panel_settings : Icons.monetization_on, color: widget.isAdmin ? Colors.amber : Colors.green, size: 28),
             const SizedBox(width: 8),
-            Text('Cash Plus (${widget.isAdmin ? "مدير النظام" : widget.userIdentifier})', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white)),
+            Text('Cash Plus (${widget.isAdmin ? "مدير النظام" : widget.userIdentifier})', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
           ],
         ),
       ),
