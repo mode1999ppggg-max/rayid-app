@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -22,6 +23,7 @@ class CashPlusApp extends StatelessWidget {
   }
 }
 
+// ================= 1. شاشة تسجيل الدخول الآمنة =================
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -30,7 +32,22 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _phoneController = TextEditingController();
+  final _inputController = TextEditingController();
+
+  void _validateAndLogin() {
+    String input = _inputController.text.trim();
+    if (input.isEmpty || input.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('الرجاء إدخال رقم هاتف أو بريد إلكتروني صحيح')),
+      );
+      return;
+    }
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => CashPlusHomePage(userIdentifier: input)),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,24 +59,23 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.monetization_on, color: Colors.green, size: 70),
+                const Icon(Icons.security, color: Colors.green, size: 70),
                 const SizedBox(height: 16),
                 const Text(
-                  'Cash Plus',
+                  'Cash Plus Secure',
                   style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'سجل دخولك وابدأ بجمع الأرباح',
+                  'سجل دخولك برقم الهاتف أو البريد الإلكتروني',
                   style: TextStyle(color: Colors.grey, fontSize: 14),
                 ),
                 const SizedBox(height: 40),
                 TextField(
-                  controller: _phoneController,
-                  keyboardType: TextInputType.phone,
+                  controller: _inputController,
                   decoration: InputDecoration(
-                    labelText: 'رقم الهاتف (مثال: 078xxxxxxxx)',
-                    prefixIcon: const Icon(Icons.phone, color: Colors.green),
+                    labelText: 'رقم الهاتف أو البريد الإلكتروني',
+                    prefixIcon: const Icon(Icons.person, color: Colors.green),
                     filled: true,
                     fillColor: const Color(0xFF1E2A27),
                     border: OutlineInputBorder(
@@ -72,18 +88,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => const CashPlusHomePage()),
-                      );
-                    },
+                    onPressed: _validateAndLogin,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green[700],
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: const Text('دخول / إنشاء حساب', style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
+                    child: const Text('دخول آمن', style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 ),
               ],
@@ -95,20 +106,57 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
+// ================= 2. الصفحة الرئيسية وحماية الإعلانات =================
 class CashPlusHomePage extends StatefulWidget {
-  const CashPlusHomePage({super.key});
+  final String userIdentifier;
+  const CashPlusHomePage({super.key, required this.userIdentifier});
 
   @override
   State<CashPlusHomePage> createState() => _CashPlusHomePageState();
 }
 
 class _CashPlusHomePageState extends State<CashPlusHomePage> {
-  int _points = 28750;
+  int _points = 0; // الرصيد يبدأ من الصفر حصراً لكل مستخدم جديد
+  bool _canWatchAd = true;
+  int _countdownSeconds = 0;
+  Timer? _timer;
 
   void _addPoints(int amount) {
     setState(() {
       _points += amount;
     });
+  }
+
+  // دالة لمنع مشاهدة الإعلانات بشكل متكرر (حماية التلاعب)
+  void _startAdCooldown() {
+    setState(() {
+      _canWatchAd = false;
+      _countdownSeconds = 15; // 15 ثانية انتظار بين كل إعلان وإعلان
+    });
+
+    _addPoints(30);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('مبروك! تم إضافة 30 نقطة برصيدك')),
+    );
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_countdownSeconds > 0) {
+        setState(() {
+          _countdownSeconds--;
+        });
+      } else {
+        _timer?.cancel();
+        setState(() {
+          _canWatchAd = true;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -119,21 +167,12 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF1A2321),
         title: Row(
-          children: const [
-            Icon(Icons.monetization_on, color: Colors.green, size: 28),
-            SizedBox(width: 8),
-            Text('Cash Plus', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+          children: [
+            const Icon(Icons.monetization_on, color: Colors.green, size: 28),
+            const SizedBox(width: 8),
+            Text('Cash Plus (${widget.userIdentifier})', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
           ],
         ),
-        actions: [
-          IconButton(
-            icon: const CircleAvatar(
-              backgroundColor: Colors.green,
-              child: Icon(Icons.person, color: Colors.white),
-            ),
-            onPressed: () {},
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -183,23 +222,11 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.send, color: Colors.greenAccent),
-                    label: const Text('Send Points', style: TextStyle(color: Colors.white)),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.green),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                  ),
-                ),
               ],
             ),
             const SizedBox(height: 25),
             const Text(
-              'Earn More Points',
+              'Earn More Points (Protected)',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
             ),
             const SizedBox(height: 12),
@@ -211,12 +238,18 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
               mainAxisSpacing: 12,
               childAspectRatio: 1.5,
               children: [
-                _buildTaskCard('Watch Ad Video', '+30 Pts', Icons.play_circle_fill, Colors.blue, () {
-                  _addPoints(30);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('مبروك! تم إضافة 30 نقطة برصيدك')),
-                  );
-                }),
+                // زر مشاهدة الإعلان المحمي بـ Cooldown
+                _buildTaskCard(
+                  _canWatchAd ? 'Watch Ad Video' : 'انتظر (${_countdownSeconds}ث)',
+                  _canWatchAd ? '+30 Pts' : 'مغلق مؤقتاً',
+                  Icons.play_circle_fill,
+                  _canWatchAd ? Colors.blue : Colors.grey,
+                  _canWatchAd ? _startAdCooldown : () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('يرجى الانتظار حتى ينتهي العداد المشاهدة الإعلان مجدداً')),
+                    );
+                  },
+                ),
                 _buildTaskCard('Refer a Friend', '+2500 Pts', Icons.card_giftcard, Colors.purple, () {
                   _addPoints(2500);
                 }),
@@ -261,6 +294,7 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
   }
 }
 
+// ================= 3. شاشة طرق السحب =================
 class RedeemScreen extends StatelessWidget {
   const RedeemScreen({super.key});
 
@@ -280,7 +314,6 @@ class RedeemScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           _buildRedeemOption(context, 'زين كاش (ZainCash)', 'الحد الأدنى: 5,000 نقطة', Icons.phone_android, Colors.orange),
-          // تم تصحيح النص أدناه بإزالة علامة الدولار المسببة للمشكلة
           _buildRedeemOption(context, 'رصيد آسياسيل (AsiaCell)', 'كارت رصيد فئة 5 أو 10 دولار', Icons.sim_card, Colors.red),
           _buildRedeemOption(context, 'تحويل فودافون كاش / سحب دولي', 'عبر محفظتك الإلكترونية', Icons.account_balance, Colors.blue),
         ],
