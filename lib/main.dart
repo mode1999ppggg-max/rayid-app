@@ -1,6 +1,6 @@
 import 'dart:async';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import 'package:flutter/ui' as ui;
 import 'package:local_auth/local_auth.dart';
 
 void main() {
@@ -750,7 +750,7 @@ class GamesScreen extends StatelessWidget {
   }
 }
 
-// ================= 5. شاشة لعبة Neon Cyber Run (الكرة المضيئة المتغيرة الألوان) =================
+// ================= 5. شاشة لعبة Neon Cyber Run =================
 class NeonCyberRunGameScreen extends StatefulWidget {
   const NeonCyberRunGameScreen({super.key});
 
