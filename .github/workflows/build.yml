@@ -26,6 +26,9 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
+      - name: Generate Android Platform
+        run: flutter create . --platforms=android --org com.example --project-name rayid_app
+
       - name: Build APK
         run: flutter build apk --release --no-pub
 
