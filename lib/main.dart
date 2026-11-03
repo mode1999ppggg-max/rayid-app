@@ -17,7 +17,7 @@ class RayidApp extends StatelessWidget {
       title: 'Rayid Rewards',
       theme: ThemeData(
         brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF070B12), // خلفية داكنة فخمة (Fintech Style)
+        scaffoldBackgroundColor: const Color(0xFF070B12),
         primaryColor: const Color(0xFF00FF88),
         colorScheme: const ColorScheme.dark(
           primary: Color(0xFF00FF88),
@@ -386,7 +386,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 }
 
-// ================= 3. شريط التنقل السفلي والتحكم بالصفحات (Bottom Navigation Hub) =================
+// ================= 3. شريط التنقل السفلي والتحكم بالصفحات =================
 class MainNavigationHub extends StatefulWidget {
   final bool isAdmin;
   const MainNavigationHub({super.key, required this.isAdmin});
@@ -453,7 +453,7 @@ class _MainNavigationHubState extends State<MainNavigationHub> {
   }
 }
 
-// ================= 4. الصفحة الرئيسية الفخمة (Dashboard بأسلوب Weezo & Fintech) =================
+// ================= 4. الصفحة الرئيسية (بدون بطاقة الرصيد التي في المنتصف) =================
 class CashPlusHomePage extends StatefulWidget {
   final bool isAdmin;
   const CashPlusHomePage({super.key, required this.isAdmin});
@@ -507,8 +507,6 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    double usdValue = _points / 1000;
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF070B12),
@@ -581,118 +579,13 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
                   ),
                 ),
 
-              // بطاقة الرصيد المالي الذكية (Fintech Balance Card)
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF132B3E), Color(0xFF0E1726)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: const Color(0xFF00FF88).withOpacity(0.35), width: 1.5),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF00FF88).withOpacity(0.08),
-                      blurRadius: 25,
-                      spreadRadius: 2,
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text('إجمالي الرصيد المتاح', style: TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.w500)),
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF00FF88).withOpacity(0.2),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.account_balance_wallet_rounded, color: Color(0xFF00FF88), size: 18),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      '\$ ${usdValue.toStringAsFixed(2)}',
-                      style: const TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.w900, letterSpacing: 1),
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'الرصيد التراكمي: $_points نقطة',
-                          style: const TextStyle(color: Color(0xFF00E5FF), fontSize: 12, fontWeight: FontWeight.w600),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF00FF88).withOpacity(0.15),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Text('نشط وآمن', style: TextStyle(color: Color(0xFF00FF88), fontSize: 10, fontWeight: FontWeight.bold)),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 22),
-
-              // أزرار العمليات السريعة (Quick Actions)
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF00FF88),
-                        foregroundColor: Colors.black,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                        elevation: 4,
-                      ),
-                      onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => const RedeemScreen()));
-                      },
-                      icon: const Icon(Icons.arrow_upward_rounded, size: 18),
-                      label: const Text('سحب الأرباح', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Color(0xFF00E5FF), width: 1.5),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      ),
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('خدمة إضافة الرصيد متوفرة قريباً عبر البطاقات المعتمدة')),
-                        );
-                      },
-                      icon: const Icon(Icons.add_rounded, color: Color(0xFF00E5FF), size: 18),
-                      label: const Text('إضافة رصيد', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF00E5FF))),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-
               const Text(
                 'الخدمات والأقسام الرئيسية',
                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white70),
               ),
               const SizedBox(height: 14),
 
-              // شبكة الخدمات والأقسام (Dashboard Cards)
+              // شبكة الخدمات والأقسام
               GridView.count(
                 crossAxisCount: 2,
                 shrinkWrap: true,
@@ -737,7 +630,7 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
               ),
               const SizedBox(height: 24),
 
-              // قسم المهام اليومية والنشاطات الأخيرة
+              // النشاطات والمعاملات الأخيرة
               const Text(
                 'النشاطات والمعاملات الأخيرة',
                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white70),
@@ -828,7 +721,7 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
   }
 }
 
-// ================= 5. شاشة الألعاب والمسابقات (Games Hub) =================
+// ================= 5. شاشة الألعاب والمسابقات =================
 class GamesScreen extends StatelessWidget {
   const GamesScreen({super.key});
 
@@ -928,7 +821,7 @@ class GamesScreen extends StatelessWidget {
   }
 }
 
-// ================= 6. شاشة لعبة Neon Cyber Run التفاعلية (مع الكرة المتغيرة الألوان والمنظور) =================
+// ================= 6. شاشة لعبة Neon Cyber Run =================
 class NeonCyberRunGameScreen extends StatefulWidget {
   const NeonCyberRunGameScreen({super.key});
 
@@ -943,7 +836,7 @@ class _NeonCyberRunGameScreenState extends State<NeonCyberRunGameScreen> with Si
   int _level = 1;
   bool _isPlaying = false;
   Timer? _timer;
-  int _playerLane = 1; // 0: يسار, 1: وسط, 2: يمين
+  int _playerLane = 1;
 
   late AnimationController _colorController;
   final List<Color> _neonColors = [
@@ -1139,7 +1032,6 @@ class _NeonCyberRunGameScreenState extends State<NeonCyberRunGameScreen> with Si
   }
 }
 
-// رسم الطريق بالمنظور الفخم
 class NeonRoadPainter extends CustomPainter {
   final bool isMoving;
   NeonRoadPainter({required this.isMoving});
@@ -1180,7 +1072,7 @@ class NeonRoadPainter extends CustomPainter {
   bool shouldRepaint(covariant NeonRoadPainter oldDelegate) => oldDelegate.isMoving != isMoving;
 }
 
-// ================= 7. شاشة المحفظة وطرق السحب (Redeem Screen) =================
+// ================= 7. شاشة المحفظة وطرق السحب =================
 class RedeemScreen extends StatelessWidget {
   const RedeemScreen({super.key});
 
@@ -1281,7 +1173,7 @@ class RedeemScreen extends StatelessWidget {
   }
 }
 
-// ================= 8. شاشة الدردشة العامة (Global Chat) =================
+// ================= 8. شاشة الدردشة العامة =================
 class GlobalChatScreen extends StatefulWidget {
   const GlobalChatScreen({super.key});
 
@@ -1366,7 +1258,7 @@ class _GlobalChatScreenState extends State<GlobalChatScreen> {
   }
 }
 
-// ================= 9. شاشة الإعدادات (Settings) =================
+// ================= 9. شاشة الإعدادات =================
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
