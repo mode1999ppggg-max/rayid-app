@@ -370,7 +370,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 }
 
-// ================= 3. الصفحة الرئيسية الفخمة بأسلوب النيون =================
+// ================= 3. الصفحة الرئيسية الفخمة =================
 class CashPlusHomePage extends StatefulWidget {
   final bool isAdmin;
   const CashPlusHomePage({super.key, required this.isAdmin});
@@ -497,7 +497,6 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
                   ),
                 ),
 
-              // بطاقة الرصيد الفخمة
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(22),
@@ -560,7 +559,6 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
               ),
               const SizedBox(height: 14),
 
-              // شبكة الأقسام الأربعة
               GridView.count(
                 crossAxisCount: 2,
                 shrinkWrap: true,
@@ -659,7 +657,7 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
   }
 }
 
-// ================= 4. شاشة الألعاب الترفيهية (مع تفعيل لعبة تفاعلية حقيقية) =================
+// ================= 4. شاشة الألعاب =================
 class GamesScreen extends StatelessWidget {
   const GamesScreen({super.key});
 
@@ -688,11 +686,11 @@ class GamesScreen extends StatelessWidget {
             const SizedBox(height: 16),
             _buildGameCard(
               context, 
-              'Neon Cyber Runner', 
-              'لعبة ركض أركيد تفاعلية (شغالة الآن!)', 
+              'NEON CYBER RUN', 
+              'لعبة الركض المستقبلي (نفس أسلوب الصورة الفخمة!)', 
               Icons.bolt_rounded, 
               const Color(0xFF00FF88),
-              const NeonRunnerGameScreen(),
+              const NeonCyberRunGameScreen(),
             ),
             _buildGameCard(
               context, 
@@ -700,14 +698,6 @@ class GamesScreen extends StatelessWidget {
               'تحدى الأصدقاء بأجواء مستقبلية', 
               Icons.casino_rounded, 
               Colors.amber,
-              null,
-            ),
-            _buildGameCard(
-              context, 
-              'الشطرنج الاستراتيجي (Chess)', 
-              'مباريات ذكاء وهدوء', 
-              Icons.sports_esports_rounded, 
-              const Color(0xFF00E5FF),
               null,
             ),
           ],
@@ -759,178 +749,245 @@ class GamesScreen extends StatelessWidget {
   }
 }
 
-// ================= 5. شاشة لعبة الركض التفاعلية (Neon Runner Game) =================
-class NeonRunnerGameScreen extends StatefulWidget {
-  const NeonRunnerGameScreen({super.key});
+// ================= 5. شاشة لعبة Neon Cyber Run (بنفس منظور الصورة الفخمة) =================
+class NeonCyberRunGameScreen extends StatefulWidget {
+  const NeonCyberRunGameScreen({super.key});
 
   @override
-  State<NeonRunnerGameScreen> createState() => _NeonRunnerGameScreenState();
+  State<NeonCyberRunGameScreen> createState() => _NeonCyberRunGameScreenState();
 }
 
-class _NeonRunnerGameScreenState extends State<NeonRunnerGameScreen> {
-  int _score = 0;
+class _NeonCyberRunGameScreenState extends State<NeonCyberRunGameScreen> {
+  int _score = 4875;
+  int _coins = 142;
+  int _distance = 784;
+  int _level = 5;
   bool _isPlaying = false;
-  Timer? _gameTimer;
-  double _obstaclePosition = 300.0;
+  Timer? _timer;
   int _playerLane = 1; // 0: يسار, 1: وسط, 2: يمين
 
   void _startGame() {
     setState(() {
-      _score = 0;
       _isPlaying = true;
-      _obstaclePosition = 300.0;
     });
 
-    _gameTimer = Timer.periodic(const Duration(milliseconds: 30), (timer) {
+    _timer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
       setState(() {
-        _obstaclePosition -= 7;
-        if (_obstaclePosition < 0) {
-          _obstaclePosition = 400.0;
-          _score += 10; // زيادة النقاط عند تفادي الحجز
+        _distance += 2;
+        _score += 15;
+        if (_distance % 50 == 0) {
+          _coins += 1;
         }
       });
     });
   }
 
   void _stopGame() {
-    _gameTimer?.cancel();
+    _timer?.cancel();
     setState(() {
       _isPlaying = false;
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('انتهت اللعبة! جمعت $_score نقطة تفوق')),
-    );
   }
 
   @override
   void dispose() {
-    _gameTimer?.cancel();
+    _timer?.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF050811),
       appBar: AppBar(
-        title: const Text('Neon Cyber Runner'),
+        title: const Text('NEON RUNNER', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 2)),
         backgroundColor: const Color(0xFF0D1B2A),
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF0D1B2A), Color(0xFF080C14)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+      body: Stack(
+        children: [
+          // رسم الطريق والمنظور الثلاثي الأبعاد (مثل الصورة)
+          Positioned.fill(
+            child: CustomPaint(
+              painter: NeonRoadPainter(),
+            ),
           ),
-        ),
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+          // العدادات في الزوايا (مطابقة تماماً للصورة)
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('SCORE', style: TextStyle(color: Colors.grey, fontSize: 10, letterSpacing: 1)),
+                        Text('$_score', style: const TextStyle(color: Color(0xFFFFB703), fontSize: 22, fontWeight: FontWeight.w900)),
+                        const SizedBox(height: 8),
+                        const Text('COINS', style: TextStyle(color: Colors.grey, fontSize: 10, letterSpacing: 1)),
+                        Row(
+                          children: [
+                            const Icon(Icons.monetization_on, color: Colors.amber, size: 16),
+                            const SizedBox(width: 4),
+                            Text('$_coins', style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        const Text('LEVEL', style: TextStyle(color: Colors.grey, fontSize: 10, letterSpacing: 1)),
+                        Text('$_level', style: const TextStyle(color: Color(0xFF00FF88), fontSize: 22, fontWeight: FontWeight.w900)),
+                        const SizedBox(height: 8),
+                        const Text('DISTANCE', style: TextStyle(color: Colors.grey, fontSize: 10, letterSpacing: 1)),
+                        Text('${_distance}m', style: const TextStyle(color: Color(0xFF00E5FF), fontSize: 16, fontWeight: FontWeight.w900)),
+                      ],
+                    ),
+                  ],
+                ),
+
+                // زر البدء والتحكم أو مؤشر الطاقة
+                Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('BOOST 85%', style: TextStyle(color: Color(0xFF00E5FF), fontSize: 12, fontWeight: FontWeight.bold)),
+                        const Text('POWER 3', style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    if (!_isPlaying)
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF00FF88),
+                            foregroundColor: Colors.black,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          ),
+                          onPressed: _startGame,
+                          child: const Text('اضغط هنا لبدء الركض الفائق', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        ),
+                      )
+                    else
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00E5FF), foregroundColor: Colors.black),
+                            onPressed: () => setState(() => _playerLane = 0),
+                            child: const Icon(Icons.arrow_left_rounded, size: 30),
+                          ),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent, foregroundColor: Colors.white),
+                            onPressed: _stopGame,
+                            child: const Text('إيقاف', style: TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00FF88), foregroundColor: Colors.black),
+                            onPressed: () => setState(() => _playerLane = 2),
+                            child: const Icon(Icons.arrow_right_rounded, size: 30),
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          // شخصية العداء النيون في أسفل الشاشة بالمنتصف حسب المسار
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 150),
+            bottom: 100,
+            left: _playerLane == 0 
+                ? MediaQuery.of(context).size.width * 0.2 
+                : (_playerLane == 1 ? MediaQuery.of(context).size.width * 0.42 : MediaQuery.of(context).size.width * 0.65),
+            child: Container(
+              width: 60,
+              height: 90,
+              decoration: BoxDecoration(
+                color: const Color(0xFF00FF88),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(color: const Color(0xFF00FF88).withOpacity(0.8), blurRadius: 20, spreadRadius: 2),
+                ],
+              ),
+              child: const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('النقاط: $_score', style: const TextStyle(color: Color(0xFF00FF88), fontSize: 20, fontWeight: FontWeight.bold)),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: _isPlaying ? Colors.red : const Color(0xFF00FF88), foregroundColor: Colors.black),
-                    onPressed: _isPlaying ? _stopGame : _startGame,
-                    child: Text(_isPlaying ? 'إيقاف' : 'بدء اللعبة', style: const TextStyle(fontWeight: FontWeight.bold)),
-                  ),
+                  Icon(Icons.directions_run, color: Colors.black, size: 40),
+                  Text('24', style: TextStyle(color: Colors.black, fontSize: 10, fontWeight: FontWeight.w900)),
                 ],
               ),
             ),
-            Expanded(
-              child: Container(
-                margin: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF111E30),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFF00FF88).withOpacity(0.5), width: 2),
-                ),
-                child: Stack(
-                  children: [
-                    // خطوط المسارات بأسلوب النيون
-                    Positioned.fill(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Container(width: 2, color: Colors.white12),
-                          Container(width: 2, color: Colors.white12),
-                        ],
-                      ),
-                    ),
-                    // حاجز النيون المتحرك
-                    if (_isPlaying)
-                      Positioned(
-                        top: _obstaclePosition,
-                        left: _playerLane == 0 ? 30 : (_playerLane == 1 ? 150 : 270),
-                        child: Container(
-                          width: 60,
-                          height: 30,
-                          decoration: BoxDecoration(
-                            color: Colors.redAccent,
-                            borderRadius: BorderRadius.circular(8),
-                            boxShadow: [BoxShadow(color: Colors.redAccent.withOpacity(0.6), blurRadius: 10)],
-                          ),
-                          child: const Center(child: Text('حاجز', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold))),
-                        ),
-                      ),
-                    // اللاعب (شخصية النيون)
-                    Positioned(
-                      bottom: 40,
-                      left: _playerLane == 0 ? 35 : (_playerLane == 1 ? 155 : 275),
-                      child: Container(
-                        width: 50,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: const Color(0xFF00FF88),
-                          boxShadow: [BoxShadow(color: const Color(0xFF00FF88).withOpacity(0.8), blurRadius: 15)],
-                        ),
-                        child: const Icon(Icons.bolt, color: Colors.black, size: 30),
-                      ),
-                    ),
-                    if (!_isPlaying)
-                      const Center(
-                        child: Text(
-                          'اضغط "بدء اللعبة" للبدء بالركض!',
-                          style: TextStyle(color: Colors.grey, fontSize: 14, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-            // أزرار التحكم بالركض يمين ويسار
-            if (_isPlaying)
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00E5FF), foregroundColor: Colors.black),
-                      onPressed: () => setState(() => _playerLane = 0),
-                      child: const Icon(Icons.arrow_left_rounded, size: 30),
-                    ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00FF88), foregroundColor: Colors.black),
-                      onPressed: () => setState(() => _playerLane = 1),
-                      child: const Icon(Icons.arrow_upward_rounded, size: 30),
-                    ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00E5FF), foregroundColor: Colors.black),
-                      onPressed: () => setState(() => _playerLane = 2),
-                      child: const Icon(Icons.arrow_right_rounded, size: 30),
-                    ),
-                  ],
-                ),
-              ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
+}
+
+// رسم الطريق بالمنظور (Perspective Road Painter)
+class NeonRoadPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paintRoad = Paint()
+      ..color = const Color(0xFF0B132B)
+      ..style = PaintingStyle.fill;
+
+    final paintLines = Paint()
+      ..color = const Color(0xFF00E5FF)
+      ..strokeWidth = 3
+      ..style = PaintingStyle.stroke;
+
+    final paintGlow = Paint()
+      ..color = const Color(0xFF00FF88).withOpacity(0.3)
+      ..strokeWidth = 6
+      ..style = PaintingStyle.stroke;
+
+    // مسار الطريق المنظوري
+    Path roadPath = Path();
+    roadPath.moveTo(size.width * 0.2, size.height);
+    roadPath.lineTo(size.width * 0.8, size.height);
+    roadPath.lineTo(size.width * 0.55, size.height * 0.35);
+    roadPath.lineTo(size.width * 0.45, size.height * 0.35);
+    roadPath.close();
+
+    canvas.drawPath(roadPath, paintRoad);
+
+    // خطوط النيون على أطراف الطريق
+    canvas.drawLine(
+      Offset(size.width * 0.2, size.height),
+      Offset(size.width * 0.45, size.height * 0.35),
+      paintGlow,
+    );
+    canvas.drawLine(
+      Offset(size.width * 0.8, size.height),
+      Offset(size.width * 0.55, size.height * 0.35),
+      paintGlow,
+    );
+
+    canvas.drawLine(
+      Offset(size.width * 0.2, size.height),
+      Offset(size.width * 0.45, size.height * 0.35),
+      paintLines,
+    );
+    canvas.drawLine(
+      Offset(size.width * 0.8, size.height),
+      Offset(size.width * 0.55, size.height * 0.35),
+      paintLines,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 // ================= 6. شاشة طرق السحب والمحافظ =================
@@ -1110,7 +1167,7 @@ class _GlobalChatScreenState extends State<GlobalChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const TestTitle('الدردشة العامة'),
+        title: const Text('الدردشة العامة'),
         backgroundColor: const Color(0xFF0D1B2A),
       ),
       body: Container(
@@ -1169,11 +1226,4 @@ class _GlobalChatScreenState extends State<GlobalChatScreen> {
       ),
     );
   }
-}
-
-class TestTitle extends StatelessWidget {
-  final String title;
-  const TestTitle(this.title, {super.key});
-  @override
-  Widget build(BuildContext context) => Text(title);
 }
