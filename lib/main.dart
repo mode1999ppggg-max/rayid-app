@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -22,6 +21,11 @@ class RayidApp extends StatelessWidget {
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: const Color(0xff0d131a),
         primaryColor: const Color(0xff00ff88),
+        colorScheme: ColorScheme.dark(
+          primary: const Color(0xff00ff88),
+          secondary: const Color(0xff00ff88),
+          surface: const Color(0xff161f2c),
+        ),
       ),
       home: const LoginScreen(),
     );
@@ -70,13 +74,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 20),
                   const Text(
                     'RAYID PAY',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 2),
+                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 2),
                   ),
                   const SizedBox(height: 8),
                   Text('منصة الترفيه والأموال الذكية', style: TextStyle(color: Colors.grey[400], fontSize: 13)),
                   const SizedBox(height: 40),
                   TextField(
                     controller: _emailController,
+                    style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
                       labelText: 'البريد الإلكتروني أو الهاتف',
                       labelStyle: const TextStyle(color: Colors.grey, fontSize: 13),
@@ -89,6 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   TextField(
                     controller: _passwordController,
                     obscureText: true,
+                    style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
                       labelText: 'كلمة المرور',
                       labelStyle: const TextStyle(color: Colors.grey, fontSize: 13),
@@ -121,7 +127,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-// ================= 2. مركز التنقل السفلي (Bottom Nav Hub) =================
+// ================= 2. مركز التنقل السفلي =================
 class MainNavigationHub extends StatefulWidget {
   const MainNavigationHub({super.key});
 
@@ -165,7 +171,7 @@ class _MainNavigationHubState extends State<MainNavigationHub> {
   }
 }
 
-// ================= 3. الشاشة الرئيسية =================
+// ================= 3. الشاشة الرئيسية الغنية والمتكاملة =================
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -193,7 +199,7 @@ class HomeScreen extends StatelessWidget {
                       children: const [
                         CircleAvatar(radius: 4, backgroundColor: Colors.green),
                         SizedBox(width: 6),
-                        Text('متصل', style: TextStyle(color: Colors.green, fontSize: 13, fontWeight: FontWeight.bold)),
+                        Text('متصل بالسحابة', style: TextStyle(color: Colors.green, fontSize: 12, fontWeight: FontWeight.bold)),
                       ],
                     ),
                   ),
@@ -205,6 +211,7 @@ class HomeScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: const Color(0xff161f2c),
                   borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.white.withOpacity(0.05)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -217,12 +224,12 @@ class HomeScreen extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Container(
-                            padding: const EdgeInsets.all(10),
+                            padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(color: const Color(0xff222e3f), borderRadius: BorderRadius.circular(12)),
                             child: Row(
                               children: const [
-                                Text('🪙', style: TextStyle(fontSize: 18)),
-                                SizedBox(width: 8),
+                                Text('🪙', style: TextStyle(fontSize: 20)),
+                                SizedBox(width: 10),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -237,12 +244,12 @@ class HomeScreen extends StatelessWidget {
                         const SizedBox(width: 12),
                         Expanded(
                           child: Container(
-                            padding: const EdgeInsets.all(10),
+                            padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(color: const Color(0xff222e3f), borderRadius: BorderRadius.circular(12)),
                             child: Row(
                               children: const [
-                                Text('💵', style: TextStyle(fontSize: 18)),
-                                SizedBox(width: 8),
+                                Text('💵', style: TextStyle(fontSize: 20)),
+                                SizedBox(width: 10),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -261,27 +268,36 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               Container(
-                height: 160,
                 width: double.infinity,
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  color: const Color(0xff161f2c),
-                  border: Border.all(color: const Color(0xff00ff88).withOpacity(0.3)),
+                  gradient: LinearGradient(
+                    colors: [const Color(0xff161f2c), const Color(0xff111823)],
+                    begin: Alignment.topRight,
+                    end: Alignment.bottomLeft,
+                  ),
+                  border: Border.all(color: const Color(0xff00ff88).withOpacity(0.4)),
                 ),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('تحدي الركض والنقاط', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
-                    const SizedBox(height: 4),
-                    const Text('Neon Cyber Run', style: TextStyle(fontSize: 13, color: Color(0xff00ff88), fontWeight: FontWeight.w500)),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: const [
+                        Text('تحدي الركض والنقاط', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+                        Icon(Icons.sports_esports, color: Color(0xff00ff88), size: 28),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    const Text('Neon Cyber Run - اربح نقاط إضافية الآن', style: TextStyle(fontSize: 13, color: Color(0xff00ff88))),
                     const SizedBox(height: 16),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xff00ff88),
                         foregroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                       ),
                       onPressed: () {},
                       child: const Text('ابدأ التحدي الآن', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -312,7 +328,7 @@ class HomeScreen extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text(emoji, style: const TextStyle(fontSize: 20)),
+              Text(emoji, style: const TextStyle(fontSize: 22)),
               const SizedBox(width: 12),
               Text(title, style: const TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.w500)),
             ],
@@ -324,26 +340,26 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// ================= 4. شاشة الألعاب =================
+// ================= 4. شاشة الألعاب المتكاملة =================
 class GamesScreen extends StatelessWidget {
   const GamesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('قسم الألعاب والتحدي'), backgroundColor: const Color(0xff111823)),
+      appBar: AppBar(title: const Text('قسم الألعاب والتحدي الرقمي'), backgroundColor: const Color(0xff111823)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _buildGameCard('NEON CYBER RUN', 'تحدي الركض والنقاط', const Color(0xff00ff88)),
-          _buildGameCard('لودو النيون', 'تحدى أصدقائك بذكاء', Colors.amber),
-          _buildGameCard('الشطرنج الاستراتيجي', 'مباريات هادئة وتنافسية', const Color(0xff00e5ff)),
+          _buildGameCard('NEON CYBER RUN', 'تحدي الركض والنقاط السريعة', const Color(0xff00ff88), Icons.bolt),
+          _buildGameCard('لودو النيون التنافسية', 'تحدى أصدقائك واكسب نقاط', Colors.amber, Icons.casino),
+          _buildGameCard('الشطرنج الاستراتيجي الذكي', 'مباريات هادئة ومكافآت مضاعفة', const Color(0xff00e5ff), Icons.extension),
         ],
       ),
     );
   }
 
-  Widget _buildGameCard(String title, String subtitle, Color color) {
+  Widget _buildGameCard(String title, String subtitle, Color color, IconData icon) {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(16),
@@ -355,18 +371,28 @@ class GamesScreen extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
             children: [
-              Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
-              const SizedBox(height: 4),
-              Text(subtitle, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(color: color.withOpacity(0.15), borderRadius: BorderRadius.circular(12)),
+                child: Icon(icon, color: color, size: 28),
+              ),
+              const SizedBox(width: 14),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white)),
+                  const SizedBox(height: 4),
+                  Text(subtitle, style: const TextStyle(fontSize: 11, color: Colors.grey)),
+                ],
+              ),
             ],
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: color, foregroundColor: Colors.black),
+            style: ElevatedButton.styleFrom(backgroundColor: color, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
             onPressed: () {},
-            child: const Text('العب الآن', style: TextStyle(fontWeight: FontWeight.bold)),
+            child: const Text('العب', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -374,45 +400,70 @@ class GamesScreen extends StatelessWidget {
   }
 }
 
-// ================= 5. شاشة المحفظة =================
+// ================= 5. شاشة المحفظة المتكاملة =================
 class WalletScreen extends StatelessWidget {
   const WalletScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('محفظة الأرباح (\$ USD)'), backgroundColor: const Color(0xff111823)),
+      appBar: AppBar(title: const Text('محفظة الأرباح وسحب الأموال'), backgroundColor: const Color(0xff111823)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _buildWalletCard('AsiaCell Cash (آسياسيل)', '\$5 USD الحد الأدنى', Colors.red),
-          _buildWalletCard('ZainCash (زين كاش)', '\$5 USD الحد الأدنى', Colors.orange),
-          _buildWalletCard('MasterCard (ماستر كارد)', '\$10 USD الحد الأدنى', Colors.blue),
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: const Color(0xff161f2c),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.greenAccent.withOpacity(0.3)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('الرصيد المتاح للسحب', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                const SizedBox(height: 8),
+                const Text('\$45.50 USD', style: TextStyle(color: Colors.greenAccent, fontSize: 28, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 16),
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00ff88), foregroundColor: Colors.black, minimumSize: const Size(double.infinity, 45)),
+                  onPressed: () {},
+                  icon: const Icon(Icons.account_balance_wallet),
+                  label: const Text('طلب سحب الأرباح', style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          const Text('طرق السحب المتاحة', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+          const SizedBox(height: 12),
+          _buildWalletTile('AsiaCell Cash (آسياسيل)', 'الحد الأدنى: \$5 USD', Colors.red, Icons.phone_android),
+          _buildWalletTile('ZainCash (زين كاش)', 'الحد الأدنى: \$5 USD', Colors.orange, Icons.phone_iphone),
+          _buildWalletTile('MasterCard (ماستر كارد)', 'الحد الأدنى: \$10 USD', Colors.blue, Icons.credit_card),
         ],
       ),
     );
   }
 
-  Widget _buildWalletCard(String title, String subtitle, Color color) {
+  Widget _buildWalletTile(String title, String subtitle, Color color, IconData icon) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: const Color(0xff161f2c),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.3)),
+        borderRadius: BorderRadius.circular(14),
       ),
       child: ListTile(
+        leading: Icon(icon, color: color),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
         subtitle: Text(subtitle, style: const TextStyle(color: Color(0xff00ff88), fontSize: 11)),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Color(0xff00ff88)),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
         onTap: () {},
       ),
     );
   }
 }
 
-// ================= 6. شاشة الدردشة =================
+// ================= 6. شاشة الدردشة المتكاملة =================
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
 
@@ -426,26 +477,31 @@ class ChatScreen extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: const [
-                ChatBubble(text: 'أهلاً بالجميع في مجتمع Rayid Pay!'),
-                ChatBubble(text: 'منو سحب أرباحه اليوم؟'),
+                ChatBubble(sender: 'محمد', text: 'أهلاً بالجميع في مجتمع Rayid Pay!'),
+                ChatBubble(sender: 'سارة', text: 'منو سحب أرباحه اليوم عبر زين كاش؟'),
+                ChatBubble(sender: 'أحمد', text: 'تم سحب الأرباح بنجاح وصلتي الرسالة فوري 🔥'),
               ],
             ),
           ),
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             color: const Color(0xff111823),
             child: Row(
-              children: const [
-                Expanded(
+              children: [
+                const Expanded(
                   child: TextField(
+                    style: TextStyle(color: Colors.white),
                     decoration: InputDecoration(
-                      hintText: 'اكتب رسالتك هنا...',
+                      hintText: 'اكتب رسالتك للمجتمع...',
                       hintStyle: TextStyle(color: Colors.grey),
                       border: InputBorder.none,
                     ),
                   ),
                 ),
-                Icon(Icons.send_rounded, color: Color(0xff00ff88)),
+                IconButton(
+                  icon: const Icon(Icons.send_rounded, color: Color(0xff00ff88)),
+                  onPressed: () {},
+                ),
               ],
             ),
           ),
@@ -456,24 +512,32 @@ class ChatScreen extends StatelessWidget {
 }
 
 class ChatBubble extends StatelessWidget {
+  final String sender;
   final String text;
-  const ChatBubble({super.key, required this.text});
+  const ChatBubble({super.key, required this.sender, required this.text});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: const Color(0xff161f2c),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
       ),
-      child: Text(text, style: const TextStyle(color: Colors.white)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(sender, style: const TextStyle(color: Color(0xff00ff88), fontSize: 12, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 4),
+          Text(text, style: const TextStyle(color: Colors.white, fontSize: 14)),
+        ],
+      ),
     );
   }
 }
 
-// ================= 7. شاشة الإعدادات =================
+// ================= 7. شاشة الإعدادات المتكاملة =================
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
@@ -485,19 +549,26 @@ class SettingsScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         children: [
           ListTile(
+            leading: const Icon(Icons.person_outline, color: Color(0xff00ff88)),
+            title: const Text('تعديل الملف الشخصي', style: TextStyle(color: Colors.white)),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
+            onTap: () {},
+          ),
+          const Divider(color: Colors.white12),
+          ListTile(
             leading: const Icon(Icons.privacy_tip_outlined, color: Color(0xff00e5ff)),
             title: const Text('سياسة الخصوصية والشروط', style: TextStyle(color: Colors.white)),
-            trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Color(0xff00ff88)),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
             onTap: () {},
           ),
           const Divider(color: Colors.white12),
           ListTile(
             leading: const Icon(Icons.security, color: Color(0xff00ff88)),
             title: const Text('أمان الحساب والمصادقة', style: TextStyle(color: Colors.white)),
-            trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Color(0xff00ff88)),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
             onTap: () {},
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 30),
           ElevatedButton.icon(
             onPressed: () {
               Navigator.pushReplacement(
