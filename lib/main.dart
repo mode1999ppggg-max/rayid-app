@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:local_auth/local_auth.dart';
 
 void main() {
   runApp(const CashPlusApp());
@@ -23,7 +24,7 @@ class CashPlusApp extends StatelessWidget {
   }
 }
 
-// ================= 1. شاشة تسجيل الدخول مع زر المطور الخاص =================
+// ================= 1. شاشة تسجيل الدخول مع البصمة والمطور السري =================
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -33,8 +34,26 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _inputController = TextEditingController();
+  final LocalAuthentication _auth = LocalAuthentication();
 
-  // دخول المستخدم العادي برقم أو إيميل
+  // رقم هاتفك السري الخاص كمدير للتطبيق
+  final String adminPhoneNumber = "07713258169"; 
+
+  void _proceedLogin(String identifier) {
+    bool isAdmin = (identifier == adminPhoneNumber);
+    String identifierName = isAdmin ? 'مدير التطبيق (Admin)' : identifier;
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CashPlusHomePage(
+          userIdentifier: identifierName,
+          isAdmin: isAdmin,
+        ),
+      ),
+    );
+  }
+
   void _validateAndLogin() {
     String input = _inputController.text.trim();
     if (input.isEmpty) {
@@ -43,19 +62,39 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       return;
     }
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => CashPlusHomePage(userIdentifier: input, isAdmin: false)),
-    );
+    _proceedLogin(input);
   }
 
-  // دخول المطور / مدير التطبيق بضغطة زر واحدة
-  void _loginAsAdmin() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const CashPlusHomePage(userIdentifier: 'مدير التطبيق (Admin)', isAdmin: true)),
-    );
+  // دالة تسجيل الدخول عبر بصمة الوجه أو الإصبع
+  Future<void> _authenticateWithBiometrics() async {
+    try {
+      bool canCheckBiometrics = await _auth.canCheckBiometrics;
+      bool isSupported = await _auth.isDeviceSupported();
+
+      if (!canCheckBiometrics || !isSupported) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('البصمة غير مدعومة في هذا الجهاز')),
+        );
+        return;
+      }
+
+      bool authenticated = await _auth.authenticate(
+        localizedAuthenticate: 'يرجى تأكيد بصمة الوجه أو الإصبع للدخول',
+        options: const AuthenticationOptions(
+          stickyAuth: true,
+          biometricOnly: true,
+        ),
+      );
+
+      if (authenticated) {
+        // إذا نجحت البصمة، ندخلك مباشرة بصلاحيات المدير لأن الرقم مسجل لك
+        _proceedLogin(adminPhoneNumber);
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('خطأ في المصادقة: $e')),
+      );
+    }
   }
 
   @override
@@ -76,14 +115,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'سجل دخولك أو ادخل مباشرة كـ مطور',
+                  'سجل دخولك أو استخدم بصمة الحماية',
                   style: TextStyle(color: Colors.grey, fontSize: 14),
                 ),
                 const SizedBox(height: 40),
                 TextField(
                   controller: _inputController,
                   decoration: InputDecoration(
-                    labelText: 'رقم الهاتف أو البريد الإلكتروني (للمستخدمين)',
+                    labelText: 'رقم الهاتف أو البريد الإلكتروني',
                     prefixIcon: const Icon(Icons.person, color: Colors.green),
                     filled: true,
                     fillColor: const Color(0xFF1E2A27),
@@ -94,7 +133,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // زر الدخول العادي للمستخدمين
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -104,19 +142,19 @@ class _LoginScreenState extends State<LoginScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: const Text('دخول المستخدم', style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
+                    child: const Text('دخول آمن', style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 ),
                 const SizedBox(height: 12),
-                // زر خاص ومميز لدخول المطور / مدير التطبيق مباشرة
+                // زر تسجيل الدخول السريع باستخدام البصمة
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton.icon(
-                    onPressed: _loginAsAdmin,
-                    icon: const Icon(Icons.admin_panel_settings, color: Colors.amber),
-                    label: const Text('دخول المطور (مدير التطبيق)', style: TextStyle(fontSize: 16, color: Colors.amber, fontWeight: FontWeight.bold)),
+                    onPressed: _authenticateWithBiometrics,
+                    icon: const Icon(Icons.fingerprint, color: Colors.greenAccent),
+                    label: const Text('تسجيل الدخول بـ بصمة الوجه / الإصبع', style: TextStyle(fontSize: 15, color: Colors.greenAccent, fontWeight: FontWeight.bold)),
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.amber, width: 1.5),
+                      side: const BorderSide(color: Colors.greenAccent, width: 1.5),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
