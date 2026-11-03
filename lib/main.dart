@@ -17,11 +17,87 @@ class CashPlusApp extends StatelessWidget {
         primarySwatch: Colors.green,
         scaffoldBackgroundColor: const Color(0xFF121816),
       ),
-      home: const CashPlusHomePage(),
+      home: const LoginScreen(), // نبدأ بشاشة تسجيل الدخول
     );
   }
 }
 
+// ================= 1. شاشة تسجيل الدخول =================
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _phoneController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.monetization_on, color: Colors.green, size: 70),
+                const SizedBox(height: 16),
+                const Text(
+                  'Cash Plus',
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'سجل دخولك وابدأ بجمع الأرباح',
+                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                ),
+                const SizedBox(height: 40),
+                TextField(
+                  controller: _phoneController,
+                  keyboardType: TextInputType.phone,
+                  decoration: InputDecoration(
+                    labelText: 'رقم الهاتف (مثال: 078xxxxxxxx)',
+                    prefixIcon: const Icon(Icons.phone, color: Colors.green),
+                    filled: true,
+                    fillColor: const Color(0xFF1E2A27),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // الانتقال للصفحة الرئيسية بعد تسجيل الدخول
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => const CashPlusHomePage()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green[700],
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    const Text('دخول / إنشاء حساب', style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ================= 2. الصفحة الرئيسية لتطبيق كاش بلس =================
 class CashPlusHomePage extends StatefulWidget {
   const CashPlusHomePage({super.key});
 
@@ -40,7 +116,7 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    double usdValue = _points / 100; // كل 100 نقطة تساوي 1 دولار مثلاً
+    double usdValue = _points / 1000; // كل 1000 نقطة تساوي 1 دولار
 
     return Scaffold(
       appBar: AppBar(
@@ -78,18 +154,11 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
               ),
               child: Column(
                 children: [
-                  const Text(
-                    'Available Points',
-                    style: TextStyle(color: Colors.grey, fontSize: 14),
-                  ),
+                  const Text('Available Points', style: TextStyle(color: Colors.grey, fontSize: 14)),
                   const SizedBox(height: 8),
                   Text(
-                    '$_points Points',
-                    style: const TextStyle(
-                      color: Colors.amber,
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    '$_points Pts',
+                    style: const TextStyle(color: Colors.amber, fontSize: 32, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -106,7 +175,13 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
               children: [
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () {},
+                    onPressed: () {
+                      // الانتقال لصفحة طرق السحب
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const RedeemScreen()),
+                      );
+                    },
                     icon: const Icon(Icons.account_balance_wallet, color: Colors.white),
                     label: const Text('Redeem Now'),
                     style: ElevatedButton.styleFrom(
@@ -188,6 +263,56 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
             Text(reward, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 12)),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ================= 3. شاشة طرق السحب (Redeem Methods) =================
+class RedeemScreen extends StatelessWidget {
+  const RedeemScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('طرق سحب الأرباح'),
+        backgroundColor: const Color(0xFF1A2321),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          const Text(
+            'اختر الطريقة المناسبة لسحب أرباحك:',
+            style: TextStyle(fontSize: 16, color: Colors.grey),
+          ),
+          const SizedBox(height: 16),
+          _buildRedeemOption(context, 'زين كاش (ZainCash)', 'الحد الأدنى: 5,000 نقطة', Icons.phone_android, Colors.orange),
+          _buildRedeemOption(context, 'رصيد آسياسيل (AsiaCell)', 'كارت رصيد فئة 5$ أو 10$', Icons.sim_card, Colors.red),
+          _buildRedeemOption(context, 'تحويل فودافون كاش / سحب دولي', 'عبر محفظتك الإلكترونية', Icons.account_balance, Colors.blue),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRedeemOption(BuildContext context, String title, String subtitle, IconData icon, Color color) {
+    return Card(
+      color: const Color(0xFF1E2A27),
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: color.withOpacity(0.2),
+          child: Icon(icon, color: color),
+        ),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        subtitle: Text(subtitle, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.green),
+        onTap: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('تم اختيار طريقة السحب: $title')),
+          );
+        },
       ),
     );
   }
