@@ -17,7 +17,7 @@ class CashPlusApp extends StatelessWidget {
         primarySwatch: Colors.green,
         scaffoldBackgroundColor: const Color(0xFF121816),
       ),
-      home: const LoginScreen(), // نبدأ بشاشة تسجيل الدخول
+      home: const LoginScreen(),
     );
   }
 }
@@ -74,7 +74,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      // الانتقال للصفحة الرئيسية بعد تسجيل الدخول
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (context) => const CashPlusHomePage()),
@@ -85,7 +84,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    const Text('دخول / إنشاء حساب', style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
+                    child: const Text('دخول / إنشاء حساب', style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 ),
               ],
@@ -176,7 +175,6 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      // الانتقال لصفحة طرق السحب
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => const RedeemScreen()),
@@ -221,8 +219,11 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
               mainAxisSpacing: 12,
               childAspectRatio: 1.5,
               children: [
-                _buildTaskCard('Watch Ad Video', '+50 Pts', Icons.play_circle_fill, Colors.blue, () {
-                  _addPoints(50);
+                _buildTaskCard('Watch Ad Video', '+30 Pts', Icons.play_circle_fill, Colors.blue, () {
+                  _addPoints(30);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('مبروك! تم إضافة 30 نقطة برصيدك')),
+                  );
                 }),
                 _buildTaskCard('Refer a Friend', '+2500 Pts', Icons.card_giftcard, Colors.purple, () {
                   _addPoints(2500);
