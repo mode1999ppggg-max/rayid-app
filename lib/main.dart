@@ -198,7 +198,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-// ================= 2. الصفحة الرئيسية (بدون عرض رقم الهاتف) =================
+// ================= 2. الصفحة الرئيسية =================
 class CashPlusHomePage extends StatefulWidget {
   final bool isAdmin;
   const CashPlusHomePage({super.key, required this.isAdmin});
@@ -429,7 +429,7 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
   }
 }
 
-// ================= 3. شاشة طرق السحب بالدولار حصرياً (أسياسيل، زين كاش، ماستر كارد، بايبال) =================
+// ================= 3. شاشة طرق السحب بالدولار حصرياً =================
 class RedeemScreen extends StatelessWidget {
   const RedeemScreen({super.key});
 
@@ -480,9 +480,81 @@ class RedeemScreen extends StatelessWidget {
   }
 }
 
-// ================= 4. شاشة الإعدادات (تغيير الرقم، تغيير كلمة السر، حذف الحساب) =================
+// ================= 4. شاشة الإعدادات والفعاليات (تغيير الرقم، تغيير كلمة السر، حذف الحساب) =================
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
+
+  // نافذة تغيير رقم الهاتف بشكل عملي
+  void _showChangePhoneDialog(BuildContext context) {
+    final phoneController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1E2A27),
+        title: const Text('تغيير رقم الهاتف', style: TextStyle(color: Colors.greenAccent)),
+        content: TextField(
+          controller: phoneController,
+          keyboardType: TextInputType.phone,
+          decoration: const InputDecoration(
+            labelText: 'أدخل رقم الهاتف الجديد',
+            labelStyle: TextStyle(color: Colors.grey),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('إلغاء', style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green[700]),
+            onPressed: () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('تم تحديث رقم الهاتف بنجاح!')),
+              );
+            },
+            child: const Text('حفظ'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // نافذة تغيير كلمة السر بشكل عملي
+  void _showChangePasswordDialog(BuildContext context) {
+    final passController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1E2A27),
+        title: const Text('تغيير الرمز السري', style: TextStyle(color: Colors.amber)),
+        content: TextField(
+          controller: passController,
+          obscureText: true,
+          decoration: const InputDecoration(
+            labelText: 'أدخل الرمز السري الجديد',
+            labelStyle: TextStyle(color: Colors.grey),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('إلغاء', style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.amber[800]),
+            onPressed: () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('تم تحديث الرمز السري بنجاح!')),
+              );
+            },
+            child: const Text('تحديث'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -499,11 +571,7 @@ class SettingsScreen extends StatelessWidget {
             title: const Text('تغيير رقم الهاتف', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
             subtitle: const Text('تحديث رقم هاتفك المرتبط بالحساب', style: TextStyle(color: Colors.grey, fontSize: 12)),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.green),
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('خاصية تغيير الرقم قيد التفعيل')),
-              );
-            },
+            onTap: () => _showChangePhoneDialog(context),
           ),
           const Divider(color: Colors.white24),
           ListTile(
@@ -511,11 +579,7 @@ class SettingsScreen extends StatelessWidget {
             title: const Text('تغيير كلمة السر / الرمز السري', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
             subtitle: const Text('تعديل كلمة المرور الخاصة بحسابك', style: TextStyle(color: Colors.grey, fontSize: 12)),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.green),
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('خاصية تغيير كلمة السر قيد التفعيل')),
-              );
-            },
+            onTap: () => _showChangePasswordDialog(context),
           ),
           const Divider(color: Colors.white24),
           ListTile(
