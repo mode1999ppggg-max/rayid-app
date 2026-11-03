@@ -13,11 +13,11 @@ class CashPlusApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Cash Plus',
+      title: 'Rayid Rewards',
       theme: ThemeData(
         brightness: Brightness.dark,
         primarySwatch: Colors.green,
-        scaffoldBackgroundColor: const Color(0xFF121816),
+        scaffoldBackgroundColor: const Color(0xFF0D1310), // لون خلفية ملكي داكن وعميق
       ),
       home: const LoginScreen(),
     );
@@ -103,29 +103,29 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.security, color: Colors.green, size: 70),
+                const Icon(Icons.shield_rounded, color: Colors.greenAccent, size: 75),
                 const SizedBox(height: 16),
                 const Text(
-                  'Cash Plus - تسجيل الدخول',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+                  'Rayid Rewards - تسجيل الدخول',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'ادخل بيانات حسابك للوصول إلى أرباحك',
-                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                  'بوابة الأمان والربح الرقمي المتكامل',
+                  style: TextStyle(color: Colors.grey, fontSize: 13),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 35),
                 TextField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
                     labelText: 'البريد الإلكتروني أو الهاتف',
-                    prefixIcon: const Icon(Icons.person, color: Colors.green),
+                    prefixIcon: const Icon(Icons.person_outline, color: Colors.greenAccent),
                     filled: true,
-                    fillColor: const Color(0xFF1E2A27),
+                    fillColor: const Color(0xFF141F1B),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide.none,
                     ),
                   ),
@@ -136,24 +136,24 @@ class _LoginScreenState extends State<LoginScreen> {
                   obscureText: true,
                   decoration: InputDecoration(
                     labelText: 'كلمة المرور',
-                    prefixIcon: const Icon(Icons.lock, color: Colors.green),
+                    prefixIcon: const Icon(Icons.lock_outline, color: Colors.greenAccent),
                     filled: true,
-                    fillColor: const Color(0xFF1E2A27),
+                    fillColor: const Color(0xFF141F1B),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide.none,
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 22),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: _validateAndLogin,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green[700],
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     ),
                     child: const Text('تسجيل الدخول', style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
@@ -164,11 +164,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: OutlinedButton.icon(
                     onPressed: _authenticateWithBiometrics,
                     icon: const Icon(Icons.fingerprint, color: Colors.greenAccent),
-                    label: const Text('تسجيل الدخول بالبصمة', style: TextStyle(fontSize: 15, color: Colors.greenAccent, fontWeight: FontWeight.bold)),
+                    label: const Text('المصادقة السريعة بالبصمة', style: TextStyle(fontSize: 14, color: Colors.greenAccent, fontWeight: FontWeight.bold)),
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: Colors.greenAccent, width: 1.5),
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     ),
                   ),
                 ),
@@ -182,7 +182,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                   child: const Text(
                     'ليس لديك حساب؟ إنشاء حساب جديد',
-                    style: TextStyle(color: Colors.greenAccent, fontSize: 14),
+                    style: TextStyle(color: Colors.greenAccent, fontSize: 13),
                   ),
                 ),
               ],
@@ -237,7 +237,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('إنشاء حساب جديد'),
-        backgroundColor: const Color(0xFF1A2321),
+        backgroundColor: const Color(0xFF141F1B),
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -246,29 +246,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.person_add, color: Colors.green, size: 70),
+                const Icon(Icons.person_add_alt_1_rounded, color: Colors.greenAccent, size: 70),
                 const SizedBox(height: 16),
                 const Text(
-                  'انضم إلى Cash Plus',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+                  'انضم إلى Rayid Rewards',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'أنشئ حساباً آمناً وابدأ بجمع الأرباح بالدولار',
-                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                  'أنشئ حساباً مشفراً وابدأ بتحقيق الأرباح بالدولار',
+                  style: TextStyle(color: Colors.grey, fontSize: 13),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 35),
                 TextField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
                     labelText: 'البريد الإلكتروني',
-                    prefixIcon: const Icon(Icons.email, color: Colors.green),
+                    prefixIcon: const Icon(Icons.email_outlined, color: Colors.greenAccent),
                     filled: true,
-                    fillColor: const Color(0xFF1E2A27),
+                    fillColor: const Color(0xFF141F1B),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide.none,
                     ),
                   ),
@@ -279,11 +279,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   obscureText: true,
                   decoration: InputDecoration(
                     labelText: 'كلمة المرور',
-                    prefixIcon: const Icon(Icons.lock, color: Colors.green),
+                    prefixIcon: const Icon(Icons.lock_outline, color: Colors.greenAccent),
                     filled: true,
-                    fillColor: const Color(0xFF1E2A27),
+                    fillColor: const Color(0xFF141F1B),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide.none,
                     ),
                   ),
@@ -294,24 +294,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   obscureText: true,
                   decoration: InputDecoration(
                     labelText: 'تأكيد كلمة المرور',
-                    prefixIcon: const Icon(Icons.lock_outline, color: Colors.green),
+                    prefixIcon: const Icon(Icons.lock_reset, color: Colors.greenAccent),
                     filled: true,
-                    fillColor: const Color(0xFF1E2A27),
+                    fillColor: const Color(0xFF141F1B),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide.none,
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 22),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: _registerUser,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green[700],
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     ),
                     child: const Text('تسجيل وحفظ الحساب', style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
@@ -325,7 +325,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 }
 
-// ================= 3. الصفحة الرئيسية =================
+// ================= 3. الصفحة الرئيسية الفخمة (Luxury Dashboard) =================
 class CashPlusHomePage extends StatefulWidget {
   final bool isAdmin;
   const CashPlusHomePage({super.key, required this.isAdmin});
@@ -354,7 +354,7 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
 
     _addPoints(30);
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('مبروك! تم إضافة 30 نقطة برصيدك')),
+      const SnackBar(content: Text('مبروك! تم إضافة 30 نقطة لرصيدك بنجاح')),
     );
 
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -383,38 +383,40 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1A2321),
+        backgroundColor: const Color(0xFF111A16),
+        elevation: 0,
         title: Row(
           children: [
-            Icon(widget.isAdmin ? Icons.admin_panel_settings : Icons.monetization_on, color: widget.isAdmin ? Colors.amber : Colors.green, size: 24),
+            Icon(widget.isAdmin ? Icons.admin_panel_settings : Icons.verified_user, color: Colors.greenAccent, size: 20),
             const SizedBox(width: 8),
-            Text(
-              widget.isAdmin ? 'Cash Plus (Admin)' : 'Cash Plus', 
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+            const Text(
+              'Rayid Rewards', 
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
             ),
           ],
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.chat, color: Colors.greenAccent),
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const GlobalChatScreen()));
-            },
-            tooltip: 'الدردشة العامة',
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.green.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.greenAccent.withOpacity(0.4)),
+            ),
+            child: const Row(
+              children: [
+                CircleAvatar(radius: 3, backgroundColor: Colors.greenAccent),
+                SizedBox(width: 6),
+                Text('متصل', style: TextStyle(color: Colors.greenAccent, fontSize: 11, fontWeight: FontWeight.bold)),
+              ],
+            ),
           ),
           IconButton(
-            icon: const Icon(Icons.emoji_events, color: Colors.amber),
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const AchievementsScreen()));
-            },
-            tooltip: 'الإنجازات',
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings, color: Colors.white70),
+            icon: const Icon(Icons.settings_outlined, color: Colors.white70),
             onPressed: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen()));
             },
-            tooltip: 'الإعدادات',
           ),
         ],
       ),
@@ -430,97 +432,130 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: Colors.amber.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(14),
                   border: Border.all(color: Colors.amber),
                 ),
                 child: const Row(
                   children: [
                     Icon(Icons.star, color: Colors.amber),
                     SizedBox(width: 8),
-                    Text('أهلاً بك يا بطل! أنت الآن بصلاحيات (مدير التطبيق الكاملة)', style: TextStyle(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 12)),
+                    Text('أهلاً بك يا بطل! أنت تعمل بصلاحيات المدير الكاملة', style: TextStyle(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 12)),
                   ],
                 ),
               ),
 
+            // بطاقة الرصيد الفخمة (Luxury Balance Card)
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: const Color(0xFF1E2A27),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.green.withOpacity(0.3)),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF14241E), Color(0xFF0F1B16)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.greenAccent.withOpacity(0.25)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.4),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  )
+                ],
               ),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Available Points', style: TextStyle(color: Colors.grey, fontSize: 14)),
-                  const SizedBox(height: 8),
-                  Text(
-                    '$_points Pts',
-                    style: const TextStyle(color: Colors.amber, fontSize: 32, fontWeight: FontWeight.bold),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.between,
+                    children: [
+                      const Text('رصيدك الحالي', style: TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.w500)),
+                      Icon(Icons.account_balance_wallet_rounded, color: Colors.greenAccent.withOpacity(0.7), size: 22),
+                    ],
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 10),
                   Text(
-                    'Balance: \$${usdValue.toStringAsFixed(2)} USD',
-                    style: const TextStyle(color: Colors.greenAccent, fontSize: 14, fontWeight: FontWeight.bold),
+                    '\$ ${usdValue.toStringAsFixed(2)}',
+                    style: const TextStyle(color: Colors.white, fontSize: 38, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'واصل نشاطك واجمع المكافآت اليومية',
+                    style: TextStyle(color: Colors.greenAccent, fontSize: 12, fontWeight: FontWeight.w500),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'الرصيد التراكمي: $_points نقطة',
+                    style: const TextStyle(color: Colors.amber, fontSize: 11),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const RedeemScreen()),
-                      );
-                    },
-                    icon: const Icon(Icons.account_balance_wallet, color: Colors.white),
-                    label: const Text('Redeem Now (\$ USD)'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green[800],
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 25),
+            const SizedBox(height: 24),
+
             const Text(
-              'Earn More Points',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+              'الخدمات السريعة والأقسام',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white70),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
+
+            // شبكة الأقسام الأربعة بتصميم زجاجي فخم
             GridView.count(
               crossAxisCount: 2,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1.5,
+              crossAxisSpacing: 14,
+              mainAxisSpacing: 14,
+              childAspectRatio: 1.12,
               children: [
-                _buildTaskCard(
-                  _canWatchAd ? 'Watch Ad Video' : 'انتظر (${_countdownSeconds}ث)',
-                  _canWatchAd ? '+30 Pts' : 'مغلق مؤقتاً',
-                  Icons.play_circle_fill,
-                  _canWatchAd ? Colors.blue : Colors.grey,
+                _buildLuxuryCard(
+                  'الألعاب',
+                  'العب واجمع النقاط',
+                  Icons.sports_esports_rounded,
+                  Colors.greenAccent,
+                  () {
+                    _addPoints(50);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('مبروك! تم إضافة 50 نقطة من الألعاب')),
+                    );
+                  },
+                ),
+                _buildLuxuryCard(
+                  _canWatchAd ? 'مشاهدة الإعلانات' : 'انتظر (${_countdownSeconds}ث)',
+                  _canWatchAd ? 'شاهد واربح' : 'مغلق مؤقتاً',
+                  Icons.play_circle_filled_rounded,
+                  Colors.blueAccent,
                   _canWatchAd ? _startAdCooldown : () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('يرجى الانتظار حتى ينتهي عداد الإعلان')),
                     );
                   },
                 ),
-                _buildTaskCard('Refer a Friend', '+2500 Pts', Icons.card_giftcard, Colors.purple, () {
-                  _addPoints(2500);
-                }),
-                _buildTaskCard('Daily Bonus', '+100 Pts', Icons.star, Colors.amber, () {
-                  _addPoints(100);
-                }),
-                _buildTaskCard('Complete Profile', '+500 Pts', Icons.person_add, Colors.teal, () {
-                  _addPoints(500);
-                }),
+                _buildLuxuryCard(
+                  'المحفظة',
+                  'أرباحك وسحبك',
+                  Icons.account_balance_wallet_rounded,
+                  Colors.amber,
+                  () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const RedeemScreen()),
+                    );
+                  },
+                ),
+                _buildLuxuryCard(
+                  'الدردشة',
+                  'تواصل مع الأصدقاء',
+                  Icons.chat_bubble_outline_rounded,
+                  Colors.tealAccent,
+                  () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const GlobalChatScreen()),
+                    );
+                  },
+                ),
               ],
             ),
           ],
@@ -529,26 +564,33 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
     );
   }
 
-  Widget _buildTaskCard(String title, String reward, IconData icon, Color color, VoidCallback onTap) {
+  Widget _buildLuxuryCard(String title, String subtitle, IconData icon, Color color, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(18),
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFF1E2A27),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.4)),
+          color: const Color(0xFF141F1B),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: color.withOpacity(0.25)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.25),
+              blurRadius: 6,
+              offset: const Offset(0, 3),
+            )
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: color, size: 28),
-            const SizedBox(height: 8),
-            Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white)),
+            Icon(icon, color: color, size: 30),
+            const SizedBox(height: 12),
+            Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.white)),
             const SizedBox(height: 4),
-            Text(reward, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 12)),
+            Text(subtitle, style: TextStyle(color: Colors.grey[400], fontSize: 11)),
           ],
         ),
       ),
@@ -556,7 +598,7 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
   }
 }
 
-// ================= 4. شاشة طرق السحب بالدولار والمحافظ =================
+// ================= 4. شاشة طرق السحب والمحافظ =================
 class RedeemScreen extends StatefulWidget {
   const RedeemScreen({super.key});
 
@@ -572,13 +614,13 @@ class _RedeemScreenState extends State<RedeemScreen> {
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) => AlertDialog(
-        backgroundColor: const Color(0xFF1E2A27),
+        backgroundColor: const Color(0xFF141F1B),
         title: Text('سحب الأرباح عبر $methodTitle', style: const TextStyle(color: Colors.greenAccent, fontSize: 16)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('الحد الأدنى للسحب: $minAmount', style: const TextStyle(color: Colors.grey, fontSize: 13)),
+            Text('الحد الأدنى للسحب: $minAmount', style: const TextStyle(color: Colors.grey, fontSize: 12)),
             const SizedBox(height: 12),
             TextField(
               controller: accountController,
@@ -588,8 +630,8 @@ class _RedeemScreenState extends State<RedeemScreen> {
                     : 'أدخل رقم الهاتف / المحفظة',
                 labelStyle: const TextStyle(color: Colors.grey),
                 filled: true,
-                fillColor: const Color(0xFF121816),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                fillColor: const Color(0xFF0D1310),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
               ),
             ),
           ],
@@ -625,14 +667,14 @@ class _RedeemScreenState extends State<RedeemScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('طرق سحب الأرباح (\$ USD)'),
-        backgroundColor: const Color(0xFF1A2321),
+        backgroundColor: const Color(0xFF111A16),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           const Text(
             'اختر طريقة السحب المناسبة (العملة بالدولار الأمريكي):',
-            style: TextStyle(fontSize: 15, color: Colors.grey),
+            style: TextStyle(fontSize: 14, color: Colors.grey),
           ),
           const SizedBox(height: 16),
           _buildRedeemOption(context, 'AsiaCell Cash (آسياسيل)', '\$5 USD الحد الأدنى', Icons.sim_card, Colors.red, () {
@@ -654,9 +696,9 @@ class _RedeemScreenState extends State<RedeemScreen> {
 
   Widget _buildRedeemOption(BuildContext context, String title, String subtitle, IconData icon, Color color, VoidCallback onTap) {
     return Card(
-      color: const Color(0xFF1E2A27),
+      color: const Color(0xFF141F1B),
       margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: color.withOpacity(0.2),
@@ -664,7 +706,7 @@ class _RedeemScreenState extends State<RedeemScreen> {
         ),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
         subtitle: Text(subtitle, style: const TextStyle(color: Colors.greenAccent, fontSize: 12)),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.green),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.greenAccent),
         onTap: onTap,
       ),
     );
@@ -680,31 +722,31 @@ class SettingsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('الإعدادات والحساب'),
-        backgroundColor: const Color(0xFF1A2321),
+        backgroundColor: const Color(0xFF111A16),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           ListTile(
-            leading: const Icon(Icons.privacy_tip, color: Colors.blueAccent),
+            leading: const Icon(Icons.privacy_tip_outlined, color: Colors.blueAccent),
             title: const Text('سياسة الخصوصية', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
             subtitle: const Text('اطّلع على شروط وسياسة أمان البيانات', style: TextStyle(color: Colors.grey, fontSize: 12)),
-            trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.green),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.greenAccent),
             onTap: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) => const PrivacyPolicyScreen()));
             },
           ),
-          const Divider(color: Colors.white24),
+          const Divider(color: Colors.white12),
           ListTile(
-            leading: const Icon(Icons.delete_forever, color: Colors.red),
+            leading: const Icon(Icons.delete_forever_rounded, color: Colors.redAccent),
             title: const Text('حذف الحساب', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
             subtitle: const Text('حذف كافة بياناتك وحسابك بشكل نهائي', style: TextStyle(color: Colors.grey, fontSize: 12)),
             onTap: () {
               showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
-                  backgroundColor: const Color(0xFF1E2A27),
-                  title: const Text('تحذير حذف الحساب', style: TextStyle(color: Colors.red)),
+                  backgroundColor: const Color(0xFF141F1B),
+                  title: const Text('تحذير حذف الحساب', style: TextStyle(color: Colors.redAccent)),
                   content: const Text('هل أنت متأكد من رغبتك في حذف حسابك نهائياً؟ لا يمكن التراجع عن هذا الإجراء.', style: TextStyle(color: Colors.white)),
                   actions: [
                     TextButton(
@@ -720,7 +762,7 @@ class SettingsScreen extends StatelessWidget {
                           (route) => false,
                         );
                       },
-                      child: const Text('حذف نهائي', style: TextStyle(color: Colors.red)),
+                      child: const Text('حذف نهائي', style: TextStyle(color: Colors.redAccent)),
                     ),
                   ],
                 ),
@@ -741,7 +783,7 @@ class SettingsScreen extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red[800],
               padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
             ),
           ),
         ],
@@ -760,7 +802,7 @@ class GlobalChatScreen extends StatefulWidget {
 
 class _GlobalChatScreenState extends State<GlobalChatScreen> {
   final List<String> _messages = [
-    'أهلاً بالجميع في تطبيق Cash Plus!',
+    'أهلاً بالجميع في منصة Rayid Rewards!',
     'منو سحب أرباح اليوم؟ بالتوفيق للجميع'
   ];
   final _msgController = TextEditingController();
@@ -778,7 +820,7 @@ class _GlobalChatScreenState extends State<GlobalChatScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('الدردشة العامة'),
-        backgroundColor: const Color(0xFF1A2321),
+        backgroundColor: const Color(0xFF111A16),
       ),
       body: Column(
         children: [
@@ -791,8 +833,8 @@ class _GlobalChatScreenState extends State<GlobalChatScreen> {
                   margin: const EdgeInsets.only(bottom: 10),
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1E2A27),
-                    borderRadius: BorderRadius.circular(10),
+                    color: const Color(0xFF141F1B),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(_messages[index], style: const TextStyle(color: Colors.white)),
                 );
@@ -801,7 +843,7 @@ class _GlobalChatScreenState extends State<GlobalChatScreen> {
           ),
           Container(
             padding: const EdgeInsets.all(8),
-            color: const Color(0xFF1A2321),
+            color: const Color(0xFF111A16),
             child: Row(
               children: [
                 Expanded(
@@ -816,7 +858,7 @@ class _GlobalChatScreenState extends State<GlobalChatScreen> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.send, color: Colors.greenAccent),
+                  icon: const Icon(Icons.send_rounded, color: Colors.greenAccent),
                   onPressed: _sendMessage,
                 ),
               ],
@@ -828,58 +870,7 @@ class _GlobalChatScreenState extends State<GlobalChatScreen> {
   }
 }
 
-// ================= 7. الإنجازات =================
-class AchievementsScreen extends StatelessWidget {
-  const AchievementsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('إنجازاتي'),
-        backgroundColor: const Color(0xFF1A2321),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: const [
-          AchievementTile(title: 'مستخدم نشط', description: 'سجل دخولك لأول مرة', progress: 'مكتمل ✅', color: Colors.green),
-          AchievementTile(title: 'مشاهد الإعلانات المحترف', description: 'شاهد 10 إعلانات ترويجية', progress: '3 / 10', color: Colors.blue),
-          AchievementTile(title: 'دوق الأصدقاء', description: 'ادعُ 5 أصدقاء للتطبيق', progress: '0 / 5', color: Colors.purple),
-          AchievementTile(title: 'المستثمر الذهبي', description: 'صل إلى رصيد 10 دولار', progress: 'قيد التقدم', color: Colors.amber),
-        ],
-      ),
-    );
-  }
-}
-
-class AchievementTile extends StatelessWidget {
-  final String title;
-  final String description;
-  final String progress;
-  final Color color;
-
-  const AchievementTile({super.key, required this.title, required this.description, required this.progress, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      color: const Color(0xFF1E2A27),
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: color.withOpacity(0.2),
-          child: Icon(Icons.star, color: color),
-        ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-        subtitle: Text(description, style: const TextStyle(color: Colors.grey, fontSize: 12)),
-        trailing: Text(progress, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 13)),
-      ),
-    );
-  }
-}
-
-// ================= 8. سياسة الخصوصية =================
+// ================= 7. سياسة الخصوصية =================
 class PrivacyPolicyScreen extends StatelessWidget {
   const PrivacyPolicyScreen({super.key});
 
@@ -888,7 +879,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('سياسة الخصوصية'),
-        backgroundColor: const Color(0xFF1A2321),
+        backgroundColor: const Color(0xFF111A16),
       ),
       body: const SingleChildScrollView(
         padding: EdgeInsets.all(16),
@@ -896,12 +887,12 @@ class PrivacyPolicyScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'سياسة الخصوصية لتطبيق Cash Plus',
+              'سياسة الخصوصية وأمان البيانات',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.greenAccent),
             ),
             SizedBox(height: 12),
             Text(
-              'نحن نلتزم بحماية خصوصية بياناتك الشخصية وأمانها. توضح هذه السياسة كيف يتم جمع واستخدام وحماية المعلومات الخاصة بك عند استخدام تطبيقنا.',
+              'نحن نلتزم بحماية خصوصية بياناتك الشخصية وأرصدتك المالية. توضح هذه السياسة كيف يتم جمع واستخدام وحماية المعلومات الخاصة بك عند استخدام منصة Rayid Rewards.',
               style: TextStyle(color: Colors.grey, fontSize: 14, height: 1.5),
             ),
           ],
