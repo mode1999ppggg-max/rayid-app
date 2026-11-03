@@ -24,7 +24,7 @@ class CashPlusApp extends StatelessWidget {
   }
 }
 
-// ================= 1. شاشة تسجيل الدخول مع مفاتيح الدول والبصمة =================
+// ================= 1. شاشة تسجيل الدخول =================
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -40,14 +40,11 @@ class _LoginScreenState extends State<LoginScreen> {
   final List<String> _countryCodes = ['+964', '+966', '+971', '+965', '+20', '+1', '+44'];
   final String adminSecretKey = "Mooamalfared1999%£#&@"; 
 
-  void _proceedLogin(String identifier, bool isManager) {
+  void _proceedLogin(bool isManager) {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => CashPlusHomePage(
-          userIdentifier: isManager ? 'مدير التطبيق (Admin)' : identifier,
-          isAdmin: isManager,
-        ),
+        builder: (context) => CashPlusHomePage(isAdmin: isManager),
       ),
     );
   }
@@ -63,9 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     bool isAdmin = (phone == adminSecretKey || '$_selectedCountryCode $phone' == adminSecretKey);
-    String fullIdentifier = isAdmin ? adminSecretKey : '$_selectedCountryCode $phone';
-    
-    _proceedLogin(fullIdentifier, isAdmin);
+    _proceedLogin(isAdmin);
   }
 
   Future<void> _authenticateWithBiometrics() async {
@@ -89,7 +84,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (authenticated) {
-        _proceedLogin(adminSecretKey, true);
+        _proceedLogin(true);
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -203,11 +198,10 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-// ================= 2. الصفحة الرئيسية للمستخدم والمدير =================
+// ================= 2. الصفحة الرئيسية (بدون عرض رقم الهاتف) =================
 class CashPlusHomePage extends StatefulWidget {
-  final String userIdentifier;
   final bool isAdmin;
-  const CashPlusHomePage({super.key, required this.userIdentifier, required this.isAdmin});
+  const CashPlusHomePage({super.key, required this.isAdmin});
 
   @override
   State<CashPlusHomePage> createState() => _CashPlusHomePageState();
@@ -267,24 +261,33 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
           children: [
             Icon(widget.isAdmin ? Icons.admin_panel_settings : Icons.monetization_on, color: widget.isAdmin ? Colors.amber : Colors.green, size: 24),
             const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                'Cash Plus (${widget.isAdmin ? "مدير النظام" : widget.userIdentifier})', 
-                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
-                overflow: TextOverflow.ellipsis,
-              ),
+            Text(
+              widget.isAdmin ? 'Cash Plus (Admin)' : 'Cash Plus', 
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
             ),
           ],
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings, color: Colors.greenAccent),
+            icon: const Icon(Icons.chat, color: Colors.greenAccent),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SettingsScreen()),
-              );
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const GlobalChatScreen()));
             },
+            tooltip: 'الدردشة العامة',
+          ),
+          IconButton(
+            icon: const Icon(Icons.emoji_events, color: Colors.amber),
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const AchievementsScreen()));
+            },
+            tooltip: 'الإنجازات',
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings, color: Colors.white70),
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen()));
+            },
+            tooltip: 'الإعدادات',
           ),
         ],
       ),
@@ -330,8 +333,8 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'USD Value: ' + usdValue.toStringAsFixed(2),
-                    style: const TextStyle(color: Colors.greenAccent, fontSize: 14),
+                    'Balance: \$${usdValue.toStringAsFixed(2)} USD',
+                    style: const TextStyle(color: Colors.greenAccent, fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -348,7 +351,7 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
                       );
                     },
                     icon: const Icon(Icons.account_balance_wallet, color: Colors.white),
-                    label: const Text('Redeem Now'),
+                    label: const Text('Redeem Now (\$ USD)'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green[800],
                       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -426,7 +429,7 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
   }
 }
 
-// ================= 3. شاشة طرق السحب =================
+// ================= 3. شاشة طرق السحب بالدولار حصرياً (أسياسيل، زين كاش، ماستر كارد، بايبال) =================
 class RedeemScreen extends StatelessWidget {
   const RedeemScreen({super.key});
 
@@ -434,20 +437,21 @@ class RedeemScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('طرق سحب الأرباح'),
+        title: const Text('طرق سحب الأرباح (\$ USD)'),
         backgroundColor: const Color(0xFF1A2321),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           const Text(
-            'اختر الطريقة المناسبة لسحب أرباحك:',
-            style: TextStyle(fontSize: 16, color: Colors.grey),
+            'اختر طريقة السحب المناسبة (العملة بالدولار الأمريكي):',
+            style: TextStyle(fontSize: 15, color: Colors.grey),
           ),
           const SizedBox(height: 16),
-          _buildRedeemOption(context, 'زين كاش (ZainCash)', 'الحد الأدنى: 5,000 نقطة', Icons.phone_android, Colors.orange),
-          _buildRedeemOption(context, 'رصيد آسياسيل (AsiaCell)', 'كارت رصيد فئة 5 أو 10 دولار', Icons.sim_card, Colors.red),
-          _buildRedeemOption(context, 'تحويل فودافون كاش / سحب دولي', 'عبر محفظتك الإلكترونية', Icons.account_balance, Colors.blue),
+          _buildRedeemOption(context, 'آسياسيل (AsiaCell Cash)', 'الحد الأدنى: \$5 USD', Icons.sim_card, Colors.red),
+          _buildRedeemOption(context, 'زين كاش (ZainCash)', 'الحد الأدنى: \$5 USD', Icons.phone_android, Colors.orange),
+          _buildRedeemOption(context, 'ماستر كارد (MasterCard)', 'الحد الأدنى: \$10 USD', Icons.credit_card, Colors.blue),
+          _buildRedeemOption(context, 'بايبال (PayPal)', 'الحد الأدنى: \$10 USD', Icons.account_balance_wallet, Colors.indigo),
         ],
       ),
     );
@@ -464,11 +468,11 @@ class RedeemScreen extends StatelessWidget {
           child: Icon(icon, color: color),
         ),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-        subtitle: Text(subtitle, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+        subtitle: Text(subtitle, style: const TextStyle(color: Colors.greenAccent, fontSize: 12)),
         trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.green),
         onTap: () {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('تم اختيار طريقة السحب: $title')),
+            SnackBar(content: Text('تم اختيار طريقة السحب: $title (بالدولار)')),
           );
         },
       ),
@@ -476,7 +480,7 @@ class RedeemScreen extends StatelessWidget {
   }
 }
 
-// ================= 4. شاشة الإعدادات والمساعدة =================
+// ================= 4. شاشة الإعدادات (تغيير الرقم، تغيير كلمة السر، حذف الحساب) =================
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
@@ -484,47 +488,81 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('الإعدادات والمساعدة'),
+        title: const Text('الإعدادات والحساب'),
         backgroundColor: const Color(0xFF1A2321),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           ListTile(
-            leading: const Icon(Icons.privacy_tip, color: Colors.greenAccent),
-            title: const Text('سياسة الخصوصية (Privacy Policy)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-            subtitle: const Text('تعرف على كيفية حماية بياناتك وأمان حسابك', style: TextStyle(color: Colors.grey, fontSize: 12)),
-            trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.green),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const PrivacyPolicyScreen()),
-              );
-            },
-          ),
-          const Divider(color: Colors.white24),
-          ListTile(
-            leading: const Icon(Icons.support_agent, color: Colors.blueAccent),
-            title: const Text('الدعم الفني والاتصال', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-            subtitle: const Text('تواصل معنا لحل أي مشكلة أو استفسار', style: TextStyle(color: Colors.grey, fontSize: 12)),
+            leading: const Icon(Icons.phone, color: Colors.greenAccent),
+            title: const Text('تغيير رقم الهاتف', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            subtitle: const Text('تحديث رقم هاتفك المرتبط بالحساب', style: TextStyle(color: Colors.grey, fontSize: 12)),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.green),
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('للدعم الفني، يراسلنا المدير مباشرة عبر النظام')),
+                const SnackBar(content: Text('خاصية تغيير الرقم قيد التفعيل')),
               );
             },
           ),
           const Divider(color: Colors.white24),
           ListTile(
-            leading: const Icon(Icons.info, color: Colors.amber),
-            title: const Text('حول التطبيق (About)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-            subtitle: const Text('إصدار التطبيق 1.0.0+1', style: TextStyle(color: Colors.grey, fontSize: 12)),
-            onTap: () {},
+            leading: const Icon(Icons.lock, color: Colors.amber),
+            title: const Text('تغيير كلمة السر / الرمز السري', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            subtitle: const Text('تعديل كلمة المرور الخاصة بحسابك', style: TextStyle(color: Colors.grey, fontSize: 12)),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.green),
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('خاصية تغيير كلمة السر قيد التفعيل')),
+              );
+            },
+          ),
+          const Divider(color: Colors.white24),
+          ListTile(
+            leading: const Icon(Icons.privacy_tip, color: Colors.blueAccent),
+            title: const Text('سياسة الخصوصية', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            subtitle: const Text('اطّلع على شروط وسياسة أمان البيانات', style: TextStyle(color: Colors.grey, fontSize: 12)),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.green),
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const PrivacyPolicyScreen()));
+            },
+          ),
+          const Divider(color: Colors.white24),
+          ListTile(
+            leading: const Icon(Icons.delete_forever, color: Colors.red),
+            title: const Text('حذف الحساب', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+            subtitle: const Text('حذف كافة بياناتك وحسابك بشكل نهائي', style: TextStyle(color: Colors.grey, fontSize: 12)),
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  backgroundColor: const Color(0xFF1E2A27),
+                  title: const Text('تحذير حذف الحساب', style: TextStyle(color: Colors.red)),
+                  content: const Text('هل أنت متأكد من رغبتك في حذف حسابك نهائياً؟ لا يمكن التراجع عن هذا الإجراء.', style: TextStyle(color: Colors.white)),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('إلغاء', style: TextStyle(color: Colors.grey)),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (context) => const LoginScreen()),
+                          (route) => false,
+                        );
+                      },
+                      child: const Text('حذف نهائي', style: TextStyle(color: Colors.red)),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
           const SizedBox(height: 30),
           ElevatedButton.icon(
             onPressed: () {
-              // العودة لشاشة تسجيل الدخول وتسجيل الخروج
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -545,7 +583,136 @@ class SettingsScreen extends StatelessWidget {
   }
 }
 
-// ================= 5. شاشة سياسة الخصوصية الرسمية =================
+// ================= 5. شاشة الدردشة العامة (Global Chat) =================
+class GlobalChatScreen extends StatefulWidget {
+  const GlobalChatScreen({super.key});
+
+  @override
+  State<GlobalChatScreen> createState() => _GlobalChatScreenState();
+}
+
+class _GlobalChatScreenState extends State<GlobalChatScreen> {
+  final List<String> _messages = [
+    'أهلاً بالجميع في تطبيق Cash Plus!',
+    'منو سحب أرباح اليوم؟ بالتوفيق للجميع'
+  ];
+  final _msgController = TextEditingController();
+
+  void _sendMessage() {
+    if (_msgController.text.trim().isEmpty) return;
+    setState(() {
+      _messages.add(_msgController.text.trim());
+      _msgController.clear();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('الدردشة العامة'),
+        backgroundColor: const Color(0xFF1A2321),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: _messages.length,
+              itemBuilder: (context, index) {
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E2A27),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(_messages[index], style: const TextStyle(color: Colors.white)),
+                );
+              },
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(8),
+            color: const Color(0xFF1A2321),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _msgController,
+                    decoration: const InputDecoration(
+                      hintText: 'اكتب رسالتك هنا...',
+                      hintStyle: TextStyle(color: Colors.grey),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.send, color: Colors.greenAccent),
+                  onPressed: _sendMessage,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ================= 6. شاشة الإنجازات (Achievements) =================
+class AchievementsScreen extends StatelessWidget {
+  const AchievementsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('إنجازاتي'),
+        backgroundColor: const Color(0xFF1A2321),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: const [
+          AchievementTile(title: 'مستخدم نشط', description: 'سجل دخولك لأول مرة', progress: 'مكتمل ✅', color: Colors.green),
+          AchievementTile(title: 'مشاهد الإعلانات المحترف', description: 'شاهد 10 إعلانات ترويجية', progress: '3 / 10', color: Colors.blue),
+          AchievementTile(title: 'دوق الأصدقاء', description: 'ادعُ 5 أصدقاء للتطبيق', progress: '0 / 5', color: Colors.purple),
+          AchievementTile(title: 'المستثمر الذهبي', description: 'صل إلى رصيد 10 دولار', progress: 'قيد التقدم', color: Colors.amber),
+        ],
+      ),
+    );
+  }
+}
+
+class AchievementTile extends StatelessWidget {
+  final String title;
+  final String description;
+  final String progress;
+  final Color color;
+
+  const AchievementTile({super.key, required this.title, required this.description, required this.progress, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: const Color(0xFF1E2A27),
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: color.withOpacity(0.2),
+          child: Icon(Icons.star, color: color),
+        ),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        subtitle: Text(description, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+        trailing: Text(progress, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 13)),
+      ),
+    );
+  }
+}
+
+// ================= 7. شاشة سياسة الخصوصية =================
 class PrivacyPolicyScreen extends StatelessWidget {
   const PrivacyPolicyScreen({super.key});
 
@@ -567,7 +734,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
             ),
             SizedBox(height: 12),
             Text(
-              'نحن نلتزم بحماية خصوصية بياناتك الشخصية. توضح هذه السياسة كيف يتم جمع واستخدام وحماية المعلومات الخاصة بك عند استخدام تطبيقنا.',
+              'نحن نلتزم بحماية خصوصية بياناتك الشخصية وأمانها. توضح هذه السياسة كيف يتم جمع واستخدام وحماية المعلومات الخاصة بك عند استخدام تطبيقنا.',
               style: TextStyle(color: Colors.grey, fontSize: 14, height: 1.5),
             ),
             SizedBox(height: 20),
@@ -577,27 +744,17 @@ class PrivacyPolicyScreen extends StatelessWidget {
             ),
             SizedBox(height: 6),
             Text(
-              'نحن نطلب فقط رقم الهاتف أو بصمة الإصبع/الوجه (عبر مكتبة الأمان المحلية device authentication) لتأمين حسابك وصلاحيات الدخول ومنع أي استخدام غيرauthorized.',
+              'نحن نطلب فقط رقم الهاتف لتأمين الحساب، ولا يتم عرض رقمك للعامة نهائياً لضمان الخصوصية التامة.',
               style: TextStyle(color: Colors.grey, fontSize: 14, height: 1.5),
             ),
             SizedBox(height: 20),
             Text(
-              '2. حماية النقاط والأرباح',
+              '2. الأرباح والسحب بالدولار',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
             ),
             SizedBox(height: 6),
             Text(
-              'جميع بيانات النقاط والمكافآت يتم حفظها بشكل آمن داخل الجلسة، ولا يتم مشاركة أي معلومات مالية أو شخصية مع أي طرف ثالث.',
-              style: TextStyle(color: Colors.grey, fontSize: 14, height: 1.5),
-            ),
-            SizedBox(height: 20),
-            Text(
-              '3. التحديثات والتعديلات',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-            ),
-            SizedBox(height: 6),
-            Text(
-              'يحق لإدارة التطبيق تحديث سياسة الخصوصية عند الحاجة لتحسين الأمان وجودة الخدمة.',
+              'جميع المعاملات المالية وأرصدة المكاسب يتم حسابها بالدولار الأمريكي وتحويلها عبر وسائل الدفع المعتمدة (أسياسيل، زين كاش، ماستر كارد، بايبال).',
               style: TextStyle(color: Colors.grey, fontSize: 14, height: 1.5),
             ),
           ],
