@@ -36,13 +36,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final _phoneController = TextEditingController();
   final LocalAuthentication _auth = LocalAuthentication();
 
-  // مفتاح الدولة الافتراضي
   String _selectedCountryCode = '+964';
-  
-  // قائمة مفاتيح الدول الشهيرة
   final List<String> _countryCodes = ['+964', '+966', '+971', '+965', '+20', '+1', '+44'];
-
-  // الرمز السري الحصري الخاص بك كمدير للتطبيق (مخفي)
   final String adminSecretKey = "Mooamalfared1999%£#&@"; 
 
   void _proceedLogin(String identifier, bool isManager) {
@@ -67,14 +62,12 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    // دمج مفتاح الدولة مع رقم الهاتف للمستخدم العادي أو التحقق من الرمز السري
     bool isAdmin = (phone == adminSecretKey || '$_selectedCountryCode $phone' == adminSecretKey);
     String fullIdentifier = isAdmin ? adminSecretKey : '$_selectedCountryCode $phone';
     
     _proceedLogin(fullIdentifier, isAdmin);
   }
 
-  // دالة تسجيل الدخول عبر بصمة الوجه أو الإصبع (تمنحك صلاحية المدير مباشرة)
   Future<void> _authenticateWithBiometrics() async {
     try {
       bool canCheckBiometrics = await _auth.canCheckBiometrics;
@@ -128,8 +121,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 40),
-                
-                // صف اختيار مفتاح الدولة ورقم الهاتف
                 Row(
                   children: [
                     Container(
@@ -274,11 +265,28 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
         backgroundColor: const Color(0xFF1A2321),
         title: Row(
           children: [
-            Icon(widget.isAdmin ? Icons.admin_panel_settings : Icons.monetization_on, color: widget.isAdmin ? Colors.amber : Colors.green, size: 28),
+            Icon(widget.isAdmin ? Icons.admin_panel_settings : Icons.monetization_on, color: widget.isAdmin ? Colors.amber : Colors.green, size: 24),
             const SizedBox(width: 8),
-            Text('Cash Plus (${widget.isAdmin ? "مدير النظام" : widget.userIdentifier})', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
+            Expanded(
+              child: Text(
+                'Cash Plus (${widget.isAdmin ? "مدير النظام" : widget.userIdentifier})', 
+                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           ],
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings, color: Colors.greenAccent),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsScreen()),
+              );
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -463,6 +471,137 @@ class RedeemScreen extends StatelessWidget {
             SnackBar(content: Text('تم اختيار طريقة السحب: $title')),
           );
         },
+      ),
+    );
+  }
+}
+
+// ================= 4. شاشة الإعدادات والمساعدة =================
+class SettingsScreen extends StatelessWidget {
+  const SettingsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('الإعدادات والمساعدة'),
+        backgroundColor: const Color(0xFF1A2321),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          ListTile(
+            leading: const Icon(Icons.privacy_tip, color: Colors.greenAccent),
+            title: const Text('سياسة الخصوصية (Privacy Policy)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            subtitle: const Text('تعرف على كيفية حماية بياناتك وأمان حسابك', style: TextStyle(color: Colors.grey, fontSize: 12)),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.green),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const PrivacyPolicyScreen()),
+              );
+            },
+          ),
+          const Divider(color: Colors.white24),
+          ListTile(
+            leading: const Icon(Icons.support_agent, color: Colors.blueAccent),
+            title: const Text('الدعم الفني والاتصال', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            subtitle: const Text('تواصل معنا لحل أي مشكلة أو استفسار', style: TextStyle(color: Colors.grey, fontSize: 12)),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.green),
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('للدعم الفني، يراسلنا المدير مباشرة عبر النظام')),
+              );
+            },
+          ),
+          const Divider(color: Colors.white24),
+          ListTile(
+            leading: const Icon(Icons.info, color: Colors.amber),
+            title: const Text('حول التطبيق (About)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            subtitle: const Text('إصدار التطبيق 1.0.0+1', style: TextStyle(color: Colors.grey, fontSize: 12)),
+            onTap: () {},
+          ),
+          const SizedBox(height: 30),
+          ElevatedButton.icon(
+            onPressed: () {
+              // العودة لشاشة تسجيل الدخول وتسجيل الخروج
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => const LoginScreen()),
+                (route) => false,
+              );
+            },
+            icon: const Icon(Icons.logout, color: Colors.white),
+            label: const Text('تسجيل الخروج'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red[800],
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ================= 5. شاشة سياسة الخصوصية الرسمية =================
+class PrivacyPolicyScreen extends StatelessWidget {
+  const PrivacyPolicyScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('سياسة الخصوصية'),
+        backgroundColor: const Color(0xFF1A2321),
+      ),
+      body: const SingleChildScrollView(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'سياسة الخصوصية لتطبيق Cash Plus',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.greenAccent),
+            ),
+            SizedBox(height: 12),
+            Text(
+              'نحن نلتزم بحماية خصوصية بياناتك الشخصية. توضح هذه السياسة كيف يتم جمع واستخدام وحماية المعلومات الخاصة بك عند استخدام تطبيقنا.',
+              style: TextStyle(color: Colors.grey, fontSize: 14, height: 1.5),
+            ),
+            SizedBox(height: 20),
+            Text(
+              '1. جمع البيانات والأمان',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+            SizedBox(height: 6),
+            Text(
+              'نحن نطلب فقط رقم الهاتف أو بصمة الإصبع/الوجه (عبر مكتبة الأمان المحلية device authentication) لتأمين حسابك وصلاحيات الدخول ومنع أي استخدام غيرauthorized.',
+              style: TextStyle(color: Colors.grey, fontSize: 14, height: 1.5),
+            ),
+            SizedBox(height: 20),
+            Text(
+              '2. حماية النقاط والأرباح',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+            SizedBox(height: 6),
+            Text(
+              'جميع بيانات النقاط والمكافآت يتم حفظها بشكل آمن داخل الجلسة، ولا يتم مشاركة أي معلومات مالية أو شخصية مع أي طرف ثالث.',
+              style: TextStyle(color: Colors.grey, fontSize: 14, height: 1.5),
+            ),
+            SizedBox(height: 20),
+            Text(
+              '3. التحديثات والتعديلات',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+            SizedBox(height: 6),
+            Text(
+              'يحق لإدارة التطبيق تحديث سياسة الخصوصية عند الحاجة لتحسين الأمان وجودة الخدمة.',
+              style: TextStyle(color: Colors.grey, fontSize: 14, height: 1.5),
+            ),
+          ],
+        ),
       ),
     );
   }
