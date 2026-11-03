@@ -24,7 +24,7 @@ class CashPlusApp extends StatelessWidget {
   }
 }
 
-// ================= 1. شاشة تسجيل الدخول مع البصمة والمطور السري =================
+// ================= 1. شاشة تسجيل الدخول مع الرمز السري الحصري والبصمة =================
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -36,19 +36,16 @@ class _LoginScreenState extends State<LoginScreen> {
   final _inputController = TextEditingController();
   final LocalAuthentication _auth = LocalAuthentication();
 
-  // رقم هاتفك السري الخاص كمدير للتطبيق
-  final String adminPhoneNumber = "07713258169"; 
+  // الرمز السري الحصري الخاص بك كمدير للتطبيق
+  final String adminSecretKey = "Mooamalfared1999%£#&@"; 
 
-  void _proceedLogin(String identifier) {
-    bool isAdmin = (identifier == adminPhoneNumber);
-    String identifierName = isAdmin ? 'مدير التطبيق (Admin)' : identifier;
-
+  void _proceedLogin(String identifier, bool isManager) {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (context) => CashPlusHomePage(
-          userIdentifier: identifierName,
-          isAdmin: isAdmin,
+          userIdentifier: isManager ? 'مدير التطبيق (Admin)' : identifier,
+          isAdmin: isManager,
         ),
       ),
     );
@@ -58,14 +55,17 @@ class _LoginScreenState extends State<LoginScreen> {
     String input = _inputController.text.trim();
     if (input.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('الرجاء إدخال رقم الهاتف أو البريد الإلكتروني')),
+        const SnackBar(content: Text('الرجاء إدخال رقم الهاتف أو البريد أو الرمز السري')),
       );
       return;
     }
-    _proceedLogin(input);
+
+    // التحقق هل المدخل هو الرمز السري الحصري للمدير؟
+    bool isAdmin = (input == adminSecretKey);
+    _proceedLogin(input, isAdmin);
   }
 
-  // دالة تسجيل الدخول عبر بصمة الوجه أو الإصبع
+  // دالة تسجيل الدخول عبر بصمة الوجه أو الإصبع (تمنحك صلاحية المدير مباشرة)
   Future<void> _authenticateWithBiometrics() async {
     try {
       bool canCheckBiometrics = await _auth.canCheckBiometrics;
@@ -79,7 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
       }
 
       bool authenticated = await _auth.authenticate(
-        localizedAuthenticate: 'يرجى تأكيد بصمة الوجه أو الإصبع للدخول',
+        localizedReason: 'يرجى تأكيد بصمة الوجه أو الإصبع للدخول',
         options: const AuthenticationOptions(
           stickyAuth: true,
           biometricOnly: true,
@@ -87,8 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (authenticated) {
-        // إذا نجحت البصمة، ندخلك مباشرة بصلاحيات المدير لأن الرقم مسجل لك
-        _proceedLogin(adminPhoneNumber);
+        _proceedLogin(adminSecretKey, true);
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -115,15 +114,16 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'سجل دخولك أو استخدم بصمة الحماية',
+                  'سجل دخولك أو أدخل رمز المطور السري',
                   style: TextStyle(color: Colors.grey, fontSize: 14),
                 ),
                 const SizedBox(height: 40),
                 TextField(
                   controller: _inputController,
+                  obscureText: true, // لإخفاء الرمز السري عند الكتابة
                   decoration: InputDecoration(
-                    labelText: 'رقم الهاتف أو البريد الإلكتروني',
-                    prefixIcon: const Icon(Icons.person, color: Colors.green),
+                    labelText: 'رقم الهاتف، البريد أو الرمز السري',
+                    prefixIcon: const Icon(Icons.vpn_key, color: Colors.green),
                     filled: true,
                     fillColor: const Color(0xFF1E2A27),
                     border: OutlineInputBorder(
@@ -146,7 +146,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                // زر تسجيل الدخول السريع باستخدام البصمة
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton.icon(
@@ -233,7 +232,7 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
           children: [
             Icon(widget.isAdmin ? Icons.admin_panel_settings : Icons.monetization_on, color: widget.isAdmin ? Colors.amber : Colors.green, size: 28),
             const SizedBox(width: 8),
-            Text('Cash Plus (${widget.userIdentifier})', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white)),
+            Text('Cash Plus (${widget.isAdmin ? "مدير النظام" : widget.userIdentifier})', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white)),
           ],
         ),
       ),
