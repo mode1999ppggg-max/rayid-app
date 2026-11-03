@@ -22,7 +22,6 @@ class CashPlusApp extends StatelessWidget {
   }
 }
 
-// ================= 1. شاشة تسجيل الدخول =================
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -96,7 +95,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-// ================= 2. الصفحة الرئيسية لتطبيق كاش بلس =================
 class CashPlusHomePage extends StatefulWidget {
   const CashPlusHomePage({super.key});
 
@@ -115,7 +113,7 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    double usdValue = _points / 1000; // كل 1000 نقطة تساوي 1 دولار
+    double usdValue = _points / 1000;
 
     return Scaffold(
       appBar: AppBar(
@@ -142,7 +140,6 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // بطاقة الرصيد الكبيرة
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -168,8 +165,6 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
               ),
             ),
             const SizedBox(height: 20),
-
-            // أزرار العمليات السريعة (سحب وإرسال)
             Row(
               children: [
                 Expanded(
@@ -203,14 +198,11 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
               ],
             ),
             const SizedBox(height: 25),
-
-            // قسم المهام لربح النقاط
             const Text(
               'Earn More Points',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
             ),
             const SizedBox(height: 12),
-
             GridView.count(
               crossAxisCount: 2,
               shrinkWrap: true,
@@ -269,7 +261,6 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
   }
 }
 
-// ================= 3. شاشة طرق السحب (Redeem Methods) =================
 class RedeemScreen extends StatelessWidget {
   const RedeemScreen({super.key});
 
