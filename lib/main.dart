@@ -1,4 +1,4 @@
-// ================= شاشة طرق السحب بالدولار (مفعلة وتفاعلية) =================
+// ================= شاشة طرق السحب بالدولار (مفعلة وتفاعلية وصحيحة) =================
 class RedeemScreen extends StatefulWidget {
   const RedeemScreen({super.key});
 
@@ -9,11 +9,11 @@ class RedeemScreen extends StatefulWidget {
 class _RedeemScreenState extends State<RedeemScreen> {
   
   void _showRedeemDialog(BuildContext context, String methodTitle, String minAmount) {
-    final accountController = TextEditingController();
+    final TextEditingController accountController = TextEditingController();
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (BuildContext dialogContext) => AlertDialog(
         backgroundColor: const Color(0xFF1E2A27),
         title: Text('سحب الأرباح عبر $methodTitle', style: const TextStyle(color: Colors.greenAccent, fontSize: 16)),
         content: Column(
@@ -38,7 +38,7 @@ class _RedeemScreenState extends State<RedeemScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('إلغاء', style: TextStyle(color: Colors.grey)),
           ),
           ElevatedButton(
@@ -50,7 +50,7 @@ class _RedeemScreenState extends State<RedeemScreen> {
                 );
                 return;
               }
-              Navigator.pop(context);
+              Navigator.pop(dialogContext);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('تم تقديم طلب السحب عبر $methodTitle بنجاح!')),
               );
