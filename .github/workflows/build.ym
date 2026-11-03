@@ -1,8 +1,8 @@
-7name: Build APK
+name: Build APK
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main ]  
 
 jobs:   
   build:
