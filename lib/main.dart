@@ -16,7 +16,7 @@ class CashPlusApp extends StatelessWidget {
       title: 'Rayid Rewards',
       theme: ThemeData(
         brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF080C14), // خلفية ليليلة عميقة وفخمة
+        scaffoldBackgroundColor: const Color(0xFF080C14),
         primaryColor: const Color(0xFF00FF88),
       ),
       home: const LoginScreen(),
@@ -497,7 +497,7 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
                   ),
                 ),
 
-              // بطاقة الرصيد الفخمة بإضاءة النيون (مطابقة لروح الصورة)
+              // بطاقة الرصيد الفخمة
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(22),
@@ -560,7 +560,7 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
               ),
               const SizedBox(height: 14),
 
-              // شبكة الأقسام الأربعة بألوان النيون المضيئة
+              // شبكة الأقسام الأربعة
               GridView.count(
                 crossAxisCount: 2,
                 shrinkWrap: true,
@@ -571,7 +571,7 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
                 children: [
                   _buildNeonCard(
                     'الألعاب',
-                    'لودو، شطرنج، دومينو',
+                    'تحدي الركض والأركيد',
                     Icons.sports_esports_rounded,
                     const Color(0xFF00FF88),
                     () {
@@ -659,7 +659,7 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
   }
 }
 
-// ================= 4. شاشة الألعاب الترفيهية =================
+// ================= 4. شاشة الألعاب الترفيهية (مع تفعيل لعبة تفاعلية حقيقية) =================
 class GamesScreen extends StatelessWidget {
   const GamesScreen({super.key});
 
@@ -667,7 +667,7 @@ class GamesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('قسم الألعاب والترفيه'),
+        title: const Text('قسم الألعاب والتحدي'),
         backgroundColor: const Color(0xFF0D1B2A),
       ),
       body: Container(
@@ -682,20 +682,41 @@ class GamesScreen extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           children: [
             const Text(
-              'استمتع بأوقاتك العب وتحدى أصدقاءك:',
+              'اختر لعبتك المفضلة واكسب النقاط:',
               style: TextStyle(fontSize: 14, color: Color(0xFF00E5FF)),
             ),
             const SizedBox(height: 16),
-            _buildGameCard(context, 'لعبة لودو (Ludo Star)', 'تحدى أصدقائك بوضع النيون', Icons.casino_rounded, Colors.amber),
-            _buildGameCard(context, 'لعبة الشطرنج (Chess)', 'مباريات ذكاء استراتيجية', Icons.sports_esports_rounded, const Color(0xFF00E5FF)),
-            _buildGameCard(context, 'لعبة الدومينو (Dominoes)', 'جلسات التحدي الجماعية', Icons.dashboard_rounded, const Color(0xFF00FF88)),
+            _buildGameCard(
+              context, 
+              'Neon Cyber Runner', 
+              'لعبة ركض أركيد تفاعلية (شغالة الآن!)', 
+              Icons.bolt_rounded, 
+              const Color(0xFF00FF88),
+              const NeonRunnerGameScreen(),
+            ),
+            _buildGameCard(
+              context, 
+              'لعبة لودو النيون (Ludo Star)', 
+              'تحدى الأصدقاء بأجواء مستقبلية', 
+              Icons.casino_rounded, 
+              Colors.amber,
+              null,
+            ),
+            _buildGameCard(
+              context, 
+              'الشطرنج الاستراتيجي (Chess)', 
+              'مباريات ذكاء وهدوء', 
+              Icons.sports_esports_rounded, 
+              const Color(0xFF00E5FF),
+              null,
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildGameCard(BuildContext context, String title, String subtitle, IconData icon, Color color) {
+  Widget _buildGameCard(BuildContext context, String title, String subtitle, IconData icon, Color color, Widget? gameScreen) {
     return Card(
       color: const Color(0xFF111E30),
       margin: const EdgeInsets.only(bottom: 14),
@@ -723,18 +744,196 @@ class GamesScreen extends StatelessWidget {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
           onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('جاري بدء اللعبة للترفيه...')),
-            );
+            if (gameScreen != null) {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => gameScreen));
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('هذه اللعبة قيد التحديث وسيتم إطلاقها قريباً!')),
+              );
+            }
           },
-          child: const Text('العب الآن', style: TextStyle(fontWeight: FontWeight.bold)),
+          child: const Text('ابدأ اللعب', style: TextStyle(fontWeight: FontWeight.bold)),
         ),
       ),
     );
   }
 }
 
-// ================= 5. شاشة طرق السحب والمحافظ =================
+// ================= 5. شاشة لعبة الركض التفاعلية (Neon Runner Game) =================
+class NeonRunnerGameScreen extends StatefulWidget {
+  const NeonRunnerGameScreen({super.key});
+
+  @override
+  State<NeonRunnerGameScreen> createState() => _NeonRunnerGameScreenState();
+}
+
+class _NeonRunnerGameScreenState extends State<NeonRunnerGameScreen> {
+  int _score = 0;
+  bool _isPlaying = false;
+  Timer? _gameTimer;
+  double _obstaclePosition = 300.0;
+  int _playerLane = 1; // 0: يسار, 1: وسط, 2: يمين
+
+  void _startGame() {
+    setState(() {
+      _score = 0;
+      _isPlaying = true;
+      _obstaclePosition = 300.0;
+    });
+
+    _gameTimer = Timer.periodic(const Duration(milliseconds: 30), (timer) {
+      setState(() {
+        _obstaclePosition -= 7;
+        if (_obstaclePosition < 0) {
+          _obstaclePosition = 400.0;
+          _score += 10; // زيادة النقاط عند تفادي الحجز
+        }
+      });
+    });
+  }
+
+  void _stopGame() {
+    _gameTimer?.cancel();
+    setState(() {
+      _isPlaying = false;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('انتهت اللعبة! جمعت $_score نقطة تفوق')),
+    );
+  }
+
+  @override
+  void dispose() {
+    _gameTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Neon Cyber Runner'),
+        backgroundColor: const Color(0xFF0D1B2A),
+      ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF0D1B2A), Color(0xFF080C14)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('النقاط: $_score', style: const TextStyle(color: Color(0xFF00FF88), fontSize: 20, fontWeight: FontWeight.bold)),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(backgroundColor: _isPlaying ? Colors.red : const Color(0xFF00FF88), foregroundColor: Colors.black),
+                    onPressed: _isPlaying ? _stopGame : _startGame,
+                    child: Text(_isPlaying ? 'إيقاف' : 'بدء اللعبة', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Container(
+                margin: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF111E30),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xFF00FF88).withOpacity(0.5), width: 2),
+                ),
+                child: Stack(
+                  children: [
+                    // خطوط المسارات بأسلوب النيون
+                    Positioned.fill(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Container(width: 2, color: Colors.white12),
+                          Container(width: 2, color: Colors.white12),
+                        ],
+                      ),
+                    ),
+                    // حاجز النيون المتحرك
+                    if (_isPlaying)
+                      Positioned(
+                        top: _obstaclePosition,
+                        left: _playerLane == 0 ? 30 : (_playerLane == 1 ? 150 : 270),
+                        child: Container(
+                          width: 60,
+                          height: 30,
+                          decoration: BoxDecoration(
+                            color: Colors.redAccent,
+                            borderRadius: BorderRadius.circular(8),
+                            boxShadow: [BoxShadow(color: Colors.redAccent.withOpacity(0.6), blurRadius: 10)],
+                          ),
+                          child: const Center(child: Text('حاجز', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold))),
+                        ),
+                      ),
+                    // اللاعب (شخصية النيون)
+                    Positioned(
+                      bottom: 40,
+                      left: _playerLane == 0 ? 35 : (_playerLane == 1 ? 155 : 275),
+                      child: Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: const Color(0xFF00FF88),
+                          boxShadow: [BoxShadow(color: const Color(0xFF00FF88).withOpacity(0.8), blurRadius: 15)],
+                        ),
+                        child: const Icon(Icons.bolt, color: Colors.black, size: 30),
+                      ),
+                    ),
+                    if (!_isPlaying)
+                      const Center(
+                        child: Text(
+                          'اضغط "بدء اللعبة" للبدء بالركض!',
+                          style: TextStyle(color: Colors.grey, fontSize: 14, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            // أزرار التحكم بالركض يمين ويسار
+            if (_isPlaying)
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00E5FF), foregroundColor: Colors.black),
+                      onPressed: () => setState(() => _playerLane = 0),
+                      child: const Icon(Icons.arrow_left_rounded, size: 30),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00FF88), foregroundColor: Colors.black),
+                      onPressed: () => setState(() => _playerLane = 1),
+                      child: const Icon(Icons.arrow_upward_rounded, size: 30),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00E5FF), foregroundColor: Colors.black),
+                      onPressed: () => setState(() => _playerLane = 2),
+                      child: const Icon(Icons.arrow_right_rounded, size: 30),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ================= 6. شاشة طرق السحب والمحافظ =================
 class RedeemScreen extends StatelessWidget {
   const RedeemScreen({super.key});
 
@@ -835,7 +1034,7 @@ class RedeemScreen extends StatelessWidget {
   }
 }
 
-// ================= 6. شاشة الإعدادات =================
+// ================= 7. شاشة الإعدادات =================
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
@@ -887,7 +1086,7 @@ class SettingsScreen extends StatelessWidget {
   }
 }
 
-// ================= 7. الدردشة العامة =================
+// ================= 8. الدردشة العامة =================
 class GlobalChatScreen extends StatefulWidget {
   const GlobalChatScreen({super.key});
 
