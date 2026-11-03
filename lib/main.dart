@@ -39,7 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
     String input = _inputController.text.trim();
     if (input.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        constSnackBar(content: Text('الرجاء إدخال رقم الهاتف أو البريد الإلكتروني')),
+        const SnackBar(content: Text('الرجاء إدخال رقم الهاتف أو البريد الإلكتروني')),
       );
       return;
     }
@@ -204,7 +204,6 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // شاشة لوحة تحكم خاصة بالمطور إذا كان هو المدير
             if (widget.isAdmin)
               Container(
                 width: double.infinity,
