@@ -158,7 +158,7 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    //تم تعديل الصياغة لتجنب مشاكل علامة الدولار في دارت
+          
                     '(~ ' + usdValue.toStringAsFixed(2) + ' USD)',
                     style: const TextStyle(color: Colors.greenAccent, fontSize: 14),
                   ),
