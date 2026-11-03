@@ -1,4 +1,4 @@
-name: Build APK
+7name: Build APK
 
 on:
   push:
@@ -19,3 +19,5 @@ jobs:
         with:
           name: app-release
           path: build/app/outputs/flutter-apk/app-release.apk
+
+
