@@ -281,7 +281,7 @@ class RedeemScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           _buildRedeemOption(context, 'زين كاش (ZainCash)', 'الحد الأدنى: 5,000 نقطة', Icons.phone_android, Colors.orange),
-          _buildRedeemOption(context, 'رصيد آسياسيل (AsiaCell)', 'كارت رصيد فئة 5/$ أو 10$', Icons.sim_card, Colors.red),
+          _buildRedeemOption(context, 'رصيد آسياسيل (AsiaCell)', 'كارت رصيد فئة 5\$ أو 10$', Icons.sim_card, Colors.red),
           _buildRedeemOption(context, 'تحويل فودافون كاش / سحب دولي', 'عبر محفظتك الإلكترونية', Icons.account_balance, Colors.blue),
         ],
       ),
