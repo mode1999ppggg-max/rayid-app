@@ -158,7 +158,7 @@ class _CashPlusHomePageState extends State<CashPlusHomePage> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    // تم تعديل الصياغة لتجنب مشاكل علامة الدولار في دارت
+                    //تم تعديل الصياغة لتجنب مشاكل علامة الدولار في دارت
                     '(~ ' + usdValue.toStringAsFixed(2) + ' USD)',
                     style: const TextStyle(color: Colors.greenAccent, fontSize: 14),
                   ),
@@ -281,7 +281,7 @@ class RedeemScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           _buildRedeemOption(context, 'زين كاش (ZainCash)', 'الحد الأدنى: 5,000 نقطة', Icons.phone_android, Colors.orange),
-          _buildRedeemOption(context, 'رصيد آسياسيل (AsiaCell)', 'كارت رصيد فئة 5$ أو 10$', Icons.sim_card, Colors.red),
+          _buildRedeemOption(context, 'رصيد آسياسيل (AsiaCell)', 'كارت رصيد فئة 5/$ أو 10$', Icons.sim_card, Colors.red),
           _buildRedeemOption(context, 'تحويل فودافون كاش / سحب دولي', 'عبر محفظتك الإلكترونية', Icons.account_balance, Colors.blue),
         ],
       ),
