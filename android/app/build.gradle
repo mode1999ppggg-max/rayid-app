@@ -6,7 +6,8 @@ plugins {
 
 android {
     namespace "com.rayid.app"
-    compileSdk flutter.compileSdk
+    compileSdkVersion 35
+
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -20,8 +21,8 @@ android {
 
     defaultConfig {
         applicationId "com.rayid.app"
-        minSdk flutter.minSdk
-        targetSdk flutter.targetSdk
+        minSdkVersion 21
+        targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
