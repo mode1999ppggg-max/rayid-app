@@ -26,15 +26,15 @@ class RayidApp extends StatelessWidget {
         colorScheme: const ColorScheme.dark(
           primary: Color(0xff00ff88),
           secondary: Color(0xff00f0ff),
-          surface: Color(0xff0e1721),
+          surface: const Color(0xff0e1721),
         ),
       ),
-      home: const LoginScreen(), // البداية تكون بشاشة تسجيل الدخول بتصميم سايبربانك
+      home: const LoginScreen(),
     );
   }
 }
 
-// ================= شاشة تسجيل الدخول (سايبربانك) =================
+// ================= 1. شاشة تسجيل الدخول بتصميم سايبربانك =================
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
@@ -52,22 +52,22 @@ class LoginScreen extends StatelessWidget {
                 child: Text(
                   'RAYID PAY',
                   style: TextStyle(
-                    fontSize: 32,
+                    fontSize: 34,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 4,
                     color: Color(0xff00ff88),
-                    shadows: [Shadow(color: Color(0xff00ff88), blurRadius: 15)],
+                    shadows: [Shadow(color: Color(0xff00ff88), blurRadius: 20)],
                   ),
                 ),
               ),
               const SizedBox(height: 8),
               const Center(
                 child: Text(
-                  'نظام الدفع السيبراني المتطور',
+                  'منظومة الدفع والألعاب السيبرانية المتطورة',
                   style: TextStyle(color: Colors.grey, fontSize: 13),
                 ),
               ),
-              const SizedBox(height: 48),
+              const SizedBox(height: 40),
               TextField(
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
@@ -76,11 +76,11 @@ class LoginScreen extends StatelessWidget {
                   filled: true,
                   fillColor: const Color(0xff0e1721),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(14),
                     borderSide: BorderSide(color: const Color(0xff00ff88).withOpacity(0.3)),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(14),
                     borderSide: const BorderSide(color: Color(0xff00ff88), width: 2),
                   ),
                 ),
@@ -95,11 +95,11 @@ class LoginScreen extends StatelessWidget {
                   filled: true,
                   fillColor: const Color(0xff0e1721),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(14),
                     borderSide: BorderSide(color: const Color(0xff00ff88).withOpacity(0.3)),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(14),
                     borderSide: const BorderSide(color: Color(0xff00ff88), width: 2),
                   ),
                 ),
@@ -109,9 +109,9 @@ class LoginScreen extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xff00ff88),
                   foregroundColor: Colors.black,
-                  minimumSize: const Size(double.infinity, 52),
+                  minimumSize: const Size(double.infinity, 54),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                   elevation: 10,
                   shadowColor: const Color(0xff00ff88),
@@ -145,7 +145,7 @@ class LoginScreen extends StatelessWidget {
   }
 }
 
-// ================= شاشة إنشاء حساب (سايبربانك) =================
+// ================= 2. شاشة إنشاء حساب جديد =================
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});
 
@@ -166,16 +166,16 @@ class RegisterScreen extends StatelessWidget {
               TextField(
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                  labelText: 'اسم اللاعب / المستخدم',
+                  labelText: 'اسم المستخدم / اللاعب',
                   labelStyle: const TextStyle(color: Colors.grey),
                   filled: true,
                   fillColor: const Color(0xff0e1721),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(14),
                     borderSide: BorderSide(color: const Color(0xff00f0ff).withOpacity(0.3)),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(14),
                     borderSide: const BorderSide(color: Color(0xff00f0ff), width: 2),
                   ),
                 ),
@@ -189,11 +189,11 @@ class RegisterScreen extends StatelessWidget {
                   filled: true,
                   fillColor: const Color(0xff0e1721),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(14),
                     borderSide: BorderSide(color: const Color(0xff00f0ff).withOpacity(0.3)),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(14),
                     borderSide: const BorderSide(color: Color(0xff00f0ff), width: 2),
                   ),
                 ),
@@ -208,11 +208,11 @@ class RegisterScreen extends StatelessWidget {
                   filled: true,
                   fillColor: const Color(0xff0e1721),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(14),
                     borderSide: BorderSide(color: const Color(0xff00f0ff).withOpacity(0.3)),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(14),
                     borderSide: const BorderSide(color: Color(0xff00f0ff), width: 2),
                   ),
                 ),
@@ -222,9 +222,9 @@ class RegisterScreen extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xff00f0ff),
                   foregroundColor: Colors.black,
-                  minimumSize: const Size(double.infinity, 52),
+                  minimumSize: const Size(double.infinity, 54),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                 ),
                 onPressed: () {
@@ -243,7 +243,7 @@ class RegisterScreen extends StatelessWidget {
   }
 }
 
-// ================= مركز التنقل السفلي =================
+// ================= 3. مركز التنقل السفلي الفعال =================
 class MainNavigationHub extends StatefulWidget {
   final int initialIndex;
   const MainNavigationHub({super.key, this.initialIndex = 0});
@@ -297,7 +297,7 @@ class MainNavigationHubState extends State<MainNavigationHub> {
   }
 }
 
-// ================= 1. الشاشة الرئيسية (سايبربانك بدون سحابة وبدون خدمات مكررة) =================
+// ================= 4. الشاشة الرئيسية العصرية (سايبربانك) =================
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -422,7 +422,7 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// ================= 2. شاشة الألعاب =================
+// ================= 5. شاشة الألعاب =================
 class GamesScreen extends StatelessWidget {
   const GamesScreen({super.key});
 
@@ -493,7 +493,7 @@ class GamesScreen extends StatelessWidget {
   }
 }
 
-// ================= 3. شاشة المحفظة =================
+// ================= 6. شاشة المحفظة وطرق السحب =================
 class WalletScreen extends StatelessWidget {
   const WalletScreen({super.key});
 
@@ -572,7 +572,7 @@ class WalletScreen extends StatelessWidget {
   }
 }
 
-// ================= 4. شاشة الدردشة =================
+// ================= 7. شاشة الدردشة =================
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
 
@@ -672,7 +672,7 @@ class ChatBubble extends StatelessWidget {
   }
 }
 
-// ================= 5. شاشة الإعدادات =================
+// ================= 8. شاشة الإعدادات وتغيير الصورة الشخصية =================
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
