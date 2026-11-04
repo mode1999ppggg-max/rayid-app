@@ -19,10 +19,29 @@ class UserAppModel extends ChangeNotifier {
   double get balanceIQD => balanceUSD * 1320;
   int points = 1240;
 
-  List<dynamic> activities = [
-    {'title': 'إكمال مشاهدة إعلان مكافأة مؤهل', 'amount': '+50 نقطة (0.50 دولار / 660 د.ع)', 'time': 'منذ ساعة', 'isPositive': true},
-    {'title': 'سحب أرباح عبر زين كاش', 'amount': '-19,800 د.ع (15.00 دولار)', 'time': 'أمس', 'isPositive': false},
+  // متغيرات نظام إحالة الأصدقاء
+  String referralCode = 'RAYID-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
+  int referralCount = 3;
+
+  // رسائل نظام الدعم الفني المباشر
+  List> supportMessages = [
+    {'sender': 'support', 'text': 'مرحباً بك في دعم RAYID PAY. كيف يمكننا مساعدتك اليوم؟', 'time': 'الآن'}
   ];
+
+  void sendSupportMessage(String text) {
+    if (text.trim().isEmpty) return;
+    supportMessages.add({'sender': 'user', 'text': text, 'time': 'الآن'});
+    notifyListeners();
+
+    Future.delayed(const Duration(seconds: 1), () {
+      supportMessages.add({'sender': 'support', 'text': 'تم استلام رسالتك بنجاح. سيقوم أحد ممثلي خدمة العملاء بالرد عليك قريباً.', 'time': 'الآن'});
+      notifyListeners();
+    });
+  }
+
+  String getShareMessage() {
+    return 'انضم إليّ في تطبيق RAYID PAY واكسب أرباحاً حقيقية من مشاهدة الإعلانات والسحب عبر زين كاش وماستر كارد!\nاستخدم كود الإحالة الخاص بي: $referralCode\nحمل التطبيق الآن وابدأ الربح!';
+  }
 
   Future<bool> signUpUser(String name, String email, String phone, String password) async {
     await Future.delayed(const Duration(milliseconds: 600));
@@ -77,6 +96,11 @@ class UserAppModel extends ChangeNotifier {
     });
     notifyListeners();
   }
+
+  List<dynamic> activities = [
+    {'title': 'إكمال مشاهدة إعلان مكافأة مؤهل', 'amount': '+50 نقطة (0.50 دولار / 660 د.ع)', 'time': 'منذ ساعة', 'isPositive': true},
+    {'title': 'سحب أرباح عبر زين كاش', 'amount': '-19,800 د.ع (15.00 دولار)', 'time': 'أمس', 'isPositive': false},
+  ];
 }
 
 final userModel = UserAppModel();
@@ -486,7 +510,7 @@ class AdsRewardsScreen extends StatelessWidget {
   }
 }
 
-// ================= 3. المحفظة وبوابات السحب الثلاثة المتكاملة =================
+// ================= 3. المحفظة وبوابات السحب الثلاثة + إحالة الأصدقاء =================
 class WalletScreen extends StatelessWidget {
   const WalletScreen({super.key});
 
@@ -515,6 +539,53 @@ class WalletScreen extends StatelessWidget {
                   ],
                 ),
               ),
+              const SizedBox(height: 20),
+
+              // بطاقة نظام إحالة الأصدقاء
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xff1E1E1E),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xff00E5FF).withOpacity(0.5)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Row(
+                      children: [
+                        Icon(Icons.card_giftcard, color: Color(0xff00E5FF)),
+                        SizedBox(width: 8),
+                        Text('نظام إحالة الأصدقاء (ادعُ واربح)', style: TextStyle(color: Color(0xff00E5FF), fontWeight: FontWeight.bold, fontSize: 14)),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    const Text('شارك كود الإحالة الخاص بك واكسب نقاطاً إضافية عن كل صديق يسجل في التطبيق!', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(color: const Color(0xff121212), borderRadius: BorderRadius.circular(10)),
+                          child: Text(userModel.referralCode, style: const TextStyle(color: Color(0xff00E676), fontWeight: FontWeight.bold, fontSize: 13)),
+                        ),
+                        ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E5FF), foregroundColor: Colors.black),
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('تم نسخ رسالة الإحالة للحافظة بنجاح!'), backgroundColor: Colors.blue),
+                            );
+                          },
+                          icon: const Icon(Icons.share, size: 16),
+                          label: const Text('مشاركة', style: TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
               const SizedBox(height: 24),
               const Text('طرق السحب المتاحة في العراق', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
@@ -673,7 +744,101 @@ class ChatScreen extends StatelessWidget {
   }
 }
 
-// ================= 5. صفحة الإعدادات وسياسة الخصوصية وتسجيل الخروج =================
+// ================= شاشة الدعم الفني المباشر الجديد =================
+class SupportScreen extends StatefulWidget {
+  const SupportScreen({super.key});
+
+  @override
+  State<SupportScreen> createState() => _SupportScreenState();
+}
+
+class _SupportScreenState extends State<SupportScreen> {
+  final TextEditingController _msgController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('الدعم الفني المباشر (24/7)'),
+        backgroundColor: const Color(0xff121212),
+      ),
+      body: AnimatedBuilder(
+        animation: userModel,
+        builder: (context, child) {
+          return Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: userModel.supportMessages.length,
+                  itemBuilder: (context, index) {
+                    final msg = userModel.supportMessages[index];
+                    bool isUser = msg['sender'] == 'user';
+                    return Align(
+                      alignment: isUser ? Alignment.centerLeft : Alignment.centerRight,
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.all(12),
+                        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
+                        decoration: BoxDecoration(
+                          color: isUser ? const Color(0xff00E676).withOpacity(0.2) : const Color(0xff1E1E1E),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: isUser ? const Color(0xff00E676) : Colors.grey.withOpacity(0.3)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(msg['text']!, style: const TextStyle(color: Colors.white, fontSize: 13)),
+                            const SizedBox(height: 4),
+                            Text(msg['time']!, style: const TextStyle(color: Colors.grey, fontSize: 9)),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(12),
+                color: const Color(0xff181818),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _msgController,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          hintText: 'اكتب مشكلتك أو استفسارك هنا...',
+                          hintStyle: const TextStyle(color: Colors.grey),
+                          filled: true,
+                          fillColor: const Color(0xff121212),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    CircleAvatar(
+                      backgroundColor: const Color(0xff00E676),
+                      child: IconButton(
+                        icon: const Icon(Icons.send, color: Colors.black, size: 18),
+                        onPressed: () {
+                          userModel.sendSupportMessage(_msgController.text);
+                          _msgController.clear();
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+// ================= 5. صفحة الإعدادات مع الدعم الفني وسياسة الخصوصية =================
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -786,6 +951,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
               const Text('الدعم والقانونية', style: TextStyle(color: Color(0xff00E676), fontWeight: FontWeight.bold, fontSize: 15)),
               const SizedBox(height: 8),
+              
+              // زر الانتقال إلى الدعم الفني المباشر الجديد
+              ListTile(
+                tileColor: const Color(0xff1E1E1E),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                leading: const Icon(Icons.support_agent, color: Color(0xff00E676)),
+                title: const Text('الدعم الفني المباشر', style: TextStyle(color: Colors.white)),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const SupportScreen()));
+                },
+              ),
+              const SizedBox(height: 10),
+
               ListTile(
                 tileColor: const Color(0xff1E1E1E),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
