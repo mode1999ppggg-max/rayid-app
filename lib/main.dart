@@ -1,19 +1,19 @@
-import 'package:flutter/material.dart';
+Import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const RayidApp());
+Void main() {
+  RunApp(const RayidApp());
 }
 
 class RayidApp extends StatelessWidget {
-  const RayidApp({super.key});
+  Const RayidApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    Return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'RAYID PAY',
       builder: (context, child) {
-        return Directionality(
+        Return Directionality(
           textDirection: TextDirection.rtl,
           child: child!,
         );
@@ -34,17 +34,17 @@ class RayidApp extends StatelessWidget {
 
 // ================= 1. شاشة تسجيل الدخول =================
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  Const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  Final _emailController = TextEditingController();
+  Final _passwordController = TextEditingController();
 
-  void _login() {
+  Void _login() {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const MainNavigationHub()),
@@ -53,7 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    Return Scaffold(
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -163,11 +163,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
 // ================= شاشة إنشاء حساب =================
 class RegisterScreen extends StatelessWidget {
-  const RegisterScreen({super.key});
+  Const RegisterScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    Return Scaffold(
       appBar: AppBar(title: const Text('إنشاء حساب جديد'), backgroundColor: const Color(0xff0b1017)),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -207,11 +207,11 @@ class RegisterScreen extends StatelessWidget {
 
 // ================= شاشة استعادة كلمة المرور =================
 class ForgotPasswordScreen extends StatelessWidget {
-  const ForgotPasswordScreen({super.key});
+  Const ForgotPasswordScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    Return Scaffold(
       appBar: AppBar(title: const Text('استعادة كلمة المرور'), backgroundColor: const Color(0xff0b1017)),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -241,39 +241,39 @@ class ForgotPasswordScreen extends StatelessWidget {
 
 // ================= 2. مركز التنقل السفلي =================
 class MainNavigationHub extends StatefulWidget {
-  final int initialIndex;
-  const MainNavigationHub({super.key, this.initialIndex = 0});
+  Final int initialIndex;
+  Const MainNavigationHub({super.key, this.initialIndex = 0});
 
   @override
   State<MainNavigationHub> createState() => MainNavigationHubState();
 }
 
 class MainNavigationHubState extends State<MainNavigationHub> {
-  late int _currentIndex;
+  Late int _currentIndex;
 
   @override
   void initState() {
-    super.initState();
+    Super.initState();
     _currentIndex = widget.initialIndex;
   }
 
-  void changeTab(int index) {
+  Void changeTab(int index) {
     setState(() {
       _currentIndex = index;
     });
   }
 
-  final List<Widget> _pages = [
-    const HomeScreen(),
-    const GamesScreen(),
-    const WalletScreen(),
-    const ChatScreen(),
-    const SettingsScreen(),
+  Final List<Widget> _pages = [
+    Const HomeScreen(),
+    Const GamesScreen(),
+    Const WalletScreen(),
+    Const ChatScreen(),
+    Const SettingsScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    Return Scaffold(
       body: _pages[_currentIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 10, offset: const Offset(0, -5))]),
@@ -301,11 +301,11 @@ class MainNavigationHubState extends State<MainNavigationHub> {
 
 // ================= 3. الشاشة الرئيسية =================
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  Const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    Return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
@@ -442,11 +442,11 @@ class HomeScreen extends StatelessWidget {
 
 // ================= 4. شاشة الألعاب =================
 class GamesScreen extends StatelessWidget {
-  const GamesScreen({super.key});
+  Const GamesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    Return Scaffold(
       appBar: AppBar(title: const Text('قسم الألعاب والترفيه'), backgroundColor: const Color(0xff0b1017), automaticallyImplyLeading: false),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -460,7 +460,7 @@ class GamesScreen extends StatelessWidget {
   }
 
   Widget _buildGameCard(BuildContext context, String title, String subtitle, Color color, IconData icon) {
-    return Container(
+    Return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -506,11 +506,11 @@ class GamesScreen extends StatelessWidget {
 
 // ================= 5. شاشة الرصيد وطرق السحب =================
 class WalletScreen extends StatelessWidget {
-  const WalletScreen({super.key});
+  Const WalletScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    Return Scaffold(
       appBar: AppBar(title: const Text('الرصيد والنقاط'), backgroundColor: const Color(0xff0b1017), automaticallyImplyLeading: false),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -555,7 +555,7 @@ class WalletScreen extends StatelessWidget {
   }
 
   Widget _buildQuickTile(BuildContext context, String title, Color color, IconData icon) {
-    return Container(
+    Return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(color: const Color(0xff121b26), borderRadius: BorderRadius.circular(16), border: Border.all(color: color.withOpacity(0.3))),
       child: ListTile(
@@ -573,12 +573,12 @@ class WalletScreen extends StatelessWidget {
 
 // شاشة تفاصيل السحب
 class WithdrawalDetailScreen extends StatelessWidget {
-  final String methodName;
-  const WithdrawalDetailScreen({super.key, required this.methodName});
+  Final String methodName;
+  Const WithdrawalDetailScreen({super.key, required this.methodName});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    Return Scaffold(
       appBar: AppBar(title: Text('سحب عبر $methodName'), backgroundColor: const Color(0xff0b1017)),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -614,9 +614,151 @@ class WithdrawalDetailScreen extends StatelessWidget {
 
 // ================= 6. شاشة الدردشة =================
 class ChatScreen extends StatelessWidget {
-  const ChatScreen({super.key});
+  Const ChatScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('الدردشة العامة للمجتمع'), backgroundColor: const Color(0xff0b1017),
+    Return Scaffold(
+      appBar: AppBar(title: const Text('الدردشة العامة للمجتمع'), backgroundColor: const Color(0xff0b1017), automaticallyImplyLeading: false),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                _buildChatBubble('أحمد الكرخي', 'مرحباً شباب، هل تم إطلاق لعبة النيون اليوم؟', '4:10 م', false),
+                _buildChatBubble('محمد (المطور)', 'أهلاً بك! نعم التطبيق قيد التحديث المستمر.', '4:12 م', true),
+                _buildChatBubble('ساره الأحمد', 'رائع جداً، التطبيق فخم ومرتب عاشت ايدكم.', '4:15 م', false),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            color: const Color(0xff0b1017),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      hintText: 'اكتب رسالتك للمجتمع...',
+                      hintStyle: const TextStyle(color: Colors.grey, fontSize: 13),
+                      filled: true,
+                      fillColor: const Color(0xff121b26),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                CircleAvatar(
+                  backgroundColor: const Color(0xff00ff88),
+                  child: IconButton(
+                    icon: const Icon(Icons.send, color: Colors.black, size: 18),
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إرسال الرسالة بنجاح!')));
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildChatBubble(String sender, String message, String time, bool isMe) {
+    Return Align(
+      alignment: isMe ? Alignment.centerLeft : Alignment.centerRight,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(12),
+        constraints: const BoxConstraints(maxWidth: 260),
+        decoration: BoxDecoration(
+          color: isMe ? const Color(0xff00ff88).withOpacity(0.15) : const Color(0xff121b26),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: isMe ? const Color(0xff00ff88).withOpacity(0.4) : Colors.white12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(sender, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: isMe ? const Color(0xff00ff88) : Colors.amber)),
+            const SizedBox(height: 4),
+            Text(message, style: const TextStyle(color: Colors.white, fontSize: 13)),
+            const SizedBox(height: 4),
+            Align(
+              alignment: Alignment.bottomLeft,
+              child: Text(time, style: const TextStyle(color: Colors.grey, fontSize: 9)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ================= 7. شاشة الإعدادات =================
+class SettingsScreen extends StatelessWidget {
+  Const SettingsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    Return Scaffold(
+      appBar: AppBar(title: const Text('إعدادات الحساب'), backgroundColor: const Color(0xff0b1017), automaticallyImplyLeading: false),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Center(
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: const Color(0xff00ff88), width: 2)),
+                  child: const CircleAvatar(radius: 40, backgroundColor: Color(0xff121b26), child: Icon(Icons.person, size: 40, color: Color(0xff00ff88))),
+                ),
+                const SizedBox(height: 12),
+                const Text('لاعب_570575', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+                const SizedBox(height: 4),
+                const Text('ID: #RAYID-9924', style: TextStyle(color: Colors.grey, fontSize: 12)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          _buildSettingTile(context, Icons.person_outline, 'تعديل الملف الشخصي', () {}),
+          _buildSettingTile(context, Icons.security, 'الأمان وحماية الحساب', () {}),
+          _buildSettingTile(context, Icons.notifications_none, 'إعدادات الإشعارات', () {}),
+          _buildSettingTile(context, Icons.language, 'لغة التطبيق (العربية)', () {}),
+          _buildSettingTile(context, Icons.help_outline, 'الدعم الفني والمساعدة', () {}),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red.withOpacity(0.15),
+              foregroundColor: Colors.redAccent,
+              minimumSize: const Size(double.infinity, 50),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: const BorderSide(color: Colors.redAccent, width: 1)),
+            ),
+            onPressed: () {
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تسجيل الخروج بنجاح')));
+            },
+            child: const Text('تسجيل الخروج', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSettingTile(BuildContext context, IconData icon, String title, VoidCallback onTap) {
+    Return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(color: const Color(0xff121b26), borderRadius: BorderRadius.circular(16)),
+      child: ListTile(
+        leading: Icon(icon, color: const Color(0xff00ff88)),
+        title: Text(title, style: const TextStyle(color: Colors.white, fontSize: 14)),
+        trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
+        onTap: onTap,
+      ),
+    );
+  }
+}
