@@ -23,12 +23,12 @@ class UserAppModel extends ChangeNotifier {
   String referralCode = 'RAYID-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
   int referralCount = 3;
 
-  // رسائل الدعم الفني المباشر
+  // رسائل الدعم الفني المباشر (تم تصحيح نوع البيانات هنا)
   List> supportMessages = [
     {'sender': 'support', 'text': 'مرحباً بك في دعم RAYID PAY. كيف يمكننا مساعدتك اليوم؟', 'time': 'الآن'}
   ];
 
-  // المجموعات الاجتماعية (مؤمنة الأنواع لتجنب أخطاء البناء)
+  // المجموعات الاجتماعية (تم تصحيح نوع البيانات هنا)
   List> chatGroups = [
     {'name': 'مجموعة أرباح الإعلانات الكبرى', 'members': 1420, 'lastMsg': 'تم توزيع مكافآت الأسبوع بنجاح!'},
     {'name': 'متداولو زين كاش وماستر كارد', 'members': 850, 'lastMsg': 'شباب وصل السحب لو بعده؟'},
@@ -729,7 +729,7 @@ class GamesScreen extends StatelessWidget {
   }
 }
 
-// شاشة الدردشة والمجموعات مع التحويل الآمن للأنواع
+// شاشة الدردشة والمجموعات
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
 
