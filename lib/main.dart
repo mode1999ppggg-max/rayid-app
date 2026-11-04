@@ -6,6 +6,124 @@ void main() {
   runApp(const RayidApp());
 }
 
+// ================= قاموس اللغات الشامل (Localization Map) =================
+class AppStrings {
+  static const Map<String, Map<String, String>> localizedValues = {
+    'ar': {
+      'appName': 'RAYID PAY',
+      'home': 'الرئيسية',
+      'ads': 'الإعلانات',
+      'wallet': 'المحفظة',
+      'games': 'الألعاب',
+      'chat': 'الدردشة',
+      'profile': 'الإعدادات',
+      'goodMorning': 'مرحباً بك',
+      'totalBalance': 'إجمالي الرصيد المتاح',
+      'portfolioValue': 'قيمة المحفظة',
+      'points': 'النقاط',
+      'redeem': 'استبدال',
+      'recentActivity': 'الأنشطة الأخيرة',
+      'adsRewardsCenter': 'مركز الإعلانات والمكافآت',
+      'walletPayouts': 'المحفظة وأرباح الإعلانات',
+      'cyberGames': 'منصة الألعاب الترفيهية',
+      'communityChat': 'دردشة ومجموعات المجتمع',
+      'settings': 'الإعدادات والحساب',
+      'manageProfile': 'إدارة الملف الشخصي',
+      'liveSupport': 'الدعم الفني المباشر',
+      'privacyPolicy': 'سياسة الخصوصية',
+      'appLanguage': 'لغة التطبيق',
+      'logOut': 'تسجيل الخروج',
+      'saveChanges': 'حفظ التعديلات',
+      'deleteAccount': 'حذف الحساب نهائياً',
+      'cancel': 'إلغاء',
+      'confirm': 'تأكيد',
+      'close': 'إغلاق',
+      'createAccount': 'إنشاء الحساب',
+      'signIn': 'تسجيل الدخول',
+      'fullName': 'الاسم الكامل',
+      'username': 'اسم المستخدم',
+      'phone': 'رقم الهاتف',
+      'email': 'البريد الإلكتروني',
+      'password': 'كلمة المرور',
+      'activeGroups': 'المجموعات النشطة',
+      'createGroup': 'إنشاء مجموعة جديدة',
+      'groupName': 'اسم المجموعة',
+      'create': 'إنشاء',
+      'members': 'عضو',
+      'typeMessage': 'اكتب رسالتك...',
+      'typeIssue': 'اكتب مشكلتك هنا...',
+      'availablePayouts': 'طرق السحب المتاحة في العراق',
+      'referralProgram': 'نظام إحالة الأصدقاء (ادعُ واربح)',
+      'referralDesc': 'شارك كود الإحالة الخاص بك واكسب نقاطاً إضافية عن كل صديق!',
+      'share': 'مشاركة',
+      'withdrawVia': 'السحب عبر',
+      'amountIQD': 'المبلغ (د.ع)',
+      'unlimitedAd': 'إعلان مكافأة غير محدود',
+      'featuredAd': 'إعلان ترويجي مميز',
+      'reward': 'المكافأة',
+      'watchNow': 'شاهد الآن',
+    },
+    'en': {
+      'appName': 'RAYID PAY',
+      'home': 'Home',
+      'ads': 'Ads',
+      'wallet': 'Wallet',
+      'games': 'Games',
+      'chat': 'Chat',
+      'profile': 'Profile',
+      'goodMorning': 'Good Morning',
+      'totalBalance': 'Total Balance',
+      'portfolioValue': 'Portfolio Value',
+      'points': 'Points',
+      'redeem': 'Redeem',
+      'recentActivity': 'Recent Activity',
+      'adsRewardsCenter': 'Ads & Rewards Center',
+      'walletPayouts': 'Wallet & Payouts',
+      'cyberGames': 'Cyber Games Arcade',
+      'communityChat': 'Community & Chat Groups',
+      'settings': 'Profile & Settings',
+      'manageProfile': 'Manage Profile',
+      'liveSupport': 'Live Support',
+      'privacyPolicy': 'Privacy Policy',
+      'appLanguage': 'App Language',
+      'logOut': 'Log Out',
+      'saveChanges': 'Save Changes',
+      'deleteAccount': 'Delete Account Permanently',
+      'cancel': 'Cancel',
+      'confirm': 'Confirm',
+      'close': 'Close',
+      'createAccount': 'Create Account',
+      'signIn': 'Sign In',
+      'fullName': 'Full Name',
+      'username': 'Username',
+      'phone': 'Phone Number',
+      'email': 'Email Address',
+      'password': 'Password',
+      'activeGroups': 'Active Groups',
+      'createGroup': 'Create New Group',
+      'groupName': 'Group Name',
+      'create': 'Create',
+      'members': 'members',
+      'typeMessage': 'Type your message...',
+      'typeIssue': 'Type your issue here...',
+      'availablePayouts': 'Available Iraqi Payout Methods',
+      'referralProgram': 'Referral Program (Invite & Earn)',
+      'referralDesc': 'Share your code and earn bonus points for every friend who registers!',
+      'share': 'Share',
+      'withdrawVia': 'Withdraw via',
+      'amountIQD': 'Amount (IQD)',
+      'unlimitedAd': 'Unlimited Reward Ad',
+      'featuredAd': 'Featured Promotional Ad',
+      'reward': 'Reward',
+      'watchNow': 'Watch Now',
+    }
+  };
+
+  static String get(String lang, String key) {
+    return localizedValues[lang]?[key] ?? localizedValues['en']?[key] ?? key;
+  }
+}
+
 // ================= نموذج البيانات المركزي (UserAppModel) =================
 class UserAppModel extends ChangeNotifier {
   bool isLoggedIn = false;
@@ -233,8 +351,9 @@ class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
   bool _isLoading = false;
 
   void _submitAuth() async {
+    String lang = userModel.currentLanguage;
     if (_emailController.text.isEmpty || _passController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('يرجى إدخال البريد الإلكتروني وكلمة المرور.'), backgroundColor: Colors.red));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'يرجى إدخال البريد الإلكتروني وكلمة المرور.' : 'Please enter email and password.'), backgroundColor: Colors.red));
       return;
     }
 
@@ -243,7 +362,7 @@ class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
 
     if (isSigningUp) {
       if (_nameController.text.isEmpty || _usernameController.text.isEmpty || _phoneController.text.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('يرجى إكمال جميع الحقول المطلوبة.'), backgroundColor: Colors.red));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'يرجى إكمال جميع الحقول المطلوبة.' : 'Please complete all fields.'), backgroundColor: Colors.red));
         setState(() => _isLoading = false);
         return;
       }
@@ -254,13 +373,13 @@ class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
 
     setState(() => _isLoading = false);
     if (!success && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('حدث خطأ في المصادقة.'), backgroundColor: Colors.red));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'حدث خطأ في المصادقة.' : 'Authentication error.'), backgroundColor: Colors.red));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    bool isAr = userModel.currentLanguage == 'ar';
+    String lang = userModel.currentLanguage;
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -274,27 +393,27 @@ class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
                   child: Text('RAYID PAY', style: TextStyle(fontSize: 36, fontWeight: FontWeight.w900, letterSpacing: 3, color: Color(0xff00E676))),
                 ),
                 const SizedBox(height: 8),
-                Center(child: Text(isSigningUp ? (isAr ? 'إنشاء حساب فاخر' : 'Create Luxury Account') : (isAr ? 'تسجيل الدخول إلى حسابك' : 'Sign In to Your Dashboard'), style: const TextStyle(color: Colors.grey, fontSize: 13))),
+                Center(child: Text(isSigningUp ? (lang == 'ar' ? 'إنشاء حساب فاخر' : 'Create Luxury Account') : (lang == 'ar' ? 'تسجيل الدخول إلى حسابك' : 'Sign In to Your Dashboard'), style: const TextStyle(color: Colors.grey, fontSize: 13))),
                 const SizedBox(height: 30),
 
                 if (isSigningUp) ...[
                   TextField(
                     controller: _nameController,
                     style: const TextStyle(color: Colors.white),
-                    decoration: InputDecoration(labelText: isAr ? 'الاسم الكامل' : 'Full Name', filled: true, fillColor: const Color(0xff121816), border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none)),
+                    decoration: InputDecoration(labelText: AppStrings.get(lang, 'fullName'), filled: true, fillColor: const Color(0xff121816), border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none)),
                   ),
                   const SizedBox(height: 16),
                   TextField(
                     controller: _usernameController,
                     style: const TextStyle(color: Colors.white),
-                    decoration: InputDecoration(labelText: isAr ? 'اسم المستخدم (مثل @username)' : 'Username (e.g. username)', filled: true, fillColor: const Color(0xff121816), border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none)),
+                    decoration: InputDecoration(labelText: AppStrings.get(lang, 'username'), filled: true, fillColor: const Color(0xff121816), border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none)),
                   ),
                   const SizedBox(height: 16),
                   TextField(
                     controller: _phoneController,
                     keyboardType: TextInputType.phone,
                     style: const TextStyle(color: Colors.white),
-                    decoration: InputDecoration(labelText: isAr ? 'رقم الهاتف' : 'Phone Number', filled: true, fillColor: const Color(0xff121816), border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none)),
+                    decoration: InputDecoration(labelText: AppStrings.get(lang, 'phone'), filled: true, fillColor: const Color(0xff121816), border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none)),
                   ),
                   const SizedBox(height: 16),
                 ],
@@ -302,14 +421,14 @@ class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
                 TextField(
                   controller: _emailController,
                   style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(labelText: isAr ? 'البريد الإلكتروني' : 'Email Address', filled: true, fillColor: const Color(0xff121816), border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none)),
+                  decoration: InputDecoration(labelText: AppStrings.get(lang, 'email'), filled: true, fillColor: const Color(0xff121816), border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none)),
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: _passController,
                   obscureText: true,
                   style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(labelText: isAr ? 'كلمة المرور' : 'Password', filled: true, fillColor: const Color(0xff121816), border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none)),
+                  decoration: InputDecoration(labelText: AppStrings.get(lang, 'password'), filled: true, fillColor: const Color(0xff121816), border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none)),
                 ),
                 const SizedBox(height: 24),
 
@@ -318,13 +437,13 @@ class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
                   onPressed: _isLoading ? null : _submitAuth,
                   child: _isLoading 
                     ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.black, strokeWidth: 2))
-                    : Text(isSigningUp ? (isAr ? 'إنشاء الحساب' : 'Create Account') : (isAr ? 'تسجيل الدخول' : 'Sign In'), style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
+                    : Text(isSigningUp ? AppStrings.get(lang, 'createAccount') : AppStrings.get(lang, 'signIn'), style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
                 ),
                 const SizedBox(height: 16),
 
                 TextButton(
                   onPressed: () => setState(() => isSigningUp = !isSigningUp),
-                  child: Text(isSigningUp ? (isAr ? 'لديك حساب بالفعل؟ تسجيل الدخول' : 'Already have an account? Sign In') : (isAr ? 'ليس لديك حساب؟ إنشاء حساب جديد' : 'Need an account? Create one'), style: const TextStyle(color: Color(0xff00E676))),
+                  child: Text(isSigningUp ? (lang == 'ar' ? 'لديك حساب بالفعل؟ تسجيل الدخول' : 'Already have an account? Sign In') : (lang == 'ar' ? 'ليس لديك حساب؟ إنشاء حساب جديد' : 'Need an account? Create one'), style: const TextStyle(color: Color(0xff00E676))),
                 ),
               ],
             ),
@@ -355,7 +474,7 @@ class MainNavigationHubState extends State<MainNavigationHub> {
 
   @override
   Widget build(BuildContext context) {
-    bool isAr = userModel.currentLanguage == 'ar';
+    String lang = userModel.currentLanguage;
     final List<Widget> pages = [
       const HomeScreen(),
       const AdsRewardsScreen(),
@@ -375,12 +494,12 @@ class MainNavigationHubState extends State<MainNavigationHub> {
         selectedItemColor: const Color(0xff00E676),
         unselectedItemColor: Colors.grey[600],
         items: [
-          BottomNavigationBarItem(icon: const Icon(Icons.home_filled), label: isAr ? 'الرئيسية' : 'Home'),
-          BottomNavigationBarItem(icon: const Icon(Icons.play_circle_filled_outlined), label: isAr ? 'الإعلانات' : 'Ads'),
-          BottomNavigationBarItem(icon: const Icon(Icons.account_balance_wallet_outlined), label: isAr ? 'المحفظة' : 'Wallet'),
-          BottomNavigationBarItem(icon: const Icon(Icons.sports_esports_outlined), label: isAr ? 'الألعاب' : 'Games'),
-          BottomNavigationBarItem(icon: const Icon(Icons.chat_bubble_outline), label: isAr ? 'الدردشة' : 'Chat'),
-          BottomNavigationBarItem(icon: const Icon(Icons.settings_outlined), label: isAr ? 'الإعدادات' : 'Profile'),
+          BottomNavigationBarItem(icon: const Icon(Icons.home_filled), label: AppStrings.get(lang, 'home')),
+          BottomNavigationBarItem(icon: const Icon(Icons.play_circle_filled_outlined), label: AppStrings.get(lang, 'ads')),
+          BottomNavigationBarItem(icon: const Icon(Icons.account_balance_wallet_outlined), label: AppStrings.get(lang, 'wallet')),
+          BottomNavigationBarItem(icon: const Icon(Icons.sports_esports_outlined), label: AppStrings.get(lang, 'games')),
+          BottomNavigationBarItem(icon: const Icon(Icons.chat_bubble_outline), label: AppStrings.get(lang, 'chat')),
+          BottomNavigationBarItem(icon: const Icon(Icons.settings_outlined), label: AppStrings.get(lang, 'profile')),
         ],
       ),
     );
@@ -393,7 +512,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isAr = userModel.currentLanguage == 'ar';
+    String lang = userModel.currentLanguage;
     return AnimatedBuilder(
       animation: userModel,
       builder: (context, child) {
@@ -408,7 +527,7 @@ class HomeScreen extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(isAr ? 'مرحباً بك، ${userModel.userName}' : 'Good Morning, ${userModel.userName}', style: const TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.w500)),
+                        Text('${AppStrings.get(lang, 'goodMorning')}, ${userModel.userName}', style: const TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.w500)),
                       ],
                     ),
                     Container(
@@ -438,21 +557,21 @@ class HomeScreen extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      Text(isAr ? 'إجمالي الرصيد المتاح' : 'Total Balance', style: const TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.w600)),
+                      Text(AppStrings.get(lang, 'totalBalance'), style: const TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.w600)),
                       const SizedBox(height: 8),
                       Text(
                         '${userModel.balanceUSD.toStringAsFixed(2)} USD',
                         style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Color(0xff00E676), letterSpacing: -0.5),
                       ),
                       const SizedBox(height: 4),
-                      Text(isAr ? 'قيمة المحفظة' : 'Portfolio Value', style: const TextStyle(fontSize: 11, color: Colors.grey, letterSpacing: 1)),
+                      Text(AppStrings.get(lang, 'portfolioValue'), style: const TextStyle(fontSize: 11, color: Colors.grey, letterSpacing: 1)),
                       const SizedBox(height: 16),
                       Divider(color: Colors.white.withOpacity(0.08), height: 1),
                       const SizedBox(height: 12),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('🟡 ${isAr ? 'النقاط' : 'Points'}: ${userModel.points}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                          Text('🟡 ${AppStrings.get(lang, 'points')}: ${userModel.points}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: userModel.points >= userModel.minPointsForRedeem ? const Color(0xff00E676) : Colors.grey[800],
@@ -463,12 +582,12 @@ class HomeScreen extends StatelessWidget {
                             onPressed: () {
                               if (userModel.points >= userModel.minPointsForRedeem) {
                                 userModel.redeemPoints();
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(isAr ? 'تم تحويل النقاط بنجاح!' : 'Points successfully converted!'), backgroundColor: Colors.green));
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'تم تحويل النقاط بنجاح!' : 'Points successfully converted!'), backgroundColor: Colors.green));
                               } else {
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(isAr ? 'الحد الأدنى هو ${userModel.minPointsForRedeem} نقطة!' : 'Minimum limit is ${userModel.minPointsForRedeem} points!'), backgroundColor: Colors.orange));
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'الحد الأدنى هو ${userModel.minPointsForRedeem} نقطة!' : 'Minimum limit is ${userModel.minPointsForRedeem} points!'), backgroundColor: Colors.orange));
                               }
                             },
-                            child: Text(isAr ? 'استبدال' : 'Redeem', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
+                            child: Text(AppStrings.get(lang, 'redeem'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
                           ),
                         ],
                       ),
@@ -476,7 +595,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
-                Text(isAr ? 'المحفظة' : 'Wallet', style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                Text(AppStrings.get(lang, 'wallet'), style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
                 Row(
                   children: [
@@ -524,7 +643,7 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 28),
-                Text(isAr ? 'الأنشطة الأخيرة' : 'Recent Activity', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                Text(AppStrings.get(lang, 'recentActivity'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
                 const SizedBox(height: 12),
                 ...userModel.activities.map((act) => Container(
                   margin: const EdgeInsets.only(bottom: 12),
@@ -573,21 +692,21 @@ class AdsRewardsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isAr = userModel.currentLanguage == 'ar';
+    String lang = userModel.currentLanguage;
     return Scaffold(
-      appBar: AppBar(title: Text(isAr ? 'مركز الإعلانات والمكافآت' : 'Ads & Rewards Center'), backgroundColor: const Color(0xff0A0E0D), automaticallyImplyLeading: false),
+      appBar: AppBar(title: Text(AppStrings.get(lang, 'adsRewardsCenter')), backgroundColor: const Color(0xff0A0E0D), automaticallyImplyLeading: false),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _buildAdTile(context, isAr ? 'إعلان مكافأة غير محدود' : 'Unlimited Reward Ad', isAr ? '+4 نقاط لكل مشاهدة' : '+4 Points per view', 4),
-          _buildAdTile(context, isAr ? 'إعلان ترويجي مميز' : 'Featured Promotional Ad', isAr ? '+4 نقاط لكل مشاهدة' : '+4 Points per view', 4),
+          _buildAdTile(context, AppStrings.get(lang, 'unlimitedAd'), AppStrings.get(lang, 'reward'), 4),
+          _buildAdTile(context, AppStrings.get(lang, 'featuredAd'), AppStrings.get(lang, 'reward'), 4),
         ],
       ),
     );
   }
 
   Widget _buildAdTile(BuildContext context, String title, String rewardText, int addPoints) {
-    bool isAr = userModel.currentLanguage == 'ar';
+    String lang = userModel.currentLanguage;
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -600,17 +719,17 @@ class AdsRewardsScreen extends StatelessWidget {
             children: [
               Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
               const SizedBox(height: 4),
-              Text('${isAr ? "المكافأة" : "Reward"}: $rewardText', style: const TextStyle(color: Colors.grey, fontSize: 12)),
+              Text('$rewardText: +4 Points', style: const TextStyle(color: Colors.grey, fontSize: 12)),
             ],
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black),
             onPressed: () {
               userModel.points += addPoints;
-              userModel.addActivity(isAr ? 'مشاهدة إعلان ناجح' : 'Ad Watched Successfully', '+$addPoints pts', true);
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(isAr ? 'تمت إضافة 4 نقاط بنجاح!' : '4 points added successfully!'), backgroundColor: Colors.green));
+              userModel.addActivity('Ad Watched Successfully', '+$addPoints pts', true);
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'تمت إضافة 4 نقاط بنجاح!' : '4 points added successfully!'), backgroundColor: Colors.green));
             },
-            child: Text(isAr ? 'شاهد الآن' : 'Watch Now', style: const TextStyle(fontWeight: FontWeight.bold)),
+            child: Text(AppStrings.get(lang, 'watchNow'), style: const TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -624,12 +743,12 @@ class WalletScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isAr = userModel.currentLanguage == 'ar';
+    String lang = userModel.currentLanguage;
     return AnimatedBuilder(
       animation: userModel,
       builder: (context, child) {
         return Scaffold(
-          appBar: AppBar(title: Text(isAr ? 'المحفظة وأرباح الإعلانات' : 'Wallet & Payouts'), backgroundColor: const Color(0xff0A0E0D), automaticallyImplyLeading: false),
+          appBar: AppBar(title: Text(AppStrings.get(lang, 'walletPayouts')), backgroundColor: const Color(0xff0A0E0D), automaticallyImplyLeading: false),
           body: ListView(
             padding: const EdgeInsets.all(16),
             children: [
@@ -638,18 +757,18 @@ class WalletScreen extends StatelessWidget {
                 decoration: BoxDecoration(color: const Color(0xff121816), borderRadius: BorderRadius.circular(24), border: Border.all(color: const Color(0xff00E676))),
                 child: Column(
                   children: [
-                    Text(isAr ? 'الرصيد المتاح للسحب' : 'Available Balance for Payout', style: const TextStyle(color: Colors.grey, fontSize: 13)),
+                    Text(AppStrings.get(lang, 'totalBalance'), style: const TextStyle(color: Colors.grey, fontSize: 13)),
                     const SizedBox(height: 8),
                     Text('${userModel.balanceIQD.toStringAsFixed(0)} IQD', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xff00E676))),
                     const SizedBox(height: 4),
                     Text('(${userModel.balanceUSD.toStringAsFixed(2)} USD)', style: const TextStyle(fontSize: 13, color: Colors.grey, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 12),
-                    Text('🟡 ${isAr ? "رصيد النقاط" : "Points Balance"}: ${userModel.points} pts', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    Text('🟡 ${AppStrings.get(lang, 'points')}: ${userModel.points} pts', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
               const SizedBox(height: 20),
-              Text(isAr ? 'طرق السحب المتاحة في العراق' : 'Available Iraqi Payout Methods', style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(AppStrings.get(lang, 'availablePayouts'), style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
               _buildWithdrawTile(context, 'AsiaCell Cash', Icons.phone_android, Colors.redAccent),
               _buildWithdrawTile(context, 'ZainCash', Icons.phone_iphone, Colors.amber),
@@ -669,11 +788,11 @@ class WalletScreen extends StatelessWidget {
                       children: [
                         const Icon(Icons.card_giftcard, color: Color(0xff00E5FF)),
                         const SizedBox(width: 8),
-                        Text(isAr ? 'نظام إحالة الأصدقاء (ادعُ واربح)' : 'Referral Program (Invite & Earn)', style: const TextStyle(color: Color(0xff00E5FF), fontWeight: FontWeight.bold, fontSize: 14)),
+                        Text(AppStrings.get(lang, 'referralProgram'), style: const TextStyle(color: Color(0xff00E5FF), fontWeight: FontWeight.bold, fontSize: 14)),
                       ],
                     ),
                     const SizedBox(height: 8),
-                    Text(isAr ? 'شارك كود الإحالة الخاص بك واكسب نقاطاً إضافية عن كل صديق!' : 'Share your code and earn bonus points for every friend who registers!', style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                    Text(AppStrings.get(lang, 'referralDesc'), style: const TextStyle(color: Colors.grey, fontSize: 12)),
                     const SizedBox(height: 12),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -687,11 +806,11 @@ class WalletScreen extends StatelessWidget {
                           style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E5FF), foregroundColor: Colors.black),
                           onPressed: () {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(isAr ? 'تم نسخ كود الإحالة!' : 'Referral link copied to clipboard!'), backgroundColor: Colors.blue),
+                              SnackBar(content: Text(lang == 'ar' ? 'تم نسخ كود الإحالة!' : 'Referral link copied to clipboard!'), backgroundColor: Colors.blue),
                             );
                           },
                           icon: const Icon(Icons.share, size: 16),
-                          label: Text(isAr ? 'مشاركة' : 'Share', style: const TextStyle(fontWeight: FontWeight.bold)),
+                          label: Text(AppStrings.get(lang, 'share'), style: const TextStyle(fontWeight: FontWeight.bold)),
                         ),
                       ],
                     ),
@@ -706,14 +825,14 @@ class WalletScreen extends StatelessWidget {
   }
 
   Widget _buildWithdrawTile(BuildContext context, String title, IconData icon, Color iconColor) {
-    bool isAr = userModel.currentLanguage == 'ar';
+    String lang = userModel.currentLanguage;
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(color: const Color(0xff121816), borderRadius: BorderRadius.circular(18)),
       child: ListTile(
         leading: Icon(icon, color: iconColor, size: 28),
         title: Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
-        subtitle: Text(isAr ? 'سحب فوري آمن وموثوق' : 'Secure instant payout', style: const TextStyle(color: Colors.grey, fontSize: 11)),
+        subtitle: Text(lang == 'ar' ? 'سحب فوري آمن وموثوق' : 'Secure instant payout', style: const TextStyle(color: Colors.grey, fontSize: 11)),
         trailing: const Icon(Icons.arrow_forward_ios, color: Color(0xff00E676), size: 16),
         onTap: () => _showWithdrawDialog(context, title),
       ),
@@ -724,13 +843,13 @@ class WalletScreen extends StatelessWidget {
     final targetController = TextEditingController();
     final amountController = TextEditingController();
     bool isMaster = methodTitle.contains('Mastercard');
-    bool isAr = userModel.currentLanguage == 'ar';
+    String lang = userModel.currentLanguage;
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xff121816),
-        title: Text('${isAr ? "السحب عبر" : "Withdraw via"} $methodTitle', style: const TextStyle(color: Color(0xff00E676))),
+        title: Text('${AppStrings.get(lang, 'withdrawVia')} $methodTitle', style: const TextStyle(color: Color(0xff00E676))),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -749,29 +868,29 @@ class WalletScreen extends StatelessWidget {
               controller: amountController,
               keyboardType: TextInputType.number,
               style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(labelText: isAr ? 'المبلغ (د.ع)' : 'Amount (IQD)', labelStyle: const TextStyle(color: Colors.grey)),
+              decoration: InputDecoration(labelText: AppStrings.get(lang, 'amountIQD'), labelStyle: const TextStyle(color: Colors.grey)),
             ),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text(isAr ? 'إلغاء' : 'Cancel', style: const TextStyle(color: Colors.grey))),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(AppStrings.get(lang, 'cancel'), style: const TextStyle(color: Colors.grey))),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black),
             onPressed: () {
               if (targetController.text.isEmpty || amountController.text.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(isAr ? 'يرجى إكمال الحقول.' : 'Please fill all fields.'), backgroundColor: Colors.red));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'يرجى إكمال الحقول.' : 'Please fill all fields.'), backgroundColor: Colors.red));
                 return;
               }
               double? reqAmount = double.tryParse(amountController.text);
               if (reqAmount == null || reqAmount <= 0 || reqAmount > userModel.balanceIQD) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(isAr ? 'المبلغ غير صالح!' : 'Invalid amount!'), backgroundColor: Colors.red));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'المبلغ غير صالح!' : 'Invalid amount!'), backgroundColor: Colors.red));
                 return;
               }
               userModel.processWithdrawal(methodTitle, targetController.text, reqAmount);
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(isAr ? 'تم إرسال طلب السحب بنجاح!' : 'Withdrawal request submitted!'), backgroundColor: Colors.green));
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'تم إرسال طلب السحب بنجاح!' : 'Withdrawal request submitted!'), backgroundColor: Colors.green));
             },
-            child: Text(isAr ? 'تأكيد' : 'Confirm', style: const TextStyle(fontWeight: FontWeight.bold)),
+            child: Text(AppStrings.get(lang, 'confirm'), style: const TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -785,9 +904,9 @@ class GamesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isAr = userModel.currentLanguage == 'ar';
+    String lang = userModel.currentLanguage;
     return Scaffold(
-      appBar: AppBar(title: Text(isAr ? 'منصة الألعاب الترفيهية' : 'Cyber Games Arcade'), backgroundColor: const Color(0xff0A0E0D), automaticallyImplyLeading: false),
+      appBar: AppBar(title: Text(AppStrings.get(lang, 'cyberGames')), backgroundColor: const Color(0xff0A0E0D), automaticallyImplyLeading: false),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -803,7 +922,7 @@ class GamesScreen extends StatelessWidget {
   }
 
   Widget _gameCard(BuildContext context, String title, IconData icon, Color color) {
-    bool isAr = userModel.currentLanguage == 'ar';
+    String lang = userModel.currentLanguage;
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(16),
@@ -815,8 +934,8 @@ class GamesScreen extends StatelessWidget {
           Expanded(child: Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: color, foregroundColor: Colors.black),
-            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(isAr ? 'جاري تشغيل اللعبة...' : 'Launching game...'))),
-            child: Text(isAr ? 'العب' : 'Play'),
+            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'جاري تشغيل اللعبة...' : 'Launching game...'))),
+            child: Text(lang == 'ar' ? 'العب' : 'Play'),
           ),
         ],
       ),
@@ -829,27 +948,27 @@ class ChatScreen extends StatelessWidget {
 
   void _showCreateGroupDialog(BuildContext context) {
     final groupController = TextEditingController();
-    bool isAr = userModel.currentLanguage == 'ar';
+    String lang = userModel.currentLanguage;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xff121816),
-        title: Text(isAr ? 'إنشاء مجموعة جديدة' : 'Create New Group', style: const TextStyle(color: Color(0xff00E676))),
+        title: Text(AppStrings.get(lang, 'createGroup'), style: const TextStyle(color: Color(0xff00E676))),
         content: TextField(
           controller: groupController,
           style: const TextStyle(color: Colors.white),
-          decoration: InputDecoration(labelText: isAr ? 'اسم المجموعة' : 'Group Name', labelStyle: const TextStyle(color: Colors.grey)),
+          decoration: InputDecoration(labelText: AppStrings.get(lang, 'groupName'), labelStyle: const TextStyle(color: Colors.grey)),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text(isAr ? 'إلغاء' : 'Cancel', style: const TextStyle(color: Colors.grey))),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(AppStrings.get(lang, 'cancel'), style: const TextStyle(color: Colors.grey))),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black),
             onPressed: () {
               userModel.createGroup(groupController.text);
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(isAr ? 'تم إنشاء المجموعة بنجاح!' : 'Group created successfully!'), backgroundColor: Colors.green));
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'تم إنشاء المجموعة بنجاح!' : 'Group created successfully!'), backgroundColor: Colors.green));
             },
-            child: Text(isAr ? 'إنشاء' : 'Create', style: const TextStyle(fontWeight: FontWeight.bold)),
+            child: Text(AppStrings.get(lang, 'create'), style: const TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -858,13 +977,13 @@ class ChatScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isAr = userModel.currentLanguage == 'ar';
+    String lang = userModel.currentLanguage;
     return AnimatedBuilder(
       animation: userModel,
       builder: (context, child) {
         return Scaffold(
           appBar: AppBar(
-            title: Text(isAr ? 'دردشة ومجموعات المجتمع' : 'Community & Chat Groups'),
+            title: Text(AppStrings.get(lang, 'communityChat')),
             backgroundColor: const Color(0xff0A0E0D),
             automaticallyImplyLeading: false,
             actions: [
@@ -874,7 +993,7 @@ class ChatScreen extends StatelessWidget {
           body: ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              Text(isAr ? 'المجموعات النشطة' : 'Active Groups', style: const TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.bold)),
+              Text(AppStrings.get(lang, 'activeGroups'), style: const TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
               ...userModel.chatGroups.asMap().entries.map((entry) {
                 int index = entry.key;
@@ -885,7 +1004,7 @@ class ChatScreen extends StatelessWidget {
                   child: ListTile(
                     leading: const CircleAvatar(backgroundColor: Color(0xff00E676), child: Icon(Icons.groups, color: Colors.black)),
                     title: Text(group['name'].toString(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
-                    subtitle: Text('${group['members']} ${isAr ? "عضو" : "members"} • ${group['lastMsg']}', style: const TextStyle(color: Colors.grey, fontSize: 11)),
+                    subtitle: Text('${group['members']} ${AppStrings.get(lang, 'members')} • ${group['lastMsg']}', style: const TextStyle(color: Colors.grey, fontSize: 11)),
                     trailing: const Icon(Icons.arrow_forward_ios, color: Color(0xff00E676), size: 14),
                     onTap: () {
                       Navigator.push(context, MaterialPageRoute(builder: (context) => GroupChatRoomScreen(groupIndex: index)));
@@ -914,7 +1033,7 @@ class _GroupChatRoomScreenState extends State<GroupChatRoomScreen> {
 
   @override
   Widget build(BuildContext context) {
-    bool isAr = userModel.currentLanguage == 'ar';
+    String lang = userModel.currentLanguage;
     return AnimatedBuilder(
       animation: userModel,
       builder: (context, contextChild) {
@@ -968,7 +1087,7 @@ class _GroupChatRoomScreenState extends State<GroupChatRoomScreen> {
                         controller: _msgController,
                         style: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
-                          hintText: isAr ? 'اكتب رسالتك...' : 'Type your message...',
+                          hintText: AppStrings.get(lang, 'typeMessage'),
                           hintStyle: const TextStyle(color: Colors.grey),
                           filled: true,
                           fillColor: const Color(0xff121816),
@@ -1010,9 +1129,9 @@ class _SupportScreenState extends State<SupportScreen> {
 
   @override
   Widget build(BuildContext context) {
-    bool isAr = userModel.currentLanguage == 'ar';
+    String lang = userModel.currentLanguage;
     return Scaffold(
-      appBar: AppBar(title: Text(isAr ? 'الدعم الفني المباشر' : '24/7 Live Support'), backgroundColor: const Color(0xff0A0E0D)),
+      appBar: AppBar(title: Text(AppStrings.get(lang, 'liveSupport')), backgroundColor: const Color(0xff0A0E0D)),
       body: AnimatedBuilder(
         animation: userModel,
         builder: (context, child) {
@@ -1059,7 +1178,7 @@ class _SupportScreenState extends State<SupportScreen> {
                         controller: _msgController,
                         style: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
-                          hintText: isAr ? 'اكتب مشكلتك هنا...' : 'Type your issue here...',
+                          hintText: AppStrings.get(lang, 'typeIssue'),
                           hintStyle: const TextStyle(color: Colors.grey),
                           filled: true,
                           fillColor: const Color(0xff121816),
@@ -1095,12 +1214,12 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isAr = userModel.currentLanguage == 'ar';
+    String lang = userModel.currentLanguage;
     return AnimatedBuilder(
       animation: userModel,
       builder: (context, child) {
         return Scaffold(
-          appBar: AppBar(title: Text(isAr ? 'الإعدادات والحساب' : 'Profile & Settings'), backgroundColor: const Color(0xff0A0E0D), automaticallyImplyLeading: false),
+          appBar: AppBar(title: Text(AppStrings.get(lang, 'settings')), backgroundColor: const Color(0xff0A0E0D), automaticallyImplyLeading: false),
           body: ListView(
             padding: const EdgeInsets.all(16),
             children: [
@@ -1116,27 +1235,27 @@ class SettingsScreen extends StatelessWidget {
               Center(child: Text(userModel.userName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18))),
               Center(child: Text('@${userModel.userUsername}', style: const TextStyle(color: Color(0xff00E5FF), fontSize: 13))),
               const SizedBox(height: 24),
-              Text(isAr ? 'إعدادات الحساب' : 'Account Settings', style: const TextStyle(color: Color(0xff00E676), fontWeight: FontWeight.bold, fontSize: 15)),
+              Text(lang == 'ar' ? 'إعدادات الحساب' : 'Account Settings', style: const TextStyle(color: Color(0xff00E676), fontWeight: FontWeight.bold, fontSize: 15)),
               const SizedBox(height: 10),
               ListTile(
                 tileColor: const Color(0xff121816),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 leading: const Icon(Icons.manage_accounts, color: Color(0xff00E676)),
-                title: Text(isAr ? 'إدارة الملف الشخصي' : 'Manage Profile', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                subtitle: Text(isAr ? 'تعديل الاسم، اليوزرنيم، الصورة ورقم الهاتف' : 'Edit name, username, picture & phone', style: const TextStyle(color: Colors.grey, fontSize: 11)),
+                title: Text(AppStrings.get(lang, 'manageProfile'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                subtitle: Text(lang == 'ar' ? 'تعديل الاسم، اليوزرنيم، الصورة ورقم الهاتف' : 'Edit name, username, picture & phone', style: const TextStyle(color: Colors.grey, fontSize: 11)),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
                 onTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const EditProfileScreen()));
                 },
               ),
               const SizedBox(height: 12),
-              Text(isAr ? 'الدعم والقانونية' : 'Support & Legal', style: const TextStyle(color: Color(0xff00E676), fontWeight: FontWeight.bold, fontSize: 15)),
+              Text(lang == 'ar' ? 'الدعم والقانونية' : 'Support & Legal', style: const TextStyle(color: Color(0xff00E676), fontWeight: FontWeight.bold, fontSize: 15)),
               const SizedBox(height: 8),
               ListTile(
                 tileColor: const Color(0xff121816),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 leading: const Icon(Icons.support_agent, color: Color(0xff00E676)),
-                title: Text(isAr ? 'الدعم الفني المباشر' : 'Live Support', style: const TextStyle(color: Colors.white)),
+                title: Text(AppStrings.get(lang, 'liveSupport'), style: const TextStyle(color: Colors.white)),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
                 onTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const SupportScreen()));
@@ -1147,7 +1266,7 @@ class SettingsScreen extends StatelessWidget {
                 tileColor: const Color(0xff121816),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 leading: const Icon(Icons.privacy_tip_outlined, color: Color(0xff00E676)),
-                title: Text(isAr ? 'سياسة الخصوصية' : 'Privacy Policy', style: const TextStyle(color: Colors.white)),
+                title: Text(AppStrings.get(lang, 'privacyPolicy'), style: const TextStyle(color: Colors.white)),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
                 onTap: () => _showPrivacyPolicyDialog(context),
               ),
@@ -1158,8 +1277,8 @@ class SettingsScreen extends StatelessWidget {
                 tileColor: const Color(0xff121816),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 leading: const Icon(Icons.language, color: Color(0xff00E5FF)),
-                title: Text(isAr ? 'لغة التطبيق (Language)' : 'App Language', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                subtitle: Text(isAr ? (userModel.currentLanguage == 'ar' ? 'العربية (Arabic)' : 'English') : (userModel.currentLanguage == 'ar' ? 'Arabic' : 'English (الإنجليزية)'), style: const TextStyle(color: Colors.grey, fontSize: 11)),
+                title: Text(AppStrings.get(lang, 'appLanguage'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                subtitle: Text(lang == 'ar' ? (userModel.currentLanguage == 'ar' ? 'العربية (Arabic)' : 'English') : (userModel.currentLanguage == 'ar' ? 'Arabic' : 'English (الإنجليزية)'), style: const TextStyle(color: Colors.grey, fontSize: 11)),
                 trailing: DropdownButton<String>(
                   value: userModel.currentLanguage,
                   dropdownColor: const Color(0xff121816),
@@ -1182,9 +1301,9 @@ class SettingsScreen extends StatelessWidget {
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red.withOpacity(0.2), foregroundColor: Colors.redAccent, minimumSize: const Size(double.infinity, 50)),
                 onPressed: () {
                   userModel.signOutUser();
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(isAr ? 'تم تسجيل الخروج بنجاح.' : 'Logged out successfully.'), backgroundColor: Colors.orange));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'تم تسجيل الخروج بنجاح.' : 'Logged out successfully.'), backgroundColor: Colors.orange));
                 },
-                child: Text(isAr ? 'تسجيل الخروج (Log Out)' : 'Log Out', style: const TextStyle(fontWeight: FontWeight.bold)),
+                child: Text(AppStrings.get(lang, 'logOut'), style: const TextStyle(fontWeight: FontWeight.bold)),
               ),
             ],
           ),
@@ -1194,22 +1313,22 @@ class SettingsScreen extends StatelessWidget {
   }
 
   void _showPrivacyPolicyDialog(BuildContext context) {
-    bool isAr = userModel.currentLanguage == 'ar';
+    String lang = userModel.currentLanguage;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xff121816),
-        title: Text(isAr ? 'سياسة الخصوصية - RAYID PAY' : 'Privacy Policy - RAYID PAY', style: const TextStyle(color: Color(0xff00E676), fontSize: 16)),
+        title: Text('${AppStrings.get(lang, 'privacyPolicy')} - RAYID PAY', style: const TextStyle(color: Color(0xff00E676), fontSize: 16)),
         content: SingleChildScrollView(
           child: Text(
-            isAr 
+            lang == 'ar' 
               ? 'نحن نلتزم بحماية بياناتك الشخصية والمالية بأعلى معايير الأمان.\n\n• السحوبات مشفرة بالكامل.\n• البيانات تستخدم لمعالجة الأرباح والنقاط.'
               : 'We protect your financial and personal data with advanced encryption.\n\n• Secure Payouts: All withdrawals are fully encrypted.\n• Privacy: Your data is secure and used only for reward processing.',
             style: const TextStyle(color: Colors.grey, height: 1.4, fontSize: 13),
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text(isAr ? 'إغلاق' : 'Close', style: const TextStyle(color: Color(0xff00E676))))
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(AppStrings.get(lang, 'close'), style: const TextStyle(color: Color(0xff00E676))))
         ],
       ),
     );
@@ -1242,16 +1361,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Future<void> _pickImage() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    String lang = userModel.currentLanguage;
     if (pickedFile != null) {
       await userModel.updateProfile(image: File(pickedFile.path));
       setState(() {});
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(userModel.currentLanguage == 'ar' ? 'تم تحديث الصورة الشخصية!' : 'Profile picture updated!'), backgroundColor: Colors.green));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'تم تحديث الصورة الشخصية!' : 'Profile picture updated!'), backgroundColor: Colors.green));
       }
     }
   }
 
   void _saveProfile() async {
+    String lang = userModel.currentLanguage;
     await userModel.updateProfile(
       name: _nameController.text,
       username: _usernameController.text,
@@ -1259,30 +1380,30 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       phone: _phoneController.text,
     );
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(userModel.currentLanguage == 'ar' ? 'تم حفظ التعديلات بنجاح!' : 'Profile updated successfully!'), backgroundColor: Colors.green));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'تم حفظ التعديلات بنجاح!' : 'Profile updated successfully!'), backgroundColor: Colors.green));
       Navigator.pop(context);
     }
   }
 
   void _confirmDeleteAccount() {
-    bool isAr = userModel.currentLanguage == 'ar';
+    String lang = userModel.currentLanguage;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xff121816),
-        title: Text(isAr ? 'حذف الحساب نهائياً' : 'Delete Account Permanently', style: const TextStyle(color: Colors.redAccent)),
-        content: Text(isAr ? 'هل أنت متأكد من حذف الحساب؟ ستفقد كافة الأرصدة والنقاط.' : 'Are you sure you want to delete your account? All balances and points will be lost.', style: const TextStyle(color: Colors.grey)),
+        title: Text(AppStrings.get(lang, 'deleteAccount'), style: const TextStyle(color: Colors.redAccent)),
+        content: Text(lang == 'ar' ? 'هل أنت متأكد من حذف الحساب؟ ستفقد كافة الأرصدة والنقاط.' : 'Are you sure you want to delete your account? All balances and points will be lost.', style: const TextStyle(color: Colors.grey)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text(isAr ? 'إلغاء' : 'Cancel', style: const TextStyle(color: Colors.white))),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(AppStrings.get(lang, 'cancel'), style: const TextStyle(color: Colors.white))),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
             onPressed: () {
               userModel.deleteAccount();
               Navigator.pop(context);
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(isAr ? 'تم حذف الحساب.' : 'Account deleted permanently.'), backgroundColor: Colors.red));
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'تم حذف الحساب.' : 'Account deleted permanently.'), backgroundColor: Colors.red));
             },
-            child: Text(isAr ? 'حذف' : 'Delete', style: const TextStyle(fontWeight: FontWeight.bold)),
+            child: Text(lang == 'ar' ? 'حذف' : 'Delete', style: const TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -1291,9 +1412,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    bool isAr = userModel.currentLanguage == 'ar';
+    String lang = userModel.currentLanguage;
     return Scaffold(
-      appBar: AppBar(title: Text(isAr ? 'إدارة الملف الشخصي' : 'Manage Profile'), backgroundColor: const Color(0xff0A0E0D)),
+      appBar: AppBar(title: Text(AppStrings.get(lang, 'manageProfile')), backgroundColor: const Color(0xff0A0E0D)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -1317,25 +1438,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          TextField(controller: _nameController, style: const TextStyle(color: Colors.white), decoration: InputDecoration(labelText: isAr ? 'الاسم الكامل' : 'Full Name', filled: true, fillColor: const Color(0xff121816))),
+          TextField(controller: _nameController, style: const TextStyle(color: Colors.white), decoration: InputDecoration(labelText: AppStrings.get(lang, 'fullName'), filled: true, fillColor: const Color(0xff121816))),
           const SizedBox(height: 14),
-          TextField(controller: _usernameController, style: const TextStyle(color: Colors.white), decoration: InputDecoration(labelText: isAr ? 'اسم المستخدم' : 'Username', filled: true, fillColor: const Color(0xff121816), prefixText: '@')),
+          TextField(controller: _usernameController, style: const TextStyle(color: Colors.white), decoration: InputDecoration(labelText: AppStrings.get(lang, 'username'), filled: true, fillColor: const Color(0xff121816), prefixText: '@')),
           const SizedBox(height: 14),
-          TextField(controller: _emailController, style: const TextStyle(color: Colors.white), decoration: InputDecoration(labelText: isAr ? 'البريد الإلكتروني' : 'Email', filled: true, fillColor: const Color(0xff121816))),
+          TextField(controller: _emailController, style: const TextStyle(color: Colors.white), decoration: InputDecoration(labelText: AppStrings.get(lang, 'email'), filled: true, fillColor: const Color(0xff121816))),
           const SizedBox(height: 14),
-          TextField(controller: _phoneController, style: const TextStyle(color: Colors.white), decoration: InputDecoration(labelText: isAr ? 'رقم الهاتف' : 'Phone', filled: true, fillColor: const Color(0xff121816))),
+          TextField(controller: _phoneController, style: const TextStyle(color: Colors.white), decoration: InputDecoration(labelText: AppStrings.get(lang, 'phone'), filled: true, fillColor: const Color(0xff121816))),
           const SizedBox(height: 24),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black, minimumSize: const Size(double.infinity, 50)),
             onPressed: _saveProfile,
-            child: Text(isAr ? 'حفظ التعديلات' : 'Save Changes', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+            child: Text(AppStrings.get(lang, 'saveChanges'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
           ),
           const SizedBox(height: 40),
           OutlinedButton.icon(
             style: OutlinedButton.styleFrom(foregroundColor: Colors.redAccent, side: const BorderSide(color: Colors.redAccent), minimumSize: const Size(double.infinity, 50)),
             onPressed: _confirmDeleteAccount,
             icon: const Icon(Icons.delete_forever),
-            label: Text(isAr ? 'حذف الحساب نهائياً' : 'Delete Account Permanently', style: const TextStyle(fontWeight: FontWeight.bold)),
+            label: Text(AppStrings.get(lang, 'deleteAccount'), style: const TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
