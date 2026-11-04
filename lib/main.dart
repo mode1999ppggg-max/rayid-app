@@ -57,7 +57,7 @@ class RayidApp extends StatelessWidget {
           surface: Color(0xff1E1E1E),
         ),
       ),
-      home: const LoginScreen(), // البداية من شاشة تسجيل دخول المطور
+      home: const LoginScreen(),
     );
   }
 }
@@ -249,7 +249,6 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 20),
-                // بطاقة الرصيد التفاعلية
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -282,7 +281,6 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // الرسم البياني
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -307,7 +305,13 @@ class HomeScreen extends StatelessWidget {
                 const SizedBox(height: 24),
                 const Text('سجل الأنشطة والمكافآت (قابل للنقر)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
                 const SizedBox(height: 12),
-                ...appData.activities.map((act) => _activityTile(context, act['title'], act['amount'], act['time'], act['isPositive'])).toList(),
+                ...appData.activities.map((act) => _activityTile(
+                  context,
+                  act['title'].toString(),
+                  act['amount'].toString(),
+                  act['time'].toString(),
+                  act['isPositive'] == true,
+                )).toList(),
               ],
             ),
           ),
@@ -507,7 +511,7 @@ class WalletScreen extends StatelessWidget {
             appData.updateBalance(0.0, appData.points);
             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إرسال طلب السحب بنجاح!'), backgroundColor: Colors.green));
           } else {
-            ScaffoldMessenger.of(context).showSnackBar(constSnackBar(content: Text('عذراً، الرصيد غير كافٍ.'), backgroundColor: Colors.red));
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('عذراً، الرصيد غير كافٍ.'), backgroundColor: Colors.red));
           }
         },
       ),
