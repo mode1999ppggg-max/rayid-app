@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -28,7 +29,7 @@ class UserAppModel extends ChangeNotifier {
     {'sender': 'support', 'text': 'مرحباً بك في دعم RAYID PAY. كيف يمكننا مساعدتك اليوم؟', 'time': 'الآن'}
   ];
 
-  // مجموعات الدردشة الجديدة
+  // مجموعات الدردشة الجديدة (بأنواع محددة بدقة لتجنب أخطاء البناء)
   List> chatGroups = [
     {'name': 'مجموعة أرباح الإعلانات الكبرى', 'members': 1420, 'lastMsg': 'تم توزيع مكافآت الأسبوع بنجاح!'},
     {'name': 'متداولو زين كاش وماستر كارد', 'members': 850, 'lastMsg': 'شباب وصل السحب لو بعده؟'},
@@ -729,7 +730,7 @@ class GamesScreen extends StatelessWidget {
   }
 }
 
-// شاشة الدردشة والمجموعات المحدثة
+// شاشة الدردشة والمجموعات المصححة بالكامل
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
 
@@ -788,7 +789,7 @@ class ChatScreen extends StatelessWidget {
                 decoration: BoxDecoration(color: const Color(0xff1E1E1E), borderRadius: BorderRadius.circular(16)),
                 child: ListTile(
                   leading: const CircleAvatar(backgroundColor: Color(0xff00E676), child: Icon(Icons.groups, color: Colors.black)),
-                  title: Text(group['name'], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                  title: Text(group['name'] as String, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
                   subtitle: Text('${group['members']} عضو • ${group['lastMsg']}', style: const TextStyle(color: Colors.grey, fontSize: 11)),
                   trailing: const Icon(Icons.arrow_forward_ios, color: Color(0xff00E676), size: 14),
                   onTap: () {
