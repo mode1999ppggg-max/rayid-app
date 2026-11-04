@@ -25,5 +25,9 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Build APK Release
-        run: flutter build apk --release --no-pub
+      - name: Force Gradle Fix and Build APK
+        run: |
+          flutter config --no-analytics
+          flutter build apk --release --no-pub
+        env:
+          JAVA_HOME: ${{ steps.set-up-java.outputs.java-path }}
