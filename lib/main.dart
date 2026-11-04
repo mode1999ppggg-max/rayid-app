@@ -6,17 +6,18 @@ void main() {
   runApp(const RayidApp());
 }
 
-// نموذج بيانات مبسط وآمن تماماً ضد أخطاء المترجم
+// نموذج بيانات مالي يدعم الدينار العراقي والدولار
 class AppDataModel extends ChangeNotifier {
-  double balance = 45.50;
+  double balanceUSD = 45.50;
+  double get balanceIQD => balanceUSD * 1320; // سعر الصرف التقريبي للتوضيح
   int points = 1240;
   List<dynamic> activities = [
-    {'title': 'إكمال مشاهدة إعلان مكافأة مؤهل', 'amount': '+50 نقطة (\$0.50)', 'time': 'منذ ساعة', 'isPositive': true},
-    {'title': 'سحب أرباح عبر زين كاش', 'amount': '-\$15.00', 'time': 'أمس', 'isPositive': false},
+    {'title': 'إكمال مشاهدة إعلان مكافأة مؤهل', 'amount': '+50 نقطة (0.50\$ / 660 د.ع)', 'time': 'منذ ساعة', 'isPositive': true},
+    {'title': 'سحب أرباح عبر زين كاش', 'amount': '-19,800 د.ع (15.00\$)', 'time': 'أمس', 'isPositive': false},
   ];
 
-  void updateBalance(double newBalance, int newPoints) {
-    balance = newBalance;
+  void updateBalance(double newBalanceUSD, int newPoints) {
+    balanceUSD = newBalanceUSD;
     points = newPoints;
     notifyListeners();
   }
@@ -263,13 +264,18 @@ class HomeScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: const [
                           Text('إجمالي أرباح الإعلانات المتاحة', style: TextStyle(color: Colors.grey, fontSize: 13)),
-                          Text('وضع المطور مفعل', style: TextStyle(color: Color(0xff00E676), fontSize: 11, fontWeight: FontWeight.bold)),
+                          Text('IQD / USD', style: TextStyle(color: Color(0xff00E676), fontSize: 11, fontWeight: FontWeight.bold)),
                         ],
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '\$${appData.balance.toStringAsFixed(2)}',
-                        style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Color(0xff00E676)),
+                        '${appData.balanceIQD.toStringAsFixed(0)} د.ع',
+                        style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w900, color: Color(0xff00E676)),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '(${appData.balanceUSD.toStringAsFixed(2)}\$ أمريكي)',
+                        style: const TextStyle(fontSize: 13, color: Colors.grey, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 16),
                       Row(
@@ -326,7 +332,7 @@ class HomeScreen extends StatelessWidget {
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xff1E1E1E),
         title: const Text('الإشعارات والتنبيهات', style: TextStyle(color: Colors.white)),
-        content: const Text('• تم تحديث نظام تتبع الإعلانات بنجاح.\n• تم إضافة 8 إعلانات مؤهلة جديدة للمستخدمين اليوم.', style: TextStyle(color: Colors.grey)),
+        content: const Text('• تم تحديث نظام تتبع الإعلانات وإظهار العملة بالدينار والدولار.\n• تم إضافة 8 إعلانات مؤهلة جديدة للمستخدمين اليوم.', style: TextStyle(color: Colors.grey)),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('إغلاق', style: TextStyle(color: Color(0xff00E676))))
         ],
@@ -374,7 +380,7 @@ class HomeScreen extends StatelessWidget {
                 ),
               ],
             ),
-            Text(amount, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 14)),
+            Text(amount, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 13)),
           ],
         ),
       ),
@@ -418,14 +424,14 @@ class AdsRewardsScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _buildAdTile(context, 'إعلان مكافأة رقم #1', '+50 نقطة (\$0.50)', 50, 0.50),
-          _buildAdTile(context, 'إعلان ترويجي مميز', '+100 نقطة (\$1.00)', 100, 1.00),
+          _buildAdTile(context, 'إعلان مكافأة رقم #1', '+50 نقطة (660 د.ع / 0.50\$)', 50, 0.50),
+          _buildAdTile(context, 'إعلان ترويجي مميز', '+100 نقطة (1,320 د.ع / 1.00\$)', 100, 1.00),
         ],
       ),
     );
   }
 
-  Widget _buildAdTile(BuildContext context, String title, String rewardText, int addPoints, double addMoney) {
+  Widget _buildAdTile(BuildContext context, String title, String rewardText, int addPoints, double addMoneyUSD) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
@@ -444,8 +450,8 @@ class AdsRewardsScreen extends StatelessWidget {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black),
             onPressed: () {
-              appData.updateBalance(appData.balance + addMoney, appData.points + addPoints);
-              appData.addActivity('مشاهدة إعلان تجريبي ناجح', '+$addPoints نقطة (+\$$addMoney)', true);
+              appData.updateBalance(appData.balanceUSD + addMoneyUSD, appData.points + addPoints);
+              appData.addActivity('مشاهدة إعلان تجريبي ناجح', '+$addPoints نقطة (+${(addMoneyUSD * 1320).toStringAsFixed(0)} د.ع)', true);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('تم التحقق من مشاهدة الإعلان وإضافة المكافأة بنجاح!'), backgroundColor: Colors.green),
               );
@@ -479,14 +485,16 @@ class WalletScreen extends StatelessWidget {
                   children: [
                     const Text('الرصيد المتاح للسحب', style: TextStyle(color: Colors.grey, fontSize: 13)),
                     const SizedBox(height: 8),
-                    Text('\$${appData.balance.toStringAsFixed(2)}', style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w900, color: Color(0xff00E676))),
+                    Text('${appData.balanceIQD.toStringAsFixed(0)} د.ع', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xff00E676))),
+                    const SizedBox(height: 4),
+                    Text('(${appData.balanceUSD.toStringAsFixed(2)}\$ أمريكي)', style: const TextStyle(fontSize: 13, color: Colors.grey, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 12),
                     Text('🟡 النقاط: ${appData.points} نقطة', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
               const SizedBox(height: 24),
-              const Text('طرق السحب المتاحة', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+              const Text('طرق السحب المتاحة في العراق', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
               _buildWithdrawTile(context, 'AsiaCell Cash (آسياسيل)'),
               _buildWithdrawTile(context, 'ZainCash (زين كاش)'),
@@ -506,10 +514,10 @@ class WalletScreen extends StatelessWidget {
         title: Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
         trailing: const Icon(Icons.arrow_forward_ios, color: Color(0xff00E676), size: 16),
         onTap: () {
-          if (appData.balance > 0) {
-            appData.addActivity('طلب سحب أرباح عبر $title', '-\$${appData.balance.toStringAsFixed(2)}', false);
+          if (appData.balanceUSD > 0) {
+            appData.addActivity('طلب سحب أرباح عبر $title', '-${appData.balanceIQD.toStringAsFixed(0)} د.ع', false);
             appData.updateBalance(0.0, appData.points);
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إرسال طلب السحب بنجاح!'), backgroundColor: Colors.green));
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إرسال طلب السحب بنجاح إلى محفظتك العراقية!'), backgroundColor: Colors.green));
           } else {
             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('عذراً، الرصيد غير كافٍ.'), backgroundColor: Colors.red));
           }
@@ -596,14 +604,14 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  final _balanceController = TextEditingController(text: appData.balance.toString());
+  final _balanceController = TextEditingController(text: appData.balanceUSD.toString());
   final _pointsController = TextEditingController(text: appData.points.toString());
 
   void _saveDeveloperData() {
-    double? newBal = double.tryParse(_balanceController.text);
+    double? newBalUSD = double.tryParse(_balanceController.text);
     int? newPts = int.tryParse(_pointsController.text);
-    if (newBal != null && newPts != null) {
-      appData.updateBalance(newBal, newPts);
+    if (newBalUSD != null && newPts != null) {
+      appData.updateBalance(newBalUSD, newPts);
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تحديث لوحة تحكم المطور بنجاح!'), backgroundColor: Colors.green));
     }
   }
@@ -621,7 +629,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             controller: _balanceController,
             keyboardType: TextInputType.number,
             style: const TextStyle(color: Colors.white),
-            decoration: const InputDecoration(labelText: 'تعديل الرصيد ($)', filled: true, fillColor: Color(0xff1E1E1E)),
+            decoration: const InputDecoration(labelText: 'تعديل الرصيد بالدولار ($)', filled: true, fillColor: Color(0xff1E1E1E)),
           ),
           const SizedBox(height: 12),
           TextField(
