@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu_latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
@@ -26,7 +26,7 @@ jobs:
         run: flutter pub get
 
       - name: Create Android Structure
-        run: flutter create --platforms=android .
+        run: flutter create --platforms=android --project-name=rayid_app .
 
       - name: Build APK Release
         run: flutter build apk --release --no-pub
