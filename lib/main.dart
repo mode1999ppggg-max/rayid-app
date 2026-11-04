@@ -68,7 +68,7 @@ class AppStrings {
       'gamePool': 'بلياردو (8 Ball Pool)',
       'gameDomino': 'نادي الدومينو',
       'gameBackgammon': 'لعبة الطاولة',
-      'gameRoblox': 'ساحة روبلوكس',
+      'gameRoblox': 'ساحة روبلوكس الكبرى (10k بطولة)',
       'play': 'العب',
     },
     'en': {
@@ -130,7 +130,7 @@ class AppStrings {
       'gamePool': '8 Ball Pool',
       'gameDomino': 'Domino Club',
       'gameBackgammon': 'Backgammon',
-      'gameRoblox': 'Roblox Arena',
+      'gameRoblox': 'Roblox Mega Arena (10k Tournament)',
       'play': 'Play',
     }
   };
@@ -234,6 +234,26 @@ class UserAppModel extends ChangeNotifier {
       return true;
     }
     return false;
+  }
+
+  // دوال الرهان والبطولات (مضافة لخدمة ساحة روبلوكس)
+  bool joinGameTournament(int entryFeePoints, String gameTitle) {
+    if (points >= entryFeePoints) {
+      points -= entryFeePoints;
+      addActivity('دخول بطولة $gameTitle', '-$entryFeePoints نقطة', false);
+      notifyListeners();
+      return true;
+    }
+    return false;
+  }
+
+  void winTournamentReward(int totalPrizePool, String gameTitle) {
+    int platformCut = (totalPrizePool * 0.10).round();
+    int winnerPrize = totalPrizePool - platformCut;
+
+    points += winnerPrize;
+    addActivity('فوز في بطولة $gameTitle 🏆', '+$winnerPrize نقطة', true);
+    notifyListeners();
   }
 
   Future<bool> signUpUser(String name, String username, String email, String phone, String password) async {
@@ -866,7 +886,7 @@ class WalletScreen extends StatelessWidget {
   }
 }
 
-// ================= 4. الألعاب والدردشة =================
+// ================= 4. الألعاب والدردشة (مع تفعيل زر ساحة روبلوكس بنظام الرهان وصندوق الجوائز) =================
 class GamesScreen extends StatelessWidget {
   const GamesScreen({super.key});
 
@@ -878,46 +898,142 @@ class GamesScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _gameCard(context, AppStrings.get(lang, 'gameLudo'), Icons.casino, Colors.greenAccent),
-          _gameCard(context, AppStrings.get(lang, 'gameChess'), Icons.extension, Colors.blueAccent),
-          _gameCard(context, AppStrings.get(lang, 'gameDomino'), Icons.apps, Colors.amberAccent),
-          _gameCard(context, AppStrings.get(lang, 'gameBackgammon'), Icons.grid_view, Colors.purpleAccent),
-          _gameCard(context, AppStrings.get(lang, 'gamePool'), Icons.sports_bar, Colors.orangeAccent),
-          _gameCard(context, AppStrings.get(lang, 'gameRoblox'), Icons.sports_esports, Colors.redAccent),
+          _gameCard(context, AppStrings.get(lang, 'gameLudo'), Icons.casino, Colors.greenAccent, 50, () {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('جاري تشغيل بطولة اللودو...')));
+          }),
+          _gameCard(context, AppStrings.get(lang, 'gameChess'), Icons.extension, Colors.blueAccent, 30, () {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('جاري فتح طاولة الشطرنج...')));
+          }),
+          _gameCard(context, AppStrings.get(lang, 'gameDomino'), Icons.apps, Colors.amberAccent, 20, () {}),
+          _gameCard(context, AppStrings.get(lang, 'gameBackgammon'), Icons.grid_view, Colors.purpleAccent, 20, () {}),
+          _gameCard(context, AppStrings.get(lang, 'gamePool'), Icons.sports_bar, Colors.orangeAccent, 40, () {}),
+          _gameCard(context, AppStrings.get(lang, 'gameRoblox'), Icons.sports_esports, Colors.redAccent, 100, () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const RobloxArenaScreen()));
+          }),
         ],
       ),
     );
   }
 
-  Widget _gameCard(BuildContext context, String title, IconData icon, Color color) {
+  Widget _gameCard(BuildContext context, String title, IconData icon, Color color, int entryFee, VoidCallback onTap) {
     String lang = userModel.currentLanguage;
-    return InkWell(
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(lang == 'ar' ? 'جاري تشغيل لعبة $title' : 'Launching $title'))
-        );
-      },
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 14),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(color: const Color(0xff121816), borderRadius: BorderRadius.circular(20)),
-        child: Row(
-          children: [
-            Icon(icon, color: color, size: 30),
-            const SizedBox(width: 16),
-            Expanded(child: Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: color, foregroundColor: Colors.black),
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(lang == 'ar' ? 'جاري تشغيل لعبة $title' : 'Launching $title'))
-                );
-              },
-              child: Text(AppStrings.get(lang, 'play'), style: const TextStyle(fontWeight: FontWeight.bold)),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(color: const Color(0xff121816), borderRadius: BorderRadius.circular(20)),
+      child: Row(
+        children: [
+          Icon(icon, color: color, size: 30),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                const SizedBox(height: 4),
+                Text('🎟️ رهان الدخول: $entryFee نقطة', style: const TextStyle(color: Colors.grey, fontSize: 11)),
+              ],
             ),
-          ],
-        ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: color, foregroundColor: Colors.black),
+            onPressed: () {
+              bool joined = userModel.joinGameTournament(entryFee, title);
+              if (joined) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(lang == 'ar' ? 'تم خصم $entryFee نقطة رهان. بالتوفيق!' : 'Bet deducted. Good luck!'), backgroundColor: Colors.green)
+                );
+                onTap();
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(lang == 'ar' ? 'عذراً، نقاطك لا تكفي لدخول الرهان!' : 'Insufficient points for bet!'), backgroundColor: Colors.red)
+                );
+              }
+            },
+            child: Text(AppStrings.get(lang, 'play'), style: const TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ساحة روبلوكس الكبرى (مفعلة بصندوق جوائز 10,000 نقطة ونظام أرباح الفائز)
+class RobloxArenaScreen extends StatelessWidget {
+  const RobloxArenaScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('ساحة روبلوكس الكبرى (10k Prize Pool)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)), backgroundColor: const Color(0xff0A0E0D)),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(colors: [Color(0xff1A1025), Color(0xff0E1216)]),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.redAccent.withOpacity(0.4), width: 1.5),
+            ),
+            child: const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.sports_esports, color: Colors.redAccent, size: 28),
+                    SizedBox(width: 10),
+                    Text('ROBLOX 10K TOURNAMENT', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w900)),
+                  ],
+                ),
+                SizedBox(height: 10),
+                Text(
+                  '100 لاعب مراهن بـ 100 نقطة لكل منهم.\n• إجمالي الصندوق: 10,000 نقطة.\n• حصة التطبيق (10%): 1,000 نقطة.\n• صافي جائزة الفائز الأول: 9,000 نقطة ($4.50 دولار)!',
+                  style: TextStyle(color: Colors.grey, fontSize: 12, height: 1.5),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          const Text('الغرف والبطولات النشطة', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          _buildRoomCard(context, 'بطولة Blox Fruits الكبرى', 100, 10000),
+          _buildRoomCard(context, 'تحدي Adopt Me الأسطوري', 85, 8500),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRoomCard(BuildContext context, String roomName, int playersCount, int prizePool) {
+    int winnerPrize = (prizePool * 0.90).round();
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(color: const Color(0xff121816), borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.white.withOpacity(0.06))),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(roomName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                const SizedBox(height: 6),
+                Text('👥 المتصلون: $playersCount/100 • 🏆 صافي الفائز: $winnerPrize نقطة', style: const TextStyle(color: Colors.grey, fontSize: 11)),
+              ],
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black),
+            onPressed: () {
+              userModel.winTournamentReward(prizePool, roomName);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('مبروك! فزت بـ $winnerPrize نقطة صافي وتم إضافتها لرصيدك!'), backgroundColor: Colors.green),
+              );
+            },
+            child: const Text('إعلان الفائز', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
+          ),
+        ],
       ),
     );
   }
