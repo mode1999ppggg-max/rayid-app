@@ -23,13 +23,13 @@ class UserAppModel extends ChangeNotifier {
   String referralCode = 'RAYID-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
   int referralCount = 3;
 
-  // رسائل الدعم الفني المباشر (تم تصحيح نوع البيانات هنا)
-  List> supportMessages = [
+  // رسائل الدعم الفني (تم استخدام var لتجنب مشاكل النسخ)
+  var supportMessages = [
     {'sender': 'support', 'text': 'مرحباً بك في دعم RAYID PAY. كيف يمكننا مساعدتك اليوم؟', 'time': 'الآن'}
   ];
 
-  // المجموعات الاجتماعية (تم تصحيح نوع البيانات هنا)
-  List> chatGroups = [
+  // المجموعات الاجتماعية (تم استخدام var لتجنب مشاكل النسخ)
+  var chatGroups = [
     {'name': 'مجموعة أرباح الإعلانات الكبرى', 'members': 1420, 'lastMsg': 'تم توزيع مكافآت الأسبوع بنجاح!'},
     {'name': 'متداولو زين كاش وماستر كارد', 'members': 850, 'lastMsg': 'شباب وصل السحب لو بعده؟'},
   ];
@@ -109,7 +109,7 @@ class UserAppModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<dynamic> activities = [
+  var activities = [
     {'title': 'إكمال مشاهدة إعلان مكافأة مؤهل', 'amount': '+50 نقطة (0.50 دولار / 660 د.ع)', 'time': 'منذ ساعة', 'isPositive': true},
     {'title': 'سحب أرباح عبر زين كاش', 'amount': '-19,800 د.ع (15.00 دولار)', 'time': 'أمس', 'isPositive': false},
   ];
@@ -788,7 +788,7 @@ class ChatScreen extends StatelessWidget {
                 decoration: BoxDecoration(color: const Color(0xff1E1E1E), borderRadius: BorderRadius.circular(16)),
                 child: ListTile(
                   leading: const CircleAvatar(backgroundColor: Color(0xff00E676), child: Icon(Icons.groups, color: Colors.black)),
-                  title: Text(group['name'] as String, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                  title: Text(group['name'].toString(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
                   subtitle: Text('${group['members']} عضو • ${group['lastMsg']}', style: const TextStyle(color: Colors.grey, fontSize: 11)),
                   trailing: const Icon(Icons.arrow_forward_ios, color: Color(0xff00E676), size: 14),
                   onTap: () {
