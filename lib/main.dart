@@ -1,3 +1,4 @@
+
 // ================= 7. شاشة الإعدادات والتحكم بالحساب =================
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
