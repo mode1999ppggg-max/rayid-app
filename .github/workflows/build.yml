@@ -19,11 +19,11 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.16.0'
+          flutter-version: '3.10.6'
           channel: 'stable'
 
       - name: Install dependencies
         run: flutter pub get
 
       - name: Build APK Release
-        run: flutter build apk --release --no-pub --target-platform android-arm,android-arm64,android-x64
+        run: flutter build apk --release --no-pub
