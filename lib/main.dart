@@ -135,7 +135,7 @@ class AppStrings {
     }
   };
 
-   static String get(String lang, String key) {
+  static String get(String lang, String key) {
     return localizedValues[lang]?[key] ?? localizedValues['en']?[key] ?? key;
   }
 }
@@ -539,7 +539,7 @@ class MainNavigationHubState extends State<MainNavigationHub> {
   }
 }
 
-// ================= 1. الصفحة الرئيسية (محدثة بأسلوب Cyberpunk الفاخر) =================
+// ================= 1. الصفحة الرئيسية (محدثة بأسلوب Cyberpunk الفاخر مع الحفاظ التام على البيانات) =================
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -562,6 +562,7 @@ class HomeScreen extends StatelessWidget {
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
+                  // شريط الترحيب والملف الشخصي
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -596,6 +597,8 @@ class HomeScreen extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 24),
+
+                  // بطاقة الرصيد بأسلوب Cyberpunk & Glassmorphic المتطور
                   Container(
                     padding: const EdgeInsets.all(22),
                     decoration: BoxDecoration(
@@ -667,6 +670,8 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 28),
+
+                  // قسم الأنشطة الأخيرة بتصميم نيون أنيق متوافق مع الحسابات الحقيقية
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
