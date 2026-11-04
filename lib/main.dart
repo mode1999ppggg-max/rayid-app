@@ -32,7 +32,7 @@ class RayidApp extends StatelessWidget {
   }
 }
 
-// ================= 1. شاشة تسجيل الدخول =================
+// ================= 1. شاشة تسجيل الدخول المحدثة (مع إنشاء حساب ونسيت كلمة المرور) =================
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -73,15 +73,24 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: const Icon(Icons.bolt_rounded, color: Color(0xff00ff88), size: 60),
                   ),
                   const SizedBox(height: 24),
-                  const Text('RAYID PAY', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 3, shadows: [Shadow(color: Color(0xff00ff88), blurRadius: 10)])),
+                  const Text(
+                    'RAYID PAY',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white,
+                      letterSpacing: 3,
+                      shadows: [Shadow(color: Color(0xff00ff88), blurRadius: 10)],
+                    ),
+                  ),
                   const SizedBox(height: 8),
-                  Text('منصة الترفيه والأموال الذكية', style: TextStyle(color: Colors.grey[400], fontSize: 13)),
-                  const SizedBox(height: 40),
+                  Text('نظام الألعاب والأموال الرقمية اللامركزي', style: TextStyle(color: Colors.grey[400], fontSize: 13, fontWeight: FontWeight.w500)),
+                  const SizedBox(height: 36),
                   TextField(
                     controller: _emailController,
                     style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
-                      labelText: 'البريد الإلكتروني أو الهاتف',
+                      labelText: 'البريد الإلكتروني أو المعرف',
                       labelStyle: const TextStyle(color: Colors.grey, fontSize: 13),
                       filled: true,
                       fillColor: const Color(0xff121b26),
@@ -103,7 +112,17 @@ class _LoginScreenState extends State<LoginScreen> {
                       focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xff00ff88), width: 1.5)),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 10),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const ForgotPasswordScreen()));
+                      },
+                      child: const Text('هل نسيت كلمة المرور؟', style: TextStyle(color: Color(0xff00ff88), fontSize: 13)),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -119,10 +138,106 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: const Text('تسجيل الدخول', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                     ),
                   ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('ليس لديك حساب؟', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen()));
+                        },
+                        child: const Text('أنشئ حساباً الآن', style: TextStyle(color: Color(0xff00ff88), fontWeight: FontWeight.bold, fontSize: 13)),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+// ================= شاشة إنشاء حساب جديد =================
+class RegisterScreen extends StatelessWidget {
+  const RegisterScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('إنشاء حساب جديد'), backgroundColor: const Color(0xff0b1017)),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              const SizedBox(height: 10),
+              const Text('انضم إلى مجتمع RAYID PAY واكسب الأرباح', style: TextStyle(color: Colors.grey, fontSize: 13)),
+              const SizedBox(height: 30),
+              TextField(
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(labelText: 'اسم اللاعب / المستخدم', labelStyle: const TextStyle(color: Colors.grey), filled: true, fillColor: const Color(0xff121b26), border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none)),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(labelText: 'البريد الإلكتروني', labelStyle: const TextStyle(color: Colors.grey), filled: true, fillColor: const Color(0xff121b26), border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none)),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                obscureText: true,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(labelText: 'كلمة المرور الجديدة', labelStyle: const TextStyle(color: Colors.grey), filled: true, fillColor: const Color(0xff121b26), border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none)),
+              ),
+              const SizedBox(height: 30),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00ff88), foregroundColor: Colors.black, minimumSize: const Size(double.infinity, 50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
+                onPressed: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إنشاء الحساب بنجاح! سجل دخولك الآن'), backgroundColor: Colors.green));
+                },
+                child: const Text('تسجيل الحساب', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ================= شاشة استعادة كلمة المرور =================
+class ForgotPasswordScreen extends StatelessWidget {
+  const ForgotPasswordScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('استعادة كلمة المرور'), backgroundColor: const Color(0xff0b1017)),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('أدخل بريدك الإلكتروني لإرسال رمز التحقق واستعادة حسابك:', style: TextStyle(color: Colors.grey, fontSize: 14)),
+            const SizedBox(height: 24),
+            TextField(
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(labelText: 'البريد الإلكتروني', labelStyle: const TextStyle(color: Colors.grey), filled: true, fillColor: const Color(0xff121b26), border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none)),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00ff88), foregroundColor: Colors.black, minimumSize: const Size(double.infinity, 50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
+              onPressed: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إرسال تعليمات الاستعادة إلى بريدك'), backgroundColor: Colors.green));
+              },
+              child: const Text('إرسال رمز التحقق', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            ),
+          ],
         ),
       ),
     );
@@ -237,7 +352,7 @@ class HomeScreen extends StatelessWidget {
                   children: [
                     const Text('مرحباً لاعب_570575 !', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
                     const SizedBox(height: 4),
-                    Text('أهلاً بك في منصة الأموال والترفيه الذكية', style: TextStyle(fontSize: 13, color: Colors.grey[400])),
+                    Text('بوابتك الاحترافية للأموال والألعاب', style: TextStyle(fontSize: 13, color: Colors.grey[400])),
                     const SizedBox(height: 16),
                     Row(
                       children: [
@@ -336,7 +451,7 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// ================= 4. شاشة تفاصيل اللعبة (تفتح عند الضغط على أي لعبة) =================
+// ================= 4. شاشة تفاصيل اللعبة =================
 class GameDetailScreen extends StatelessWidget {
   final String gameTitle;
   const GameDetailScreen({super.key, required this.gameTitle});
@@ -504,7 +619,7 @@ class WalletScreen extends StatelessWidget {
   }
 }
 
-// ================= 7. شاشة تأكيد السحب (تفتح عند الضغط على طريقة السحب) =================
+// ================= 7. شاشة تأكيد السحب =================
 class WithdrawalScreen extends StatelessWidget {
   final String methodName;
   const WithdrawalScreen({super.key, required this.methodName});
@@ -629,7 +744,7 @@ class ChatBubble extends StatelessWidget {
   }
 }
 
-// ================= 9. شاشة الإعدادات وربط كل أزرارها بشاشات مستقلة =================
+// ================= 9. شاشة الإعدادات =================
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
@@ -698,8 +813,6 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 }
-
-// ================= شاشات الإعدادات الفرعية المستقلة =================
 
 class ProfileEditScreen extends StatelessWidget {
   const ProfileEditScreen({super.key});
