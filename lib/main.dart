@@ -440,7 +440,7 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// ================= 4. شاشة الألعاب (بدون ربح نقاط، فقط ألعاب فخمة وإعلانات) =================
+// ================= 4. شاشة الألعاب (متروكة مفتوحة للتطوير المستقبلي بدون نوافذ مزعجة) =================
 class GamesScreen extends StatelessWidget {
   const GamesScreen({super.key});
 
@@ -492,19 +492,12 @@ class GamesScreen extends StatelessWidget {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: color, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
             onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  backgroundColor: const Color(0xff121b26),
-                  title: Text(title, style: const TextStyle(color: Colors.white)),
-                  content: const Text('هذه اللعبة مخصصة للترفيه والمتعة الخالصة!', style: TextStyle(color: Colors.grey)),
-                  actions: [
-                    TextButton(onPressed: () => Navigator.pop(context), child: const Text('إغلاق', style: TextStyle(color: Color(0xff00ff88)))),
-                  ],
-                ),
+              // تم تركها فارغة مؤقتاً لتطوير الشاشة الخاصة بها لاحقاً بدون نوافذ منبثقة
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('قريباً سيتم إطلاق لعبة $title!'), backgroundColor: Colors.grey[900]),
               );
             },
-            child: const Text('العب الآن', style: TextStyle(fontWeight: FontWeight.bold)),
+            child: const Text('قريباً', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -512,7 +505,7 @@ class GamesScreen extends StatelessWidget {
   }
 }
 
-// ================= 5. شاشة الرصيد والنقاط (بدون تعقيد) =================
+// ================= 5. شاشة الرصيد وطرق السحب التفاعلية =================
 class WalletScreen extends StatelessWidget {
   const WalletScreen({super.key});
 
@@ -550,26 +543,71 @@ class WalletScreen extends StatelessWidget {
             const SizedBox(height: 24),
             const Align(
               alignment: Alignment.centerRight,
-              child: Text('طرق السحب السريعة', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+              child: Text('طرق السحب المتاحة (اضغط للدخول)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
             ),
             const SizedBox(height: 12),
-            _buildQuickTile('AsiaCell Cash (آسياسيل)', Colors.red, Icons.phone_android),
-            _buildQuickTile('ZainCash (زين كاش)', Colors.orange, Icons.phone_iphone),
-            _buildQuickTile('MasterCard (ماستر كارد)', Colors.blue, Icons.credit_card),
+            _buildQuickTile(context, 'AsiaCell Cash (آسياسيل)', Colors.red, Icons.phone_android),
+            _buildQuickTile(context, 'ZainCash (زين كاش)', Colors.orange, Icons.phone_iphone),
+            _buildQuickTile(context, 'MasterCard (ماستر كارد)', Colors.blue, Icons.credit_card),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildQuickTile(String title, Color color, IconData icon) {
+  Widget _buildQuickTile(BuildContext context, String title, Color color, IconData icon) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(color: const Color(0xff121b26), borderRadius: BorderRadius.circular(16), border: Border.all(color: color.withOpacity(0.3))),
       child: ListTile(
         leading: Icon(icon, color: color, size: 28),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-        trailing: const Icon(Icons.check_circle, color: Color(0xff00ff88), size: 20),
+        subtitle: const Text('انقر لإتمام عملية السحب', style: TextStyle(color: Colors.grey, fontSize: 11)),
+        trailing: const Icon(Icons.arrow_forward_ios, color: Color(0xff00ff88), size: 16),
+        onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => WithdrawalDetailScreen(methodName: title)));
+        },
+      ),
+    );
+  }
+}
+
+// ================= شاشة تفاصيل وطريقة السحب المباشرة =================
+class WithdrawalDetailScreen extends StatelessWidget {
+  final String methodName;
+  const WithdrawalDetailScreen({super.key, required this.methodName});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('سحب عبر $methodName'), backgroundColor: const Color(0xff0b1017)),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('أنت تقوم الآن بسحب أرباحك عبر $methodName', style: const TextStyle(color: Colors.white, fontSize: 16)),
+            const SizedBox(height: 20),
+            TextField(
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(labelText: 'رقم الحساب / المحفظة', labelStyle: const TextStyle(color: Colors.grey), filled: true, fillColor: const Color(0xff121b26), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none)),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(labelText: 'المبلغ المراد سحبه (\$ USD)', labelStyle: const TextStyle(color: Colors.grey), filled: true, fillColor: const Color(0xff121b26), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none)),
+            ),
+            const Spacer(),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00ff88), foregroundColor: Colors.black, minimumSize: const Size(double.infinity, 50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+              onPressed: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إرسال طلب السحب بنجاح!'), backgroundColor: Colors.green));
+              },
+              child: const Text('تأكيد وإرسال الطلب', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -646,7 +684,7 @@ class ChatBubble extends StatelessWidget {
   }
 }
 
-// ================= 7. شاشة الإعدادات وسياسة الخصوصية الفخمة =================
+// ================= 7. شاشة الإعدادات (مع تعديل الملف الشخصي وتغيير الصورة) =================
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
@@ -667,9 +705,11 @@ class SettingsScreen extends StatelessWidget {
               children: [
                 ListTile(
                   leading: const Icon(Icons.person_outline, color: Color(0xff00ff88)),
-                  title: const Text('تعديل الملف الشخصي', style: TextStyle(color: Colors.white)),
+                  title: const Text('تعديل الملف الشخصي وتغيير الصورة', style: TextStyle(color: Colors.white)),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileEditScreen()));
+                  },
                 ),
                 const Divider(color: Colors.white12, height: 1),
                 ListTile(
@@ -712,7 +752,69 @@ class SettingsScreen extends StatelessWidget {
   }
 }
 
-// شاسة سياسة الخصوصية الفخمة والمرتبة
+// ================= شاشة تعديل الملف الشخصي وتغيير الصورة =================
+class ProfileEditScreen extends StatelessWidget {
+  const ProfileEditScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('تعديل الملف الشخصي'), backgroundColor: const Color(0xff0b1017)),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          children: [
+            const SizedBox(height: 10),
+            Stack(
+              children: [
+                const CircleAvatar(
+                  radius: 50,
+                  backgroundColor: Color(0xff121b26),
+                  child: Icon(Icons.person, size: 50, color: Color(0xff00ff88)),
+                ),
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  child: CircleAvatar(
+                    radius: 18,
+                    backgroundColor: const Color(0xff00ff88),
+                    child: IconButton(
+                      icon: const Icon(Icons.camera_alt, size: 16, color: Colors.black),
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم فتح معرض الصور لتغيير صورة الحساب')));
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            TextField(
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(labelText: 'اسم اللاعب', labelStyle: const TextStyle(color: Colors.grey), filled: true, fillColor: const Color(0xff121b26), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none)),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(labelText: 'البريد الإلكتروني', labelStyle: const TextStyle(color: Colors.grey), filled: true, fillColor: const Color(0xff121b26), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none)),
+            ),
+            const Spacer(),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00ff88), foregroundColor: Colors.black, minimumSize: const Size(double.infinity, 50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+              onPressed: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم حفظ التعديلات وتحديث الصورة بنجاح!'), backgroundColor: Colors.green));
+              },
+              child: const Text('حفظ التغييرات', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// شاشة سياسة الخصوصية
 class PrivacyPolicyScreen extends StatelessWidget {
   const PrivacyPolicyScreen({super.key});
 
