@@ -56,7 +56,7 @@ class UserAppModel extends ChangeNotifier {
   void addMessageToGroup(int groupIndex, String text) {
     if (text.trim().isEmpty) return;
     var group = chatGroups[groupIndex];
-    var messages = group['messages'] as List>;
+    var messages = group['messages'] as dynamic;
     messages.add({'sender': userName, 'text': text, 'time': 'الآن'});
     group['lastMsg'] = text;
     notifyListeners();
@@ -87,11 +87,11 @@ class UserAppModel extends ChangeNotifier {
   // دالة تحويل النقاط (كل 3000 نقطة فما فوق يمكن تحويلها)
   bool redeemPoints() {
     if (points >= minPointsForRedeem) {
-      int redeemedUnits = points ~/ 200; // كل 200 نقطة تساوي جزء
-      double addedUSD = redeemedUnits * 0.10; // كل 200 نقطة = 10 سنت
+      int redeemedUnits = points ~/ 200; 
+      double addedUSD = redeemedUnits * 0.10; 
       
       balanceUSD += addedUSD;
-      points = points % 200; // الباقي من النقاط
+      points = points % 200; 
 
       addActivity('استبدال نقاط ناجح', '+$addedUSD دولار (${redeemedUnits * 200} نقطة مستبدلة)', true);
       notifyListeners();
@@ -515,7 +515,7 @@ class HomeScreen extends StatelessWidget {
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xff1E1E1E),
         title: const Text('الإشعارات والتنبيهات', style: TextStyle(color: Colors.white)),
-        content: const Text('• تم تحديث نظام الإعلانات: كل إعلان يمنح 4 نقاط[span_1](start_span)[span_1](end_span).\n• الحد الأدنى لتحويل النقاط هو 3000 نقطة لاستبدالها برصيد حقيقي.', style: TextStyle(color: Colors.grey)),
+        content: const Text('• تم تحديث نظام الإعلانات: كل إعلان يمنح 4 نقاط.\n• الحد الأدنى لتحويل النقاط هو 3000 نقطة لاستبدالها برصيد حقيقي.', style: TextStyle(color: Colors.grey)),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('إغلاق', style: TextStyle(color: Color(0xff00E676))))
         ],
@@ -538,7 +538,7 @@ class ChartPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-// ================= 2. مركز الإعلانات والمكافآت (4 نقاط لكل إعلان) =================
+// ================= 2. مركز الإعلانات والمكافآت =================
 class AdsRewardsScreen extends StatelessWidget {
   const AdsRewardsScreen({super.key});
 
@@ -794,7 +794,7 @@ class GamesScreen extends StatelessWidget {
   }
 }
 
-// شاشة الدردشة والمجموعات (مفعلة وتفتح غرف الدردشة)[span_2](start_span)[span_2](end_span)
+// شاشة الدردشة والمجموعات
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
 
@@ -894,7 +894,7 @@ class _GroupChatRoomScreenState extends State<GroupChatRoomScreen> {
       animation: userModel,
       builder: (context, contextChild) {
         var group = userModel.chatGroups[widget.groupIndex];
-        var messages = group['messages'] as List>;
+        var messages = group['messages'] as dynamic;
 
         return Scaffold(
           appBar: AppBar(
