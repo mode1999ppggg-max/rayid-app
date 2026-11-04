@@ -6,11 +6,11 @@ void main() {
   runApp(const RayidApp());
 }
 
-// نموذج بيانات عام للتحكم بالرصيد والنقاط وتحديثها حياً
+// نموذج بيانات مبسط وآمن تماماً ضد أخطاء المترجم
 class AppDataModel extends ChangeNotifier {
   double balance = 45.50;
   int points = 1240;
-  List> activities = [
+  List<dynamic> activities = [
     {'title': 'إكمال مشاهدة إعلان مكافأة مؤهل', 'amount': '+50 نقطة (\$0.50)', 'time': 'منذ ساعة', 'isPositive': true},
     {'title': 'سحب أرباح عبر زين كاش', 'amount': '-\$15.00', 'time': 'أمس', 'isPositive': false},
   ];
