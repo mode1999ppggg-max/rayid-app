@@ -31,13 +31,14 @@ jobs:
           flutter-version: '3.24.5'
           cache: true
 
-      - name: Flutter version
-        run: flutter --version
+      - name: Generate Android Project
+        run: |
+          flutter create --platforms=android --org com.rayid --project-name rayid_app .
 
-      - name: Get dependencies
+      - name: Get Dependencies
         run: flutter pub get
 
-      - name: Build APK
+      - name: Build Release APK
         run: flutter build apk --release
 
       - name: Upload APK
