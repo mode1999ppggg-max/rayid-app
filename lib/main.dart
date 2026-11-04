@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 void main() {
   runApp(const RayidApp());
@@ -327,7 +329,7 @@ class HomeScreen extends StatelessWidget {
                       children: const [
                         CircleAvatar(radius: 4, backgroundColor: Colors.green),
                         SizedBox(width: 6),
-                        Text('متصل بالسحابة', style: TextStyle(color: Colors.green, fontSize: 12, fontWeight: FontWeight.bold)),
+                        Text('متصل', style: TextStyle(color: Colors.green, fontSize: 12, fontWeight: FontWeight.bold)),
                       ],
                     ),
                   ),
@@ -440,7 +442,7 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// ================= 4. شاشة الألعاب (متروكة مفتوحة للتطوير المستقبلي بدون نوافذ مزعجة) =================
+// ================= 4. شاشة الألعاب =================
 class GamesScreen extends StatelessWidget {
   const GamesScreen({super.key});
 
@@ -492,7 +494,6 @@ class GamesScreen extends StatelessWidget {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: color, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
             onPressed: () {
-              // تم تركها فارغة مؤقتاً لتطوير الشاشة الخاصة بها لاحقاً بدون نوافذ منبثقة
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('قريباً سيتم إطلاق لعبة $title!'), backgroundColor: Colors.grey[900]),
               );
@@ -505,7 +506,7 @@ class GamesScreen extends StatelessWidget {
   }
 }
 
-// ================= 5. شاشة الرصيد وطرق السحب التفاعلية =================
+// ================= 5. شاشة الرصيد وطرق السحب =================
 class WalletScreen extends StatelessWidget {
   const WalletScreen({super.key});
 
@@ -572,7 +573,7 @@ class WalletScreen extends StatelessWidget {
   }
 }
 
-// ================= شاشة تفاصيل وطريقة السحب المباشرة =================
+// شاشة تفاصيل السحب
 class WithdrawalDetailScreen extends StatelessWidget {
   final String methodName;
   const WithdrawalDetailScreen({super.key, required this.methodName});
@@ -684,7 +685,7 @@ class ChatBubble extends StatelessWidget {
   }
 }
 
-// ================= 7. شاشة الإعدادات (مع تعديل الملف الشخصي وتغيير الصورة) =================
+// ================= 7. شاشة الإعدادات =================
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
@@ -725,7 +726,9 @@ class SettingsScreen extends StatelessWidget {
                   leading: const Icon(Icons.security, color: Color(0xff00ff88)),
                   title: const Text('أمان الحساب والمصادقة (2FA)', style: TextStyle(color: Colors.white)),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const SecurityScreen()));
+                  },
                 ),
               ],
             ),
@@ -752,9 +755,26 @@ class SettingsScreen extends StatelessWidget {
   }
 }
 
-// ================= شاشة تعديل الملف الشخصي وتغيير الصورة =================
-class ProfileEditScreen extends StatelessWidget {
+// ================= شاشة تعديل الملف الشخصي (السيرة الذاتية + معرض الصور) =================
+class ProfileEditScreen extends StatefulWidget {
   const ProfileEditScreen({super.key});
+
+  @override
+  State<ProfileEditScreen> createState() => _ProfileEditScreenState();
+}
+
+class _ProfileEditScreenState extends State<ProfileEditScreen> {
+  File? _imageFile;
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -767,10 +787,11 @@ class ProfileEditScreen extends StatelessWidget {
             const SizedBox(height: 10),
             Stack(
               children: [
-                const CircleAvatar(
+                CircleAvatar(
                   radius: 50,
-                  backgroundColor: Color(0xff121b26),
-                  child: Icon(Icons.person, size: 50, color: Color(0xff00ff88)),
+                  backgroundColor: const Color(0xff121b26),
+                  backgroundImage: _imageFile != null ? FileImage(_imageFile!) : null,
+                  child: _imageFile == null ? const Icon(Icons.person, size: 50, color: Color(0xff00ff88)) : null,
                 ),
                 Positioned(
                   bottom: 0,
@@ -780,9 +801,7 @@ class ProfileEditScreen extends StatelessWidget {
                     backgroundColor: const Color(0xff00ff88),
                     child: IconButton(
                       icon: const Icon(Icons.camera_alt, size: 16, color: Colors.black),
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم فتح معرض الصور لتغيير صورة الحساب')));
-                      },
+                      onPressed: _pickImage,
                     ),
                   ),
                 ),
@@ -796,7 +815,8 @@ class ProfileEditScreen extends StatelessWidget {
             const SizedBox(height: 16),
             TextField(
               style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(labelText: 'البريد الإلكتروني', labelStyle: const TextStyle(color: Colors.grey), filled: true, fillColor: const Color(0xff121b26), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none)),
+              maxLines: 3,
+              decoration: InputDecoration(labelText: 'السيرة الذاتية (Bio)', labelStyle: const TextStyle(color: Colors.grey), filled: true, fillColor: const Color(0xff121b26), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none)),
             ),
             const Spacer(),
             ElevatedButton(
@@ -809,6 +829,36 @@ class ProfileEditScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ================= شاشة أمان الحساب (تفتح عند الضغط عليها) =================
+class SecurityScreen extends StatelessWidget {
+  const SecurityScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('أمان الحساب والمصادقة'), backgroundColor: const Color(0xff0b1017)),
+      body: ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          const ListTile(
+            leading: Icon(Icons.lock_outline, color: Color(0xff00ff88)),
+            title: Text('تغيير كلمة المرور', style: TextStyle(color: Colors.white)),
+            trailing: Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
+          ),
+          const Divider(color: Colors.white12),
+          SwitchListTile(
+            title: const Text('المصادقة الثنائية (2FA)', style: TextStyle(color: Colors.white)),
+            subtitle: const Text('تأمين إضافي للحساب والأموال', style: TextStyle(color: Colors.grey, fontSize: 12)),
+            value: true,
+            activeColor: const Color(0xff00ff88),
+            onChanged: (val) {},
+          ),
+        ],
       ),
     );
   }
