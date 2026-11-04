@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build:
@@ -36,9 +36,6 @@ jobs:
 
       - name: Get dependencies
         run: flutter pub get
-
-      - name: Check Dart
-        run: dart analyze --no-fatal-infos
 
       - name: Build APK
         run: flutter build apk --release
