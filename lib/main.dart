@@ -1494,7 +1494,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           const SizedBox(height: 14),
           TextField(controller: _usernameController, style: const TextStyle(color: Colors.white), decoration: InputDecoration(labelText: AppStrings.get(lang, 'username'), filled: true, fillColor: const Color(0xff121816), prefixText: '@')),
           const SizedBox(height: 14),
-          TextField(controller: _emailController, style: constTextStyle(color: Colors.white), decoration: InputDecoration(labelText: AppStrings.get(lang, 'email'), filled: true, fillColor: const Color(0xff121816))),
+          TextField(controller: _emailController, style: const TextStyle(color: Colors.white), decoration: InputDecoration(labelText: AppStrings.get(lang, 'email'), filled: true, fillColor: const Color(0xff121816))),
           const SizedBox(height: 14),
           TextField(controller: _phoneController, style: const TextStyle(color: Colors.white), decoration: InputDecoration(labelText: AppStrings.get(lang, 'phone'), filled: true, fillColor: const Color(0xff121816))),
           const SizedBox(height: 24),
