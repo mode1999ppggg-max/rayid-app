@@ -6,55 +6,76 @@ void main() {
   runApp(const RayidApp());
 }
 
-// نموذج البيانات الشامل
-class AppDataModel extends ChangeNotifier {
-  double balanceUSD = 45.50;
-  double get balanceIQD => balanceUSD * 1320;
-  int points = 1240;
-  
+// ================= نموذج البيانات الأساسي للمستخدم =================
+class UserAppModel extends ChangeNotifier {
+  // حالة المصادقة وجلسة المستخدم
+  bool isLoggedIn = false;
+
+  // بيانات المستخدم الحالية
   String userName = 'لاعب_570575';
   String userEmail = 'player570@rayid.pay';
   String userPhone = '+964 770 000 0000';
   File? profileImage;
 
-  bool isAdmin = false; 
-  final String adminEmail = 'admin@rayid.pay';
-  final String adminPass = 'dev12345';
+  double balanceUSD = 45.50;
+  double get balanceIQD => balanceUSD * 1320;
+  int points = 1240;
 
   List<dynamic> activities = [
     {'title': 'إكمال مشاهدة إعلان مكافأة مؤهل', 'amount': '+50 نقطة (0.50 دولار / 660 د.ع)', 'time': 'منذ ساعة', 'isPositive': true},
     {'title': 'سحب أرباح عبر زين كاش', 'amount': '-19,800 د.ع (15.00 دولار)', 'time': 'أمس', 'isPositive': false},
   ];
 
-  Future<void> updateCloudDatabase(double newBalanceUSD, int newPoints) async {
-    await Future.delayed(const Duration(milliseconds: 500));
-    balanceUSD = newBalanceUSD;
-    points = newPoints;
+  // 1. تسجيل حساب جديد (Sign Up)
+  Future<bool> signUpUser(String name, String email, String phone, String password) async {
+    await Future.delayed(const Duration(milliseconds: 600)); // محاكاة الحفظ بالسحابة
+    userName = name;
+    userEmail = email;
+    userPhone = phone;
+    isLoggedIn = true;
+    notifyListeners();
+    return true;
+  }
+
+  // 2. تسجيل الدخول (Sign In)
+  Future<bool> signInUser(String email, String password) async {
+    await Future.delayed(const Duration(milliseconds: 600)); // محاكاة التحقق من السحابة
+    userEmail = email;
+    isLoggedIn = true;
+    notifyListeners();
+    return true;
+  }
+
+  // 3. تسجيل الخروج (Log Out)
+  void signOutUser() {
+    isLoggedIn = false;
     notifyListeners();
   }
 
-  bool loginAsDeveloper(String email, String password) {
-    if (email.trim() == adminEmail && password.trim() == adminPass) {
-      isAdmin = true;
-      notifyListeners();
-      return true;
-    }
-    return false;
-  }
-
-  void logoutDeveloper() {
-    isAdmin = false;
-    notifyListeners();
-  }
-
-  void updateProfile({String? name, String? email, String? phone, File? image}) {
+  // تحديث البيانات الشخصية سحابياً
+  Future<void> updateProfile({String? name, String? email, String? phone, File? image}) async {
     if (name != null) userName = name;
     if (email != null) userEmail = email;
     if (phone != null) userPhone = phone;
     if (image != null) profileImage = image;
+    await Future.delayed(const Duration(milliseconds: 400));
     notifyListeners();
   }
 
+  // تنفيذ عملية سحب الأرباح وإضافة سجل
+  void processWithdrawal(String method, String details, double amountIQD) {
+    double deductedUSD = amountIQD / 1320;
+    balanceUSD -= deductedUSD;
+    activities.insert(0, {
+      'title': 'سحب أرباح عبر $method ($details)',
+      'amount': '-${amountIQD.toStringAsFixed(0)} د.ع',
+      'time': 'الآن',
+      'isPositive': false,
+    });
+    notifyListeners();
+  }
+
+  // إضافة نشاط عند مشاهدة إعلان
   void addActivity(String title, String amount, bool isPositive) {
     activities.insert(0, {
       'title': title,
@@ -66,7 +87,7 @@ class AppDataModel extends ChangeNotifier {
   }
 }
 
-final appData = AppDataModel();
+final userModel = UserAppModel();
 
 class RayidApp extends StatelessWidget {
   const RayidApp({super.key});
@@ -91,7 +112,126 @@ class RayidApp extends StatelessWidget {
           surface: Color(0xff1E1E1E),
         ),
       ),
-      home: const MainNavigationHub(),
+      home: AnimatedBuilder(
+        animation: userModel,
+        builder: (context, child) {
+          // التبديل التلقائي بين شاشة الدخول والرئيسية بناءً على الجلسة
+          return userModel.isLoggedIn ? const MainNavigationHub() : const AuthWrapperScreen();
+        },
+      ),
+    );
+  }
+}
+
+// ================= نظام الحسابات (تسجيل الدخول وإنشاء حساب) =================
+class AuthWrapperScreen extends StatefulWidget {
+  const AuthWrapperScreen({super.key});
+
+  @override
+  State<AuthWrapperScreen> createState() => _AuthWrapperScreenState();
+}
+
+class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
+  bool isSigningUp = false; // التبديل بين واجهة الدخول وإنشاء الحساب
+
+  final _emailController = TextEditingController();
+  final _passController = TextEditingController();
+  final _nameController = TextEditingController();
+  final _phoneController = TextEditingController();
+  bool _isLoading = false;
+
+  void _submitAuth() async {
+    if (_emailController.text.isEmpty || _passController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('يرجى إدخال البريد الإلكتروني وكلمة المرور.'), backgroundColor: Colors.red));
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    bool success = false;
+
+    if (isSigningUp) {
+      if (_nameController.text.isEmpty || _phoneController.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('يرجى إكمال جميع الحقول المطلوبة لإنشاء الحساب.'), backgroundColor: Colors.red));
+        setState(() => _isLoading = false);
+        return;
+      }
+      success = await userModel.signUpUser(_nameController.text, _emailController.text, _phoneController.text, _passController.text);
+    } else {
+      success = await userModel.signInUser(_emailController.text, _passController.text);
+    }
+
+    setState(() => _isLoading = false);
+    if (!success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('حدث خطأ أثناء المصادقة، حاول مرة أخرى.'), backgroundColor: Colors.red));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Center(
+                  child: Text('RAYID PAY', style: TextStyle(fontSize: 36, fontWeight: FontWeight.w900, letterSpacing: 3, color: Color(0xff00E676))),
+                ),
+                const SizedBox(height: 8),
+                Center(child: Text(isSigningUp ? 'إنشاء حساب جديد في المنصة' : 'تسجيل الدخول إلى حسابك', style: const TextStyle(color: Colors.grey, fontSize: 13))),
+                const SizedBox(height: 30),
+
+                if (isSigningUp) ...[
+                  TextField(
+                    controller: _nameController,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(labelText: 'الاسم الكامل', filled: true, fillColor: const Color(0xff1E1E1E), border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none)),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: _phoneController,
+                    keyboardType: TextInputType.phone,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(labelText: 'رقم الهاتف', filled: true, fillColor: const Color(0xff1E1E1E), border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none)),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+
+                TextField(
+                  controller: _emailController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(labelText: 'البريد الإلكتروني', filled: true, fillColor: const Color(0xff1E1E1E), border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none)),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _passController,
+                  obscureText: true,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(labelText: 'كلمة المرور', filled: true, fillColor: const Color(0xff1E1E1E), border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none)),
+                ),
+                const SizedBox(height: 24),
+
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black, minimumSize: const Size(double.infinity, 54), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
+                  onPressed: _isLoading ? null : _submitAuth,
+                  child: _isLoading 
+                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.black, strokeWidth: 2))
+                    : Text(isSigningUp ? 'إنشاء الحساب' : 'تسجيل الدخول', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
+                ),
+                const SizedBox(height: 16),
+
+                TextButton(
+                  onPressed: () => setState(() => isSigningUp = !isSigningUp),
+                  child: Text(isSigningUp ? 'لديك حساب بالفعل؟ تسجيل الدخول' : 'ليس لديك حساب؟ إنشاء حساب جديد', style: const TextStyle(color: Color(0xff00E676))),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -122,19 +262,13 @@ class MainNavigationHubState extends State<MainNavigationHub> {
     _currentIndex = widget.initialIndex;
   }
 
-  void changeTab(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: changeTab,
+        onTap: (index) => setState(() => _currentIndex = index),
         type: BottomNavigationBarType.fixed,
         backgroundColor: const Color(0xff181818),
         selectedItemColor: const Color(0xff00E676),
@@ -159,7 +293,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: appData,
+      animation: userModel,
       builder: (context, child) {
         return Scaffold(
           body: SafeArea(
@@ -174,22 +308,22 @@ class HomeScreen extends StatelessWidget {
                         CircleAvatar(
                           radius: 22,
                           backgroundColor: const Color(0xff1E1E1E),
-                          backgroundImage: appData.profileImage != null ? FileImage(appData.profileImage!) : null,
-                          child: appData.profileImage == null ? const Icon(Icons.person, color: Color(0xff00E676)) : null,
+                          backgroundImage: userModel.profileImage != null ? FileImage(userModel.profileImage!) : null,
+                          child: userModel.profileImage == null ? const Icon(Icons.person, color: Color(0xff00E676)) : null,
                         ),
                         const SizedBox(width: 12),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text('مرحباً بك،', style: TextStyle(color: Colors.grey, fontSize: 11)),
-                            Text(appData.userName, style: const TextStyle(color: Color(0xff00E676), fontWeight: FontWeight.bold, fontSize: 14)),
+                            Text(userModel.userName, style: const TextStyle(color: Color(0xff00E676), fontWeight: FontWeight.bold, fontSize: 14)),
                           ],
                         ),
                       ],
                     ),
                     IconButton(
                       icon: const Icon(Icons.notifications_active_outlined, color: Color(0xff00E676)),
-                      onPressed: () => _showNotificationsDialog(context),
+                      onPressed: () {},
                     ),
                   ],
                 ),
@@ -208,23 +342,23 @@ class HomeScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: const [
                           Text('إجمالي أرباح الإعلانات المتاحة', style: TextStyle(color: Colors.grey, fontSize: 13)),
-                          Text('سحابياً متصل', style: TextStyle(color: Color(0xff00E676), fontSize: 11, fontWeight: FontWeight.bold)),
+                          Text('حساب نشط', style: TextStyle(color: Color(0xff00E676), fontSize: 11, fontWeight: FontWeight.bold)),
                         ],
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '${appData.balanceIQD.toStringAsFixed(0)} د.ع',
+                        '${userModel.balanceIQD.toStringAsFixed(0)} د.ع',
                         style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w900, color: Color(0xff00E676)),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '(${appData.balanceUSD.toStringAsFixed(2)} دولار أمريكي)',
+                        '(${userModel.balanceUSD.toStringAsFixed(2)} دولار أمريكي)',
                         style: const TextStyle(fontSize: 13, color: Colors.grey, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 16),
                       Row(
                         children: [
-                          Text('🟡 النقاط المتراكمة: ${appData.points} نقطة', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                          Text('🟡 النقاط المتراكمة: ${userModel.points} نقطة', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
                         ],
                       ),
                     ],
@@ -233,10 +367,7 @@ class HomeScreen extends StatelessWidget {
                 const SizedBox(height: 20),
                 Container(
                   padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xff1E1E1E),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
+                  decoration: BoxDecoration(color: const Color(0xff1E1E1E), borderRadius: BorderRadius.circular(20)),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -244,23 +375,38 @@ class HomeScreen extends StatelessWidget {
                       const SizedBox(height: 20),
                       SizedBox(
                         height: 100,
-                        child: CustomPaint(
-                          size: const Size(double.infinity, 100),
-                          painter: ChartPainter(),
-                        ),
+                        child: CustomPaint(size: const Size(double.infinity, 100), painter: ChartPainter()),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 24),
-                const Text('سجل الأنشطة والمكافآت (قابل للنقر)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                const Text('سجل الأنشطة والمكافآت', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
                 const SizedBox(height: 12),
-                ...appData.activities.map((act) => _activityTile(
-                  context,
-                  act['title'].toString(),
-                  act['amount'].toString(),
-                  act['time'].toString(),
-                  act['isPositive'] == true,
+                ...userModel.activities.map((act) => Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(color: const Color(0xff1E1E1E), borderRadius: BorderRadius.circular(16)),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          CircleAvatar(backgroundColor: (act['isPositive'] == true ? const Color(0xff00E676) : Colors.amber).withOpacity(0.15), child: Icon(Icons.history, color: act['isPositive'] == true ? const Color(0xff00E676) : Colors.amber, size: 18)),
+                          const SizedBox(width: 12),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(act['title'].toString(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                              const SizedBox(height: 2),
+                              Text(act['time'].toString(), style: const TextStyle(color: Colors.grey, fontSize: 10)),
+                            ],
+                          ),
+                        ],
+                      ),
+                      Text(act['amount'].toString(), style: TextStyle(color: act['isPositive'] == true ? const Color(0xff00E676) : Colors.amber, fontWeight: FontWeight.bold, fontSize: 13)),
+                    ],
+                  ),
                 )).toList(),
               ],
             ),
@@ -269,102 +415,30 @@ class HomeScreen extends StatelessWidget {
       },
     );
   }
-
-  void _showNotificationsDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xff1E1E1E),
-        title: const Text('الإشعارات والتنبيهات', style: TextStyle(color: Colors.white)),
-        content: const Text('• تم تحديث نظام تتبع الإعلانات وإظهار العملة بالدينار والدولار.\n• تم إضافة 8 إعلانات مؤهلة جديدة للمستخدمين اليوم.', style: TextStyle(color: Colors.grey)),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('إغلاق', style: TextStyle(color: Color(0xff00E676))))
-        ],
-      ),
-    );
-  }
-
-  Widget _activityTile(BuildContext context, String title, String amount, String time, bool isPositive) {
-    final color = isPositive ? const Color(0xff00E676) : Colors.amber;
-    return GestureDetector(
-      onTap: () {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            backgroundColor: const Color(0xff1E1E1E),
-            title: Text(title, style: const TextStyle(color: Colors.white, fontSize: 16)),
-            content: Text('تفاصيل العملية:\n• القيمة: $amount\n• التوقيت: $time\n• الحالة: مكتمل ومتحقق منه سحابياً.', style: const TextStyle(color: Colors.grey)),
-            actions: [
-              TextButton(onPressed: () => Navigator.pop(context), child: const Text('حسناً', style: TextStyle(color: Color(0xff00E676))))
-            ],
-          ),
-        );
-      },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: const Color(0xff1E1E1E),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                CircleAvatar(backgroundColor: color.withOpacity(0.15), child: Icon(Icons.history, color: color, size: 18)),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
-                    const SizedBox(height: 2),
-                    Text(time, style: const TextStyle(color: Colors.grey, fontSize: 10)),
-                  ],
-                ),
-              ],
-            ),
-            Text(amount, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 13)),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 class ChartPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    Paint linePaint = Paint()
-      ..color = const Color(0xff00E676)
-      ..strokeWidth = 3.0
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-
+    Paint linePaint = Paint()..color = const Color(0xff00E676)..strokeWidth = 3.0..style = PaintingStyle.stroke..strokeCap = StrokeCap.round;
     Path path = Path();
     path.moveTo(0, size.height * 0.7);
     path.quadraticBezierTo(size.width * 0.3, size.height * 0.2, size.width * 0.6, size.height * 0.6);
     path.quadraticBezierTo(size.width * 0.8, size.height * 0.9, size.width, size.height * 0.1);
-
     canvas.drawPath(path, linePaint);
   }
-
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-// ================= 2. مركز الإعلانات =================
+// ================= مركز الإعلانات =================
 class AdsRewardsScreen extends StatelessWidget {
   const AdsRewardsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('مركز الإعلانات والمكافآت'),
-        backgroundColor: const Color(0xff121212),
-        automaticallyImplyLeading: false,
-      ),
+      appBar: AppBar(title: const Text('مركز الإعلانات والمكافآت'), backgroundColor: const Color(0xff121212), automaticallyImplyLeading: false),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -394,11 +468,10 @@ class AdsRewardsScreen extends StatelessWidget {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black),
             onPressed: () {
-              appData.updateCloudDatabase(appData.balanceUSD + addMoneyUSD, appData.points + addPoints);
-              appData.addActivity('مشاهدة إعلان تجريبي ناجح', '+$addPoints نقطة (+${(addMoneyUSD * 1320).toStringAsFixed(0)} د.ع)', true);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('تم التحقق من مشاهدة الإعلان وإضافة المكافأة بنجاح!'), backgroundColor: Colors.green),
-              );
+              userModel.balanceUSD += addMoneyUSD;
+              userModel.points += addPoints;
+              userModel.addActivity('مشاهدة إعلان تجريبي ناجح', '+$addPoints نقطة (+${(addMoneyUSD * 1320).toStringAsFixed(0)} د.ع)', true);
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم التحقق من مشاهدة الإعلان وإضافة المكافأة بنجاح!'), backgroundColor: Colors.green));
             },
             child: const Text('شاهد الآن', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
@@ -408,14 +481,14 @@ class AdsRewardsScreen extends StatelessWidget {
   }
 }
 
-// ================= 3. المحفظة (مع الماستر كارد) =================
+// ================= 2. المحفظة وبوابات السحب الثلاثة (ZainCash, AsiaCell, Mastercard) =================
 class WalletScreen extends StatelessWidget {
   const WalletScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: appData,
+      animation: userModel,
       builder: (context, child) {
         return Scaffold(
           appBar: AppBar(title: const Text('المحفظة وأرباح الإعلانات'), backgroundColor: const Color(0xff121212), automaticallyImplyLeading: false),
@@ -429,11 +502,11 @@ class WalletScreen extends StatelessWidget {
                   children: [
                     const Text('الرصيد المتاح للسحب', style: TextStyle(color: Colors.grey, fontSize: 13)),
                     const SizedBox(height: 8),
-                    Text('${appData.balanceIQD.toStringAsFixed(0)} د.ع', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xff00E676))),
+                    Text('${userModel.balanceIQD.toStringAsFixed(0)} د.ع', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xff00E676))),
                     const SizedBox(height: 4),
-                    Text('(${appData.balanceUSD.toStringAsFixed(2)} دولار أمريكي)', style: const TextStyle(fontSize: 13, color: Colors.grey, fontWeight: FontWeight.bold)),
+                    Text('(${userModel.balanceUSD.toStringAsFixed(2)} دولار أمريكي)', style: const TextStyle(fontSize: 13, color: Colors.grey, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 12),
-                    Text('🟡 النقاط: ${appData.points} نقطة', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    Text('🟡 النقاط: ${userModel.points} نقطة', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
@@ -459,48 +532,34 @@ class WalletScreen extends StatelessWidget {
         title: Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
         subtitle: const Text('سحب فوري آمن وموثوق', style: TextStyle(color: Colors.grey, fontSize: 11)),
         trailing: const Icon(Icons.arrow_forward_ios, color: Color(0xff00E676), size: 16),
-        onTap: () {
-          if (title.contains('Mastercard')) {
-            _showMastercardDialog(context);
-          } else {
-            if (appData.balanceUSD > 0) {
-              appData.addActivity('طلب سحب أرباح عبر $title', '-${appData.balanceIQD.toStringAsFixed(0)} د.ع', false);
-              appData.updateCloudDatabase(0.0, appData.points);
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إرسال طلب السحب بنجاح!'), backgroundColor: Colors.green));
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('عذراً، الرصيد غير كافٍ.'), backgroundColor: Colors.red));
-            }
-          }
-        },
+        onTap: () => _showWithdrawDialog(context, title),
       ),
     );
   }
 
-  void _showMastercardDialog(BuildContext context) {
-    final cardController = TextEditingController();
-    final nameController = TextEditingController();
+  // نافذة تفاعلية موحدة لطرق السحب الثلاثة (رقم المحفظة / أو رقم البطاقة + المبلغ)
+  void _showWithdrawDialog(BuildContext context, String methodTitle) {
+    final targetController = TextEditingController();
     final amountController = TextEditingController();
+    bool isMaster = methodTitle.contains('Mastercard');
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xff1E1E1E),
-        title: const Text('السحب عبر الماستر كارد', style: TextStyle(color: Color(0xff00E676))),
+        title: Text('السحب عبر $methodTitle', style: const TextStyle(color: Color(0xff00E676))),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
-              controller: cardController,
+              controller: targetController,
               keyboardType: TextInputType.number,
-              maxLength: 16,
+              maxLength: isMaster ? 16 : 11,
               style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(labelText: 'رقم البطاقة (16 رقماً)', labelStyle: TextStyle(color: Colors.grey)),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: nameController,
-              style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(labelText: 'اسم صاحب البطاقة الثلاثي', labelStyle: TextStyle(color: Colors.grey)),
+              decoration: InputDecoration(
+                labelText: isMaster ? 'رقم بطاقة الماستر (16 رقماً)' : 'رقم المحفظة (مثال: 0770xxxxxxx)',
+                labelStyle: const TextStyle(color: Colors.grey),
+              ),
             ),
             const SizedBox(height: 8),
             TextField(
@@ -516,20 +575,24 @@ class WalletScreen extends StatelessWidget {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black),
             onPressed: () {
-              if (cardController.text.length != 16) {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('رقم البطاقة يجب أن يكون 16 رقماً!'), backgroundColor: Colors.red));
+              if (targetController.text.isEmpty || amountController.text.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('يرجى إكمال جميع الحقول.'), backgroundColor: Colors.red));
                 return;
               }
+              if (isMaster && targetController.text.length != 16) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('رقم الماستر كارد يجب أن يكون 16 رقماً!'), backgroundColor: Colors.red));
+                return;
+              }
+
               double? reqAmount = double.tryParse(amountController.text);
-              if (reqAmount == null || reqAmount <= 0 || reqAmount > appData.balanceIQD) {
+              if (reqAmount == null || reqAmount <= 0 || reqAmount > userModel.balanceIQD) {
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('المبلغ المدخل غير صالح أو يتجاوز الرصيد المتاح!'), backgroundColor: Colors.red));
                 return;
               }
-              double deductedUSD = reqAmount / 1320;
-              appData.updateCloudDatabase(appData.balanceUSD - deductedUSD, appData.points);
-              appData.addActivity('سحب عبر Mastercard (${cardController.text.substring(12)})', '-${reqAmount.toStringAsFixed(0)} د.ع', false);
+
+              userModel.processWithdrawal(methodTitle, targetController.text, reqAmount);
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تنفيذ سحب الماستر كارد بنجاح!'), backgroundColor: Colors.green));
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إرسال طلب السحب بنجاح إلى بوابتك المالية!'), backgroundColor: Colors.green));
             },
             child: const Text('تأكيد السحب', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
@@ -539,75 +602,20 @@ class WalletScreen extends StatelessWidget {
   }
 }
 
-// ================= 4. الألعاب =================
+// الألعاب والدردشة
 class GamesScreen extends StatelessWidget {
   const GamesScreen({super.key});
-
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('منصة الألعاب السيبرانية (ترفيهي)'), backgroundColor: const Color(0xff121212), automaticallyImplyLeading: false),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _gameCard(context, 'لـودو سايبربانك (Cyber Ludo)', Icons.casino, Colors.greenAccent),
-          _gameCard(context, 'شطرنج النيون (Neon Chess)', Icons.extension, Colors.blueAccent),
-          _gameCard(context, 'كرة قدم السيبربانك (Cyber Football)', Icons.sports_soccer, Colors.redAccent),
-        ],
-      ),
-    );
-  }
-
-  Widget _gameCard(BuildContext context, String title, IconData icon, Color color) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: const Color(0xff1E1E1E), borderRadius: BorderRadius.circular(20)),
-      child: Row(
-        children: [
-          Icon(icon, color: color, size: 30),
-          const SizedBox(width: 16),
-          Expanded(child: Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: color, foregroundColor: Colors.black),
-            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('جاري تشغيل $title للتسلية...'))),
-            child: const Text('العب'),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('منصة الألعاب السيبرانية'), automaticallyImplyLeading: false), body: const Center(child: Text('ألعاب التسلية والترفيه', style: TextStyle(color: Colors.grey))));
 }
 
-// ================= 5. الدردشة =================
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
-
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('دردشة المجتمع'), backgroundColor: const Color(0xff121212), automaticallyImplyLeading: false),
-      body: Column(
-        children: [
-          const Expanded(child: Center(child: Text('مجتمع الدردشة والترفيه الاجتماعي', style: TextStyle(color: Colors.grey)))),
-          Container(
-            padding: const EdgeInsets.all(12),
-            color: const Color(0xff121212),
-            child: Row(
-              children: [
-                Expanded(child: TextField(decoration: InputDecoration(hintText: 'اكتب رسالتك...', filled: true, fillColor: const Color(0xff1E1E1E), border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none)))),
-                const SizedBox(width: 8),
-                CircleAvatar(backgroundColor: const Color(0xff00E676), child: IconButton(icon: const Icon(Icons.send, color: Colors.black, size: 18), onPressed: () {}))
-              ],
-            ),
-          )
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('دردشة المجتمع'), backgroundColor: const Color(0xff121212), automaticallyImplyLeading: false), body: const Center(child: Text('المجتمع والتفاعل الاجتماعي', style: TextStyle(color: Colors.grey))));
 }
 
-// ================= 6. صفحة الإعدادات مع الحماية وتسجيل دخول المطور =================
+// ================= 3. صفحة الإعدادات وسياسة الخصوصية وتنزيل الجلسة =================
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -623,53 +631,52 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: appData.userName);
-    _emailController = TextEditingController(text: appData.userEmail);
-    _phoneController = TextEditingController(text: appData.userPhone);
+    _nameController = TextEditingController(text: userModel.userName);
+    _emailController = TextEditingController(text: userModel.userEmail);
+    _phoneController = TextEditingController(text: userModel.userPhone);
   }
 
-  void _showDeveloperLoginDialog() {
-    final emailCtrl = TextEditingController();
-    final passCtrl = TextEditingController();
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      await userModel.updateProfile(image: File(pickedFile.path));
+      setState(() {});
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تحديث الصورة الشخصية بنجاح!'), backgroundColor: Colors.green));
+      }
+    }
+  }
 
+  void _saveProfile() async {
+    await userModel.updateProfile(
+      name: _nameController.text,
+      email: _emailController.text,
+      phone: _phoneController.text,
+    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم حفظ بيانات الحساب بنجاح!'), backgroundColor: Colors.green));
+    }
+  }
+
+  // نافذة عرض سياسة الخصوصية الرسمية المطلوبة
+  void _showPrivacyPolicyDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xff1E1E1E),
-        title: const Text('تسجيل دخول المطورين', style: TextStyle(color: Color(0xff00E676))),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: emailCtrl,
-              style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(labelText: 'البريد الإلكتروني للمطور', labelStyle: TextStyle(color: Colors.grey)),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: passCtrl,
-              obscureText: true,
-              style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(labelText: 'كلمة المرور السرية', labelStyle: TextStyle(color: Colors.grey)),
-            ),
-          ],
+        title: const Text('سياسة الخصوصية - RAYID PAY', style: TextStyle(color: Color(0xff00E676), fontSize: 16)),
+        content: const SingleChildScrollView(
+          child: Text(
+            'نحن نلتزم بحماية بياناتك الشخصية والمالية بأعلى معايير الأمان الرقمي في العراق.\n\n'
+            '• البيانات المجمعة: نقوم بحفظ الاسم، البريد الإلكتروني، ورقم الهاتف لتوثيق الحساب وإرسال مستحقاتك بدقة.\n\n'
+            '• أمان السحب المالي: جميع عمليات السحب عبر (زين كاش، آسيا سيل، وماستر كارد) مشفرة بالكامل وتتم عبر قنوات آمنة.\n\n'
+            '• الخصوصية: لا يتم مشاركة بياناتك الشخصية مع أي أطراف خارجية، وتُستخدم فقط لإدارة أرباحك من الإعلانات.',
+            style: TextStyle(color: Colors.grey, height: 1.4, fontSize: 13),
+          ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('إلغاء', style: TextStyle(color: Colors.grey))),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black),
-            onPressed: () {
-              bool success = appData.loginAsDeveloper(emailCtrl.text, passCtrl.text);
-              Navigator.pop(context);
-              if (success) {
-                setState(() {});
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تسجيل دخول المطور بنجاح! ظهرت لوحة التحكم.'), backgroundColor: Colors.green));
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('البريد أو كلمة المرور غير صحيحة.'), backgroundColor: Colors.red));
-              }
-            },
-            child: const Text('دخول', style: TextStyle(fontWeight: FontWeight.bold)),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('إغلاق', style: TextStyle(color: Color(0xff00E676))))
         ],
       ),
     );
@@ -678,140 +685,73 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: appData,
+      animation: userModel,
       builder: (context, child) {
         return Scaffold(
-          appBar: AppBar(title: const Text('الإعدادات والحساب الآمن'), backgroundColor: const Color(0xff121212), automaticallyImplyLeading: false),
+          appBar: AppBar(title: const Text('الإعدادات والحساب'), backgroundColor: const Color(0xff121212), automaticallyImplyLeading: false),
           body: ListView(
             padding: const EdgeInsets.all(16),
             children: [
+              Center(
+                child: Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 40,
+                      backgroundColor: const Color(0xff1E1E1E),
+                      backgroundImage: userModel.profileImage != null ? FileImage(userModel.profileImage!) : null,
+                      child: userModel.profileImage == null ? const Icon(Icons.person, size: 40, color: Color(0xff00E676)) : null,
+                    ),
+                    Positioned(
+                      bottom: 0, right: 0,
+                      child: CircleAvatar(
+                        radius: 14, backgroundColor: const Color(0xff00E676),
+                        child: IconButton(icon: const Icon(Icons.camera_alt, size: 12, color: Colors.black), onPressed: _pickImage),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
               const Text('إدارة الحساب الشخصي', style: TextStyle(color: Color(0xff00E676), fontWeight: FontWeight.bold, fontSize: 15)),
               const SizedBox(height: 10),
-              TextField(
-                controller: _nameController,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(labelText: 'الاسم الكامل', filled: true, fillColor: Color(0xff1E1E1E)),
-              ),
+              TextField(controller: _nameController, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(labelText: 'الاسم الكامل', filled: true, fillColor: Color(0xff1E1E1E))),
               const SizedBox(height: 10),
-              TextField(
-                controller: _emailController,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(labelText: 'البريد الإلكتروني', filled: true, fillColor: Color(0xff1E1E1E)),
-              ),
+              TextField(controller: _emailController, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(labelText: 'البريد الإلكتروني', filled: true, fillColor: Color(0xff1E1E1E))),
+              const SizedBox(height: 10),
+              TextField(controller: _phoneController, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(labelText: 'رقم الهاتف', filled: true, fillColor: Color(0xff1E1E1E))),
               const SizedBox(height: 12),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black),
-                onPressed: () {
-                  appData.updateProfile(name: _nameController.text, email: _emailController.text);
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم حفظ البيانات بنجاح!'), backgroundColor: Colors.green));
-                },
+                onPressed: _saveProfile,
                 child: const Text('حفظ التعديلات', style: TextStyle(fontWeight: FontWeight.bold)),
+              ),
+              const SizedBox(height: 24),
+
+              const Text('الدعم والقانونية', style: TextStyle(color: Color(0xff00E676), fontWeight: FontWeight.bold, fontSize: 15)),
+              const SizedBox(height: 8),
+              ListTile(
+                tileColor: const Color(0xff1E1E1E),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                leading: const Icon(Icons.privacy_tip_outlined, color: Color(0xff00E676)),
+                title: const Text('سياسة الخصوصية', style: TextStyle(color: Colors.white)),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
+                onTap: () => _showPrivacyPolicyDialog(context),
               ),
               const SizedBox(height: 30),
 
-              if (appData.isAdmin) ...[
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xff1E1E1E),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.amber, width: 1.5),
-                  ),
-                  child: Column(
-                    children: [
-                      const DeveloperCloudPanelWidget(),
-                      const SizedBox(height: 12),
-                      OutlinedButton(
-                        style: OutlinedButton.styleFrom(foregroundColor: Colors.redAccent, side: const BorderSide(color: Colors.redAccent)),
-                        onPressed: () {
-                          appData.logoutDeveloper();
-                          setState(() {});
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تسجل خروج المطور وإخفاء لوحة التحكم.'), backgroundColor: Colors.orange));
-                        },
-                        child: const Text('تسجيل خروج وضع المطور'),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-              ],
-
-              if (!appData.isAdmin)
-                Center(
-                  child: TextButton.icon(
-                    onPressed: _showDeveloperLoginDialog,
-                    icon: const Icon(Icons.admin_panel_settings, color: Colors.grey, size: 18),
-                    label: const Text('تسجيل دخول المطورين (Admin Login)', style: TextStyle(color: Colors.grey, fontSize: 12)),
-                  ),
-                ),
+              // زر تسجيل الخروج الآمن (Log Out)
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red.withOpacity(0.2), foregroundColor: Colors.redAccent, minimumSize: const Size(double.infinity, 50)),
+                onPressed: () {
+                  userModel.signOutUser();
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تسجيل الخروج بنجاح.'), backgroundColor: Colors.orange));
+                },
+                child: const Text('تسجيل الخروج (Log Out)', style: TextStyle(fontWeight: FontWeight.bold)),
+              ),
             ],
           ),
         );
       },
-    );
-  }
-}
-
-// ================= لوحة تحكم المطور الحية =================
-class DeveloperCloudPanelWidget extends StatefulWidget {
-  const DeveloperCloudPanelWidget({super.key});
-
-  @override
-  State<DeveloperCloudPanelWidget> createState() => _DeveloperCloudPanelWidgetState();
-}
-
-class _DeveloperCloudPanelWidgetState extends State<DeveloperCloudPanelWidget> {
-  final _balanceController = TextEditingController(text: appData.balanceUSD.toString());
-  final _pointsController = TextEditingController(text: appData.points.toString());
-  bool _isLoading = false;
-
-  void _saveToCloud() async {
-    setState(() => _isLoading = true);
-    double? newBalUSD = double.tryParse(_balanceController.text);
-    int? newPts = int.tryParse(_pointsController.text);
-    
-    if (newBalUSD != null && newPts != null) {
-      await appData.updateCloudDatabase(newBalUSD, newPts);
-      if (mounted) {
-        setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تم تحديث البيانات سحابياً بنجاح وانعكست للمستخدمين!'), backgroundColor: Colors.green),
-        );
-      }
-    } else {
-      setState(() => _isLoading = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const Text('لوحة التحكم الحية (Realtime Cloud Admin)', style: TextStyle(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 14)),
-        const SizedBox(height: 12),
-        TextField(
-          controller: _balanceController,
-          keyboardType: TextInputType.number,
-          style: const TextStyle(color: Colors.white),
-          decoration: const InputDecoration(labelText: 'تعديل رصيد المستخدم (دولار)', filled: true, fillColor: Color(0xff121212)),
-        ),
-        const SizedBox(height: 10),
-        TextField(
-          controller: _pointsController,
-          keyboardType: TextInputType.number,
-          style: const TextStyle(color: Colors.white),
-          decoration: const InputDecoration(labelText: 'تعديل نقاط المستخدم', filled: true, fillColor: Color(0xff121212)),
-        ),
-        const SizedBox(height: 12),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(backgroundColor: Colors.amber, foregroundColor: Colors.black),
-          onPressed: _isLoading ? null : _saveToCloud,
-          child: _isLoading 
-            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.black, strokeWidth: 2))
-            : const Text('حفظ وتحديث النظام حياً سحابياً', style: TextStyle(fontWeight: FontWeight.bold)),
-        ),
-      ],
     );
   }
 }
