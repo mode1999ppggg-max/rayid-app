@@ -6,6 +6,34 @@ void main() {
   runApp(const RayidApp());
 }
 
+// نموذج بيانات عام للتحكم بالرصيد والنقاط وتحديثها حياً
+class AppDataModel extends ChangeNotifier {
+  double balance = 45.50;
+  int points = 1240;
+  List> activities = [
+    {'title': 'إكمال مشاهدة إعلان مكافأة مؤهل', 'amount': '+50 نقطة (\$0.50)', 'time': 'منذ ساعة', 'isPositive': true},
+    {'title': 'سحب أرباح عبر زين كاش', 'amount': '-\$15.00', 'time': 'أمس', 'isPositive': false},
+  ];
+
+  void updateBalance(double newBalance, int newPoints) {
+    balance = newBalance;
+    points = newPoints;
+    notifyListeners();
+  }
+
+  void addActivity(String title, String amount, bool isPositive) {
+    activities.insert(0, {
+      'title': title,
+      'amount': amount,
+      'time': 'الآن',
+      'isPositive': isPositive,
+    });
+    notifyListeners();
+  }
+}
+
+final appData = AppDataModel();
+
 class RayidApp extends StatelessWidget {
   const RayidApp({super.key});
 
@@ -29,12 +57,100 @@ class RayidApp extends StatelessWidget {
           surface: Color(0xff1E1E1E),
         ),
       ),
-      home: const MainNavigationHub(),
+      home: const LoginScreen(), // البداية من شاشة تسجيل دخول المطور
     );
   }
 }
 
-// ================= مركز التنقل السفلي =================
+// ================= شاشة تسجيل دخول المطور =================
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _emailController = TextEditingController(text: 'admin@rayid.pay');
+  final _passController = TextEditingController(text: 'dev12345');
+
+  void _login() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const MainNavigationHub()),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Center(
+                child: Text(
+                  'RAYID PAY',
+                  style: TextStyle(
+                    fontSize: 36,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 3,
+                    color: Color(0xff00E676),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Center(
+                child: Text('منظومة الإدارة والمطورين المركزية', style: TextStyle(color: Colors.grey, fontSize: 13)),
+              ),
+              const SizedBox(height: 40),
+              TextField(
+                controller: _emailController,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  labelText: 'بريد المطور (Admin Email)',
+                  labelStyle: const TextStyle(color: Colors.grey),
+                  filled: true,
+                  fillColor: const Color(0xff1E1E1E),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _passController,
+                obscureText: true,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  labelText: 'كلمة المرور',
+                  labelStyle: const TextStyle(color: Colors.grey),
+                  filled: true,
+                  fillColor: const Color(0xff1E1E1E),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                ),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xff00E676),
+                  foregroundColor: Colors.black,
+                  minimumSize: const Size(double.infinity, 54),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
+                onPressed: _login,
+                child: const Text('دخول لوحة تحكم المطور', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ================= مركز التنقل السفلي التفاعلي =================
 class MainNavigationHub extends StatefulWidget {
   final int initialIndex;
   const MainNavigationHub({super.key, this.initialIndex = 0});
@@ -90,143 +206,173 @@ class MainNavigationHubState extends State<MainNavigationHub> {
   }
 }
 
-// ================= 1. الصفحة الرئيسية =================
+// ================= 1. الصفحة الرئيسية التفاعلية =================
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return AnimatedBuilder(
+      animation: appData,
+      builder: (context, child) {
+        return Scaffold(
+          body: SafeArea(
+            child: ListView(
+              padding: const EdgeInsets.all(16),
               children: [
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const CircleAvatar(
-                      radius: 22,
-                      backgroundColor: Color(0xff1E1E1E),
-                      child: Icon(Icons.person, color: Color(0xff00E676)),
-                    ),
-                    const SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text('مرحباً بك،', style: TextStyle(color: Colors.grey, fontSize: 11)),
-                        Text('لاعب_570575', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+                    Row(
+                      children: [
+                        const CircleAvatar(
+                          radius: 22,
+                          backgroundColor: Color(0xff1E1E1E),
+                          child: Icon(Icons.person, color: Color(0xff00E676)),
+                        ),
+                        const SizedBox(width: 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            Text('مرحباً بك (المطور)،', style: TextStyle(color: Colors.grey, fontSize: 11)),
+                            Text('لاعب_570575 [Admin]', style: TextStyle(color: Color(0xff00E676), fontWeight: FontWeight.bold, fontSize: 14)),
+                          ],
+                        ),
                       ],
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.notifications_active_outlined, color: Color(0xff00E676)),
+                      onPressed: () {
+                        _showNotificationsDialog(context);
+                      },
                     ),
                   ],
                 ),
-                IconButton(
-                  icon: const Icon(Icons.notifications_outlined, color: Colors.white70),
-                  onPressed: () {},
+                const SizedBox(height: 20),
+                // بطاقة الرصيد التفاعلية
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: const Color(0xff1E1E1E),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: const Color(0xff00E676).withOpacity(0.3)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: const [
+                          Text('إجمالي أرباح الإعلانات المتاحة', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                          Text('وضع المطور مفعل', style: TextStyle(color: Color(0xff00E676), fontSize: 11, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '\$${appData.balance.toStringAsFixed(2)}',
+                        style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Color(0xff00E676)),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Text('🟡 النقاط المتراكمة: ${appData.points} نقطة', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
+                const SizedBox(height: 20),
+                // الرسم البياني
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xff1E1E1E),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('نظرة عامة على أرباح الأسبوع', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        height: 100,
+                        child: CustomPaint(
+                          size: const Size(double.infinity, 100),
+                          painter: ChartPainter(),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                const Text('سجل الأنشطة والمكافآت (قابل للنقر)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                const SizedBox(height: 12),
+                ...appData.activities.map((act) => _activityTile(context, act['title'], act['amount'], act['time'], act['isPositive'])).toList(),
               ],
             ),
-            const SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: const Color(0xff1E1E1E),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.white.withOpacity(0.05)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text('إجمالي الأرباح المتاحة', style: TextStyle(color: Colors.grey, fontSize: 13)),
-                      Text('+12.4% هذا الأسبوع', style: TextStyle(color: Color(0xff00E676), fontSize: 11, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    '\$45.50',
-                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Color(0xff00E676)),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      const Text('🟡 النقاط المكتسبة: ', style: TextStyle(color: Colors.grey, fontSize: 12)),
-                      const Text('1,240 نقطة', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xff1E1E1E),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.white.withOpacity(0.05)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text('نظرة عامة على الأرباح اليومية', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
-                      Text('آخر 7 أيام', style: TextStyle(color: Colors.grey, fontSize: 11)),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    height: 110,
-                    child: CustomPaint(
-                      size: const Size(double.infinity, 110),
-                      painter: ChartPainter(),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-            const Text('سجل الأنشطة والمكافآت', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
-            const SizedBox(height: 12),
-            _activityTile('إكمال مشاهدة إعلان مكافأة مؤهل', '+50 نقطة (\$0.50)', 'منذ ساعة', const Color(0xff00E676)),
-            _activityTile('استبدال نقاط برصيد محفظة', '-\$5.00', 'أمس', Colors.amber),
-          ],
-        ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showNotificationsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xff1E1E1E),
+        title: const Text('الإشعارات والتنبيهات', style: TextStyle(color: Colors.white)),
+        content: const Text('• تم تحديث نظام تتبع الإعلانات بنجاح.\n• تم إضافة 8 إعلانات مؤهلة جديدة للمستخدمين اليوم.', style: TextStyle(color: Colors.grey)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('إغلاق', style: TextStyle(color: Color(0xff00E676))))
+        ],
       ),
     );
   }
 
-  Widget _activityTile(String title, String amount, String time, Color color) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: const Color(0xff1E1E1E),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              CircleAvatar(backgroundColor: color.withOpacity(0.15), child: Icon(Icons.history, color: color, size: 18)),
-              const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
-                  const SizedBox(height: 2),
-                  Text(time, style: const TextStyle(color: Colors.grey, fontSize: 10)),
-                ],
-              ),
+  Widget _activityTile(BuildContext context, String title, String amount, String time, bool isPositive) {
+    final color = isPositive ? const Color(0xff00E676) : Colors.amber;
+    return GestureDetector(
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            backgroundColor: const Color(0xff1E1E1E),
+            title: Text(title, style: const TextStyle(color: Colors.white, fontSize: 16)),
+            content: Text('تفاصيل العملية:\n• القيمة: $amount\n• التوقيت: $time\n• الحالة: مكتمل ومتحقق منه سحابياً.', style: const TextStyle(color: Colors.grey)),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(context), child: const Text('حسناً', style: TextStyle(color: Color(0xff00E676))))
             ],
           ),
-          Text(amount, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 14)),
-        ],
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: const Color(0xff1E1E1E),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                CircleAvatar(backgroundColor: color.withOpacity(0.15), child: Icon(Icons.history, color: color, size: 18)),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                    const SizedBox(height: 2),
+                    Text(time, style: const TextStyle(color: Colors.grey, fontSize: 10)),
+                  ],
+                ),
+              ],
+            ),
+            Text(amount, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 14)),
+          ],
+        ),
       ),
     );
   }
@@ -241,25 +387,11 @@ class ChartPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
 
-    Paint fillPaint = Paint()
-      ..shader = LinearGradient(
-        colors: [const Color(0xff00E676).withOpacity(0.3), const Color(0xff00E676).withOpacity(0.0)],
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height))
-      ..style = PaintingStyle.fill;
-
     Path path = Path();
     path.moveTo(0, size.height * 0.7);
-    path.quadraticBezierTo(size.width * 0.2, size.height * 0.3, size.width * 0.4, size.height * 0.5);
-    path.quadraticBezierTo(size.width * 0.7, size.height * 0.8, size.width, size.height * 0.2);
+    path.quadraticBezierTo(size.width * 0.3, size.height * 0.2, size.width * 0.6, size.height * 0.6);
+    path.quadraticBezierTo(size.width * 0.8, size.height * 0.9, size.width, size.height * 0.1);
 
-    Path fillPath = Path.from(path);
-    fillPath.lineTo(size.width, size.height);
-    fillPath.lineTo(0, size.height);
-    fillPath.close();
-
-    canvas.drawPath(fillPath, fillPaint);
     canvas.drawPath(path, linePaint);
   }
 
@@ -267,7 +399,7 @@ class ChartPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-// ================= 2. قسم الإعلانات والمكافآت =================
+// ================= 2. مركز الإعلانات والمكافآت =================
 class AdsRewardsScreen extends StatelessWidget {
   const AdsRewardsScreen({super.key});
 
@@ -282,50 +414,18 @@ class AdsRewardsScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: const Color(0xff1E1E1E),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xff00E676), width: 1.5),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text('الإعلانات المتاحة اليوم', style: TextStyle(color: Colors.grey, fontSize: 12)),
-                    SizedBox(height: 6),
-                    Text('8 إعلانات مؤهلة', style: TextStyle(color: Color(0xff00E676), fontSize: 20, fontWeight: FontWeight.w900)),
-                  ],
-                ),
-                const CircleAvatar(
-                  radius: 26,
-                  backgroundColor: Color(0xff00E676),
-                  child: Icon(Icons.play_arrow, color: Colors.black, size: 30),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-          const Text('الإعلانات الجاهزة للمشاهدة', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 12),
-          _buildAdTile(context, 'إعلان مكافأة رقم #1', '+50 نقطة (\$0.50)', '30 ثانية'),
-          _buildAdTile(context, 'إعلان مكافأة رقم #2', '+30 نقطة (\$0.30)', '20 ثانية'),
+          _buildAdTile(context, 'إعلان مكافأة رقم #1', '+50 نقطة (\$0.50)', 50, 0.50),
+          _buildAdTile(context, 'إعلان ترويجي مميز', '+100 نقطة (\$1.00)', 100, 1.00),
         ],
       ),
     );
   }
 
-  Widget _buildAdTile(BuildContext context, String title, String reward, String duration) {
+  Widget _buildAdTile(BuildContext context, String title, String rewardText, int addPoints, double addMoney) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: const Color(0xff1E1E1E),
-        borderRadius: BorderRadius.circular(16),
-      ),
+      decoration: BoxDecoration(color: const Color(0xff1E1E1E), borderRadius: BorderRadius.circular(16)),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -334,18 +434,16 @@ class AdsRewardsScreen extends StatelessWidget {
             children: [
               Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
               const SizedBox(height: 4),
-              Text('المدة: $duration | المكافأة: $reward', style: const TextStyle(color: Colors.grey, fontSize: 12)),
+              Text('المكافأة: $rewardText', style: const TextStyle(color: Colors.grey, fontSize: 12)),
             ],
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xff00E676),
-              foregroundColor: Colors.black,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black),
             onPressed: () {
+              appData.updateBalance(appData.balance + addMoney, appData.points + addPoints);
+              appData.addActivity('مشاهدة إعلان تجريبي ناجح', '+$addPoints نقطة (+\$$addMoney)', true);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('جاري تحميل الإعلان والتحقق من المشاهدة...')),
+                const SnackBar(content: Text('تم التحقق من مشاهدة الإعلان وإضافة المكافأة بنجاح!'), backgroundColor: Colors.green),
               );
             },
             child: const Text('شاهد الآن', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -362,162 +460,99 @@ class WalletScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('المحفظة وأرباح الإعلانات'),
-        backgroundColor: const Color(0xff121212),
-        automaticallyImplyLeading: false,
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Container(
-            padding: const EdgeInsets.all(22),
-            decoration: BoxDecoration(
-              color: const Color(0xff1E1E1E),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: const Color(0xff00E676), width: 1.5),
-            ),
-            child: Column(
-              children: [
-                const Text('إجمالي أرباح الإعلانات المتاحة', style: TextStyle(color: Colors.grey, fontSize: 13)),
-                const SizedBox(height: 8),
-                const Text(
-                  'USD \$45.50',
-                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.w900, color: Color(0xff00E676)),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Text('🟡 النقاط المتراكمة: 1,240 نقطة', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+    return AnimatedBuilder(
+      animation: appData,
+      builder: (context, child) {
+        return Scaffold(
+          appBar: AppBar(title: const Text('المحفظة وأرباح الإعلانات'), backgroundColor: const Color(0xff121212), automaticallyImplyLeading: false),
+          body: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              Container(
+                padding: const EdgeInsets.all(22),
+                decoration: BoxDecoration(color: const Color(0xff1E1E1E), borderRadius: BorderRadius.circular(24), border: Border.all(color: const Color(0xff00E676))),
+                child: Column(
+                  children: [
+                    const Text('الرصيد المتاح للسحب', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                    const SizedBox(height: 8),
+                    Text('\$${appData.balance.toStringAsFixed(2)}', style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w900, color: Color(0xff00E676))),
+                    const SizedBox(height: 12),
+                    Text('🟡 النقاط: ${appData.points} نقطة', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   ],
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 24),
+              const Text('طرق السحب المتاحة', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 12),
+              _buildWithdrawTile(context, 'AsiaCell Cash (آسياسيل)'),
+              _buildWithdrawTile(context, 'ZainCash (زين كاش)'),
+            ],
           ),
-          const SizedBox(height: 24),
-          const Text('طرق استبدال وسحب الأرباح', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 12),
-          _buildWithdrawTile(context, 'AsiaCell Cash (آسياسيل)', 'سحب أرباح الإعلانات فورياً', Icons.phone_android, Colors.redAccent),
-          _buildWithdrawTile(context, 'ZainCash (زين كاش)', 'سحب أرباح الإعلانات فورياً', Icons.phone_iphone, Colors.amber),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildWithdrawTile(BuildContext context, String title, String subtitle, IconData icon, Color iconColor) {
+  Widget _buildWithdrawTile(BuildContext context, String title) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: const Color(0xff1E1E1E),
-        borderRadius: BorderRadius.circular(18),
-      ),
+      decoration: BoxDecoration(color: const Color(0xff1E1E1E), borderRadius: BorderRadius.circular(18)),
       child: ListTile(
-        leading: Icon(icon, color: iconColor, size: 28),
+        leading: const Icon(Icons.payment, color: Color(0xff00E676)),
         title: Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
-        subtitle: Text(subtitle, style: TextStyle(color: Colors.grey[400], fontSize: 12)),
         trailing: const Icon(Icons.arrow_forward_ios, color: Color(0xff00E676), size: 16),
         onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('فتح بوابة سحب أرباح الإعلانات عبر $title')),
-          );
+          if (appData.balance > 0) {
+            appData.addActivity('طلب سحب أرباح عبر $title', '-\$${appData.balance.toStringAsFixed(2)}', false);
+            appData.updateBalance(0.0, appData.points);
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إرسال طلب السحب بنجاح!'), backgroundColor: Colors.green));
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(constSnackBar(content: Text('عذراً، الرصيد غير كافٍ.'), backgroundColor: Colors.red));
+          }
         },
       ),
     );
   }
 }
 
-// ================= 4. الألعاب والترفيه (سايبربانك ترفيهي بحت) =================
+// ================= 4. الألعاب =================
 class GamesScreen extends StatelessWidget {
   const GamesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('منصة الألعاب السيبرانية (ترفيهي)'),
-        backgroundColor: const Color(0xff121212),
-        automaticallyImplyLeading: false,
-      ),
+      appBar: AppBar(title: const Text('منصة الألعاب السيبرانية (ترفيهي)'), backgroundColor: const Color(0xff121212), automaticallyImplyLeading: false),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.amber.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.amber.withOpacity(0.3)),
-            ),
-            child: const Text(
-              'ملاحظة: جميع الألعاب مخصصة للتسلية والترفيه والتحديات الشخصية فقط ولا تمنح أي أرباح مالية.',
-              style: TextStyle(color: Colors.amber, fontSize: 12),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          const SizedBox(height: 16),
-          _buildGameCard(context, 'لـودو سايبربانك (Cyber Ludo)', 'طاولة نيون مستقبلية ونرد هولوغرام', Icons.casino, Colors.greenAccent),
-          _buildGameCard(context, 'شطرنج النيون (Neon Chess)', 'تحدي ذكاء بقطع معدنية مضيئة', Icons.extension, Colors.blueAccent),
-          _buildGameCard(context, 'دومينوز رقمية (Cyber Dominoes)', 'أحجار دومينوز متوهجة في الظلام', AppsIconHelper.domino, Colors.purpleAccent),
-          _buildGameCard(context, 'روبلوكس المستقبل (Cyber Roblox)', 'عالم افتراضي مكعب بطابع سايبربانك', Icons.sports_esports, Colors.orangeAccent),
-          _buildGameCard(context, 'كرة قدم السيبربانك (Cyber Football)', 'ملاعب ليزرية وكرة إلكترونية مضيئة', Icons.sports_soccer, Colors.redAccent),
+          _gameCard(context, 'لـودو سايبربانك (Cyber Ludo)', Icons.casino, Colors.greenAccent),
+          _gameCard(context, 'شطرنج النيون (Neon Chess)', Icons.extension, Colors.blueAccent),
+          _gameCard(context, 'كرة قدم السيبربانك (Cyber Football)', Icons.sports_soccer, Colors.redAccent),
         ],
       ),
     );
   }
 
-  Widget _buildGameCard(BuildContext context, String title, String subtitle, IconData icon, Color color) {
+  Widget _gameCard(BuildContext context, String title, IconData icon, Color color) {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xff1E1E1E),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.3)),
-      ),
+      decoration: BoxDecoration(color: const Color(0xff1E1E1E), borderRadius: BorderRadius.circular(20)),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Icon(icon, color: color, size: 30),
-          ),
+          Icon(icon, color: color, size: 30),
           const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
-                const SizedBox(height: 4),
-                Text(subtitle, style: TextStyle(color: Colors.grey[400], fontSize: 11)),
-              ],
-            ),
-          ),
+          Expanded(child: Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: color,
-              foregroundColor: Colors.black,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('جاري تشغيل لعبة: $title')),
-              );
-            },
-            child: const Text('العب', style: TextStyle(fontWeight: FontWeight.bold)),
+            style: ElevatedButton.styleFrom(backgroundColor: color, foregroundColor: Colors.black),
+            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('جاري تشغيل $title للتسلية...'))),
+            child: const Text('العب'),
           ),
         ],
       ),
     );
   }
-}
-
-class AppsIconHelper {
-  static const IconData domino = Icons.grid_view;
 }
 
 // ================= 5. الدردشة =================
@@ -527,105 +562,28 @@ class ChatScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('دردشة المجتمع (تواصل فقط)'),
-        backgroundColor: const Color(0xff121212),
-        automaticallyImplyLeading: false,
-      ),
+      appBar: AppBar(title: const Text('دردشة المجتمع'), backgroundColor: const Color(0xff121212), automaticallyImplyLeading: false),
       body: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            color: Colors.blueAccent.withOpacity(0.1),
-            child: const Text(
-              'الدردشة للتواصل الاجتماعي فقط ولا تمنح أي نقاط أو مكافآت مالية.',
-              style: TextStyle(color: Colors.blueAccent, fontSize: 11),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: const [
-                ChatBubble(sender: 'أحمد', message: 'منو يلعب ويانا شطرنج نيون اليوم؟', time: '08:00 ص', isMe: false),
-                ChatBubble(sender: 'أنت', message: 'أنا جاهز، خل نتحدى بلودو سايبربانك بعدين!', time: '08:02 ص', isMe: true),
-              ],
-            ),
-          ),
+          const Expanded(child: Center(child: Text('مجتمع الدردشة والترفيه الاجتماعي', style: TextStyle(color: Colors.grey)))),
           Container(
             padding: const EdgeInsets.all(12),
             color: const Color(0xff121212),
             child: Row(
               children: [
-                Expanded(
-                  child: TextField(
-                    style: const TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                      hintText: 'اكتب رسالتك للمجتمع...',
-                      hintStyle: const TextStyle(color: Colors.grey),
-                      filled: true,
-                      fillColor: const Color(0xff1E1E1E),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                    ),
-                  ),
-                ),
+                Expanded(child: TextField(decoration: InputDecoration(hintText: 'اكتب رسالتك...', filled: true, fillColor: const Color(0xff1E1E1E), border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none)))),
                 const SizedBox(width: 8),
-                CircleAvatar(
-                  backgroundColor: const Color(0xff00E676),
-                  child: IconButton(
-                    icon: const Icon(Icons.send, color: Colors.black, size: 18),
-                    onPressed: () {},
-                  ),
-                ),
+                CircleAvatar(backgroundColor: const Color(0xff00E676), child: IconButton(icon: const Icon(Icons.send, color: Colors.black, size: 18), onPressed: () {}))
               ],
             ),
-          ),
+          )
         ],
       ),
     );
   }
 }
 
-class ChatBubble extends StatelessWidget {
-  final String sender;
-  final String message;
-  final String time;
-  final bool isMe;
-
-  const ChatBubble({super.key, required this.sender, required this.message, required this.time, required this.isMe});
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: isMe ? Alignment.centerLeft : Alignment.centerRight,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(14),
-        constraints: const BoxConstraints(maxWidth: 260),
-        decoration: BoxDecoration(
-          color: isMe ? const Color(0xff00E676).withOpacity(0.15) : const Color(0xff1E1E1E),
-          borderRadius: BorderRadius.circular(18),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(sender, style: TextStyle(color: isMe ? const Color(0xff00E676) : Colors.grey[400], fontSize: 11, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 4),
-            Text(message, style: const TextStyle(color: Colors.white, fontSize: 13)),
-            const SizedBox(height: 4),
-            Align(
-              alignment: Alignment.bottomLeft,
-              child: Text(time, style: const TextStyle(color: Colors.grey, fontSize: 9)),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ================= 6. الإعدادات =================
+// ================= 6. الإعدادات ولوحة تحكم المطور =================
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -634,146 +592,54 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  File? _profileImage;
-  String _selectedLanguage = 'العربية';
+  final _balanceController = TextEditingController(text: appData.balance.toString());
+  final _pointsController = TextEditingController(text: appData.points.toString());
 
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _profileImage = File(pickedFile.path);
-      });
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تم تحديث الصورة الشخصية بنجاح!'), backgroundColor: Colors.green),
-        );
-      }
+  void _saveDeveloperData() {
+    double? newBal = double.tryParse(_balanceController.text);
+    int? newPts = int.tryParse(_pointsController.text);
+    if (newBal != null && newPts != null) {
+      appData.updateBalance(newBal, newPts);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تحديث لوحة تحكم المطور بنجاح!'), backgroundColor: Colors.green));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('الإعدادات والحساب'),
-        backgroundColor: const Color(0xff121212),
-        automaticallyImplyLeading: false,
-      ),
+      appBar: AppBar(title: const Text('إعدادات ولوحة تحكم المطور'), backgroundColor: const Color(0xff121212), automaticallyImplyLeading: false),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Center(
-            child: Column(
-              children: [
-                GestureDetector(
-                  onTap: _pickImage,
-                  child: Stack(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: const Color(0xff00E676), width: 2),
-                        ),
-                        child: CircleAvatar(
-                          radius: 44,
-                          backgroundColor: const Color(0xff1E1E1E),
-                          backgroundImage: _profileImage != null ? FileImage(_profileImage!) : null,
-                          child: _profileImage == null ? const Icon(Icons.person, size: 44, color: Color(0xff00E676)) : null,
-                        ),
-                      ),
-                      const Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: CircleAvatar(
-                          radius: 12,
-                          backgroundColor: Color(0xff00E676),
-                          child: Icon(Icons.camera_alt, size: 14, color: Colors.black),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
-                const Text('لاعب_570575', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
-                const SizedBox(height: 4),
-                const Text('ID: #RAYID-9924', style: TextStyle(color: Colors.grey, fontSize: 12)),
-              ],
-            ),
+          const Text('لوحة تحكم المدير (Developer Admin Panel)', style: TextStyle(color: Color(0xff00E676), fontWeight: FontWeight.bold, fontSize: 16)),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _balanceController,
+            keyboardType: TextInputType.number,
+            style: const TextStyle(color: Colors.white),
+            decoration: const InputDecoration(labelText: 'تعديل الرصيد ($)', filled: true, fillColor: Color(0xff1E1E1E)),
           ),
-          const SizedBox(height: 24),
-          _buildSettingTile(context, Icons.security, 'الأمان وحماية الحساب'),
-          _buildSettingTile(context, Icons.notifications_none, 'إعدادات الإشعارات'),
-          Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            decoration: BoxDecoration(
-              color: const Color(0xff1E1E1E),
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: ListTile(
-              leading: const Icon(Icons.language, color: Color(0xff00E676)),
-              title: Text('لغة التطبيق ($_selectedLanguage)', style: const TextStyle(color: Colors.white, fontSize: 14)),
-              trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
-              onTap: () {
-                _showLanguageDialog(context);
-              },
-            ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _pointsController,
+            keyboardType: TextInputType.number,
+            style: const TextStyle(color: Colors.white),
+            decoration: const InputDecoration(labelText: 'تعديل النقاط', filled: true, fillColor: Color(0xff1E1E1E)),
           ),
-          _buildSettingTile(context, Icons.help_outline, 'الدعم الفني والمساعدة'),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black),
+            onPressed: _saveDeveloperData,
+            child: const Text('حفظ وتحديث النظام حياً', style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+          const SizedBox(height: 30),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red.withOpacity(0.2), foregroundColor: Colors.redAccent),
+            onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen())),
+            child: const Text('تسجيل خروج المطور'),
+          ),
         ],
       ),
-    );
-  }
-
-  Widget _buildSettingTile(BuildContext context, IconData icon, String title) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: const Color(0xff1E1E1E),
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: ListTile(
-        leading: Icon(icon, color: const Color(0xff00E676)),
-        title: Text(title, style: const TextStyle(color: Colors.white, fontSize: 14)),
-        trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
-        onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('فتح إعدادات: $title')),
-          );
-        },
-      ),
-    );
-  }
-
-  void _showLanguageDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: const Color(0xff1E1E1E),
-          title: const Text('اختر لغة التطبيق', style: TextStyle(color: Colors.white)),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                title: const Text('العربية', style: TextStyle(color: Colors.white)),
-                onTap: () {
-                  setState(() => _selectedLanguage = 'العربية');
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                title: const Text('English', style: TextStyle(color: Colors.white)),
-                onTap: () {
-                  setState(() => _selectedLanguage = 'English');
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 }
