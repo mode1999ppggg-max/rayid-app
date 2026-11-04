@@ -1082,7 +1082,7 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
   Timer? gameLoopTimer;
   int hitCooldown = 0; // لحماية اللاعب من تكرار الضرر اللحظي
 
-  // تعريف القوائم بالأنواع السليمة للـ Generics (إصلاح الخطأ البرمجي)
+  // تعريف القوائم بالأنواع السليمة والصحيحة 100%
   late List> platforms;
   late List> crystals;
   late List> hazards;
