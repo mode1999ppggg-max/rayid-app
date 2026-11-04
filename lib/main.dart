@@ -6,12 +6,10 @@ void main() {
   runApp(const RayidApp());
 }
 
-// ================= نموذج البيانات الأساسي للمستخدم =================
+// ================= نموذج البيانات الشامل والأساسي للمستخدم =================
 class UserAppModel extends ChangeNotifier {
-  // حالة المصادقة وجلسة المستخدم
   bool isLoggedIn = false;
 
-  // بيانات المستخدم الحالية
   String userName = 'لاعب_570575';
   String userEmail = 'player570@rayid.pay';
   String userPhone = '+964 770 000 0000';
@@ -26,9 +24,8 @@ class UserAppModel extends ChangeNotifier {
     {'title': 'سحب أرباح عبر زين كاش', 'amount': '-19,800 د.ع (15.00 دولار)', 'time': 'أمس', 'isPositive': false},
   ];
 
-  // 1. تسجيل حساب جديد (Sign Up)
   Future<bool> signUpUser(String name, String email, String phone, String password) async {
-    await Future.delayed(const Duration(milliseconds: 600)); // محاكاة الحفظ بالسحابة
+    await Future.delayed(const Duration(milliseconds: 600));
     userName = name;
     userEmail = email;
     userPhone = phone;
@@ -37,22 +34,19 @@ class UserAppModel extends ChangeNotifier {
     return true;
   }
 
-  // 2. تسجيل الدخول (Sign In)
   Future<bool> signInUser(String email, String password) async {
-    await Future.delayed(const Duration(milliseconds: 600)); // محاكاة التحقق من السحابة
+    await Future.delayed(const Duration(milliseconds: 600));
     userEmail = email;
     isLoggedIn = true;
     notifyListeners();
     return true;
   }
 
-  // 3. تسجيل الخروج (Log Out)
   void signOutUser() {
     isLoggedIn = false;
     notifyListeners();
   }
 
-  // تحديث البيانات الشخصية سحابياً
   Future<void> updateProfile({String? name, String? email, String? phone, File? image}) async {
     if (name != null) userName = name;
     if (email != null) userEmail = email;
@@ -62,7 +56,6 @@ class UserAppModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // تنفيذ عملية سحب الأرباح وإضافة سجل
   void processWithdrawal(String method, String details, double amountIQD) {
     double deductedUSD = amountIQD / 1320;
     balanceUSD -= deductedUSD;
@@ -75,7 +68,6 @@ class UserAppModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // إضافة نشاط عند مشاهدة إعلان
   void addActivity(String title, String amount, bool isPositive) {
     activities.insert(0, {
       'title': title,
@@ -115,7 +107,6 @@ class RayidApp extends StatelessWidget {
       home: AnimatedBuilder(
         animation: userModel,
         builder: (context, child) {
-          // التبديل التلقائي بين شاشة الدخول والرئيسية بناءً على الجلسة
           return userModel.isLoggedIn ? const MainNavigationHub() : const AuthWrapperScreen();
         },
       ),
@@ -123,7 +114,7 @@ class RayidApp extends StatelessWidget {
   }
 }
 
-// ================= نظام الحسابات (تسجيل الدخول وإنشاء حساب) =================
+// ================= شاشة تسجيل الدخول وإنشاء الحساب =================
 class AuthWrapperScreen extends StatefulWidget {
   const AuthWrapperScreen({super.key});
 
@@ -132,7 +123,7 @@ class AuthWrapperScreen extends StatefulWidget {
 }
 
 class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
-  bool isSigningUp = false; // التبديل بين واجهة الدخول وإنشاء الحساب
+  bool isSigningUp = false;
 
   final _emailController = TextEditingController();
   final _passController = TextEditingController();
@@ -286,7 +277,7 @@ class MainNavigationHubState extends State<MainNavigationHub> {
   }
 }
 
-// ================= 1. الصفحة الرئيسية =================
+// ================= 1. الصفحة الرئيسية المتكاملة =================
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -323,7 +314,7 @@ class HomeScreen extends StatelessWidget {
                     ),
                     IconButton(
                       icon: const Icon(Icons.notifications_active_outlined, color: Color(0xff00E676)),
-                      onPressed: () {},
+                      onPressed: () => _showNotificationsDialog(context),
                     ),
                   ],
                 ),
@@ -415,6 +406,20 @@ class HomeScreen extends StatelessWidget {
       },
     );
   }
+
+  void _showNotificationsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xff1E1E1E),
+        title: const Text('الإشعارات والتنبيهات', style: TextStyle(color: Colors.white)),
+        content: const Text('• تم تحديث نظام تتبع الإعلانات وإظهار العملة بالدينار والدولار.\n• تم إضافة 8 إعلانات مؤهلة جديدة للمستخدمين اليوم.', style: TextStyle(color: Colors.grey)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('إغلاق', style: TextStyle(color: Color(0xff00E676))))
+        ],
+      ),
+    );
+  }
 }
 
 class ChartPainter extends CustomPainter {
@@ -431,7 +436,7 @@ class ChartPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-// ================= مركز الإعلانات =================
+// ================= 2. مركز الإعلانات والمكافآت =================
 class AdsRewardsScreen extends StatelessWidget {
   const AdsRewardsScreen({super.key});
 
@@ -481,7 +486,7 @@ class AdsRewardsScreen extends StatelessWidget {
   }
 }
 
-// ================= 2. المحفظة وبوابات السحب الثلاثة (ZainCash, AsiaCell, Mastercard) =================
+// ================= 3. المحفظة وبوابات السحب الثلاثة المتكاملة =================
 class WalletScreen extends StatelessWidget {
   const WalletScreen({super.key});
 
@@ -537,7 +542,6 @@ class WalletScreen extends StatelessWidget {
     );
   }
 
-  // نافذة تفاعلية موحدة لطرق السحب الثلاثة (رقم المحفظة / أو رقم البطاقة + المبلغ)
   void _showWithdrawDialog(BuildContext context, String methodTitle) {
     final targetController = TextEditingController();
     final amountController = TextEditingController();
@@ -602,20 +606,74 @@ class WalletScreen extends StatelessWidget {
   }
 }
 
-// الألعاب والدردشة
+// ================= 4. الألعاب والدردشة الترفيهية =================
 class GamesScreen extends StatelessWidget {
   const GamesScreen({super.key});
+
   @override
-  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('منصة الألعاب السيبرانية'), automaticallyImplyLeading: false), body: const Center(child: Text('ألعاب التسلية والترفيه', style: TextStyle(color: Colors.grey))));
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('منصة الألعاب السيبرانية (ترفيهي)'), backgroundColor: const Color(0xff121212), automaticallyImplyLeading: false),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          _gameCard(context, 'لـودو سايبربانك (Cyber Ludo)', Icons.casino, Colors.greenAccent),
+          _gameCard(context, 'شطرنج النيون (Neon Chess)', Icons.extension, Colors.blueAccent),
+          _gameCard(context, 'كرة قدم السيبربانك (Cyber Football)', Icons.sports_soccer, Colors.redAccent),
+        ],
+      ),
+    );
+  }
+
+  Widget _gameCard(BuildContext context, String title, IconData icon, Color color) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(color: const Color(0xff1E1E1E), borderRadius: BorderRadius.circular(20)),
+      child: Row(
+        children: [
+          Icon(icon, color: color, size: 30),
+          const SizedBox(width: 16),
+          Expanded(child: Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: color, foregroundColor: Colors.black),
+            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('جاري تشغيل $title للتسلية...'))),
+            child: const Text('العب'),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
+
   @override
-  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('دردشة المجتمع'), backgroundColor: const Color(0xff121212), automaticallyImplyLeading: false), body: const Center(child: Text('المجتمع والتفاعل الاجتماعي', style: TextStyle(color: Colors.grey))));
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('دردشة المجتمع'), backgroundColor: const Color(0xff121212), automaticallyImplyLeading: false),
+      body: Column(
+        children: [
+          const Expanded(child: Center(child: Text('مجتمع الدردشة والترفيه الاجتماعي', style: TextStyle(color: Colors.grey)))),
+          Container(
+            padding: const EdgeInsets.all(12),
+            color: const Color(0xff121212),
+            child: Row(
+              children: [
+                Expanded(child: TextField(decoration: InputDecoration(hintText: 'اكتب رسالتك...', filled: true, fillColor: const Color(0xff1E1E1E), border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none)))),
+                const SizedBox(width: 8),
+                CircleAvatar(backgroundColor: const Color(0xff00E676), child: IconButton(icon: const Icon(Icons.send, color: Colors.black, size: 18), onPressed: () {}))
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
 }
 
-// ================= 3. صفحة الإعدادات وسياسة الخصوصية وتنزيل الجلسة =================
+// ================= 5. صفحة الإعدادات وسياسة الخصوصية وتسجيل الخروج =================
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -659,7 +717,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  // نافذة عرض سياسة الخصوصية الرسمية المطلوبة
   void _showPrivacyPolicyDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -739,7 +796,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               const SizedBox(height: 30),
 
-              // زر تسجيل الخروج الآمن (Log Out)
               ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red.withOpacity(0.2), foregroundColor: Colors.redAccent, minimumSize: const Size(double.infinity, 50)),
                 onPressed: () {
