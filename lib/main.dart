@@ -28,6 +28,18 @@ class UserAppModel extends ChangeNotifier {
     {'sender': 'support', 'text': 'مرحباً بك في دعم RAYID PAY. كيف يمكننا مساعدتك اليوم؟', 'time': 'الآن'}
   ];
 
+  // مجموعات الدردشة الجديدة
+  List> chatGroups = [
+    {'name': 'مجموعة أرباح الإعلانات الكبرى', 'members': 1420, 'lastMsg': 'تم توزيع مكافآت الأسبوع بنجاح!'},
+    {'name': 'متداولو زين كاش وماستر كارد', 'members': 850, 'lastMsg': 'شباب وصل السحب لو بعده؟'},
+  ];
+
+  void createGroup(String groupName) {
+    if (groupName.trim().isEmpty) return;
+    chatGroups.add({'name': groupName, 'members': 1, 'lastMsg': 'تم إنشاء المجموعة حديثاً.'});
+    notifyListeners();
+  }
+
   void sendSupportMessage(String text) {
     if (text.trim().isEmpty) return;
     supportMessages.add({'sender': 'user', 'text': text, 'time': 'الآن'});
@@ -677,7 +689,7 @@ class WalletScreen extends StatelessWidget {
   }
 }
 
-// ================= 4. الألعاب والدردشة الترفيهية =================
+// ================= 4. الألعاب والدردشة والمجموعات =================
 class GamesScreen extends StatelessWidget {
   const GamesScreen({super.key});
 
@@ -717,34 +729,82 @@ class GamesScreen extends StatelessWidget {
   }
 }
 
+// شاشة الدردشة والمجموعات المحدثة
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('دردشة المجتمع'), backgroundColor: const Color(0xff121212), automaticallyImplyLeading: false),
-      body: Column(
-        children: [
-          const Expanded(child: Center(child: Text('مجتمع الدردشة والترفيه الاجتماعي', style: TextStyle(color: Colors.grey)))),
-          Container(
-            padding: const EdgeInsets.all(12),
-            color: const Color(0xff121212),
-            child: Row(
-              children: [
-                Expanded(child: TextField(decoration: InputDecoration(hintText: 'اكتب رسالتك...', filled: true, fillColor: const Color(0xff1E1E1E), border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none)))),
-                const SizedBox(width: 8),
-                CircleAvatar(backgroundColor: const Color(0xff00E676), child: IconButton(icon: const Icon(Icons.send, color: Colors.black, size: 18), onPressed: () {}))
-              ],
-            ),
-          )
+  void _showCreateGroupDialog(BuildContext context) {
+    final groupController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xff1E1E1E),
+        title: const Text('إنشاء مجموعة جديدة', style: TextStyle(color: Color(0xff00E676))),
+        content: TextField(
+          controller: groupController,
+          style: const TextStyle(color: Colors.white),
+          decoration: const InputDecoration(labelText: 'اسم المجموعة', labelStyle: TextStyle(color: Colors.grey)),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('إلغاء', style: TextStyle(color: Colors.grey))),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black),
+            onPressed: () {
+              userModel.createGroup(groupController.text);
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إنشاء المجموعة بنجاح وانضممت إليها!'), backgroundColor: Colors.green));
+            },
+            child: const Text('إنشاء', style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
         ],
       ),
     );
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: userModel,
+      builder: (context, child) {
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('دردشة ومجموعات المجتمع'),
+            backgroundColor: const Color(0xff121212),
+            automaticallyImplyLeading: false,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.group_add, color: Color(0xff00E676)),
+                onPressed: () => _showCreateGroupDialog(context),
+              ),
+            ],
+          ),
+          body: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              const Text('المجموعات النشطة', style: TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              ...userModel.chatGroups.map((group) => Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(color: const Color(0xff1E1E1E), borderRadius: BorderRadius.circular(16)),
+                child: ListTile(
+                  leading: const CircleAvatar(backgroundColor: Color(0xff00E676), child: Icon(Icons.groups, color: Colors.black)),
+                  title: Text(group['name'], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                  subtitle: Text('${group['members']} عضو • ${group['lastMsg']}', style: const TextStyle(color: Colors.grey, fontSize: 11)),
+                  trailing: const Icon(Icons.arrow_forward_ios, color: Color(0xff00E676), size: 14),
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('جاري فتح غرفة دردشة: ${group['name']}')));
+                  },
+                ),
+              )).toList(),
+            ],
+          ),
+        );
+      },
+    );
+  }
 }
 
-// ================= شاشة الدعم الفني المباشر الجديد =================
+// ================= شاشة الدعم الفني المباشر =================
 class SupportScreen extends StatefulWidget {
   const SupportScreen({super.key});
 
@@ -952,7 +1012,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const Text('الدعم والقانونية', style: TextStyle(color: Color(0xff00E676), fontWeight: FontWeight.bold, fontSize: 15)),
               const SizedBox(height: 8),
               
-              // زر الانتقال إلى الدعم الفني المباشر الجديد
               ListTile(
                 tileColor: const Color(0xff1E1E1E),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
