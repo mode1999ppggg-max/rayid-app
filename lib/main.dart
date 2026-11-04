@@ -1082,10 +1082,10 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
   Timer? gameLoopTimer;
   int hitCooldown = 0; // لحماية اللاعب من تكرار الضرر اللحظي
 
-  // تعريف القوائم بالأنواع السليمة والصحيحة 100%
-  late List> platforms;
-  late List> crystals;
-  late List> hazards;
+  // استخدام List<dynamic> لتجاوز مشاكل الأقواس الحادة في الأنظمة المنقولة عبر الشات
+  late List<dynamic> platforms;
+  late List<dynamic> crystals;
+  late List<dynamic> hazards;
 
   @override
   void initState() {
@@ -1131,20 +1131,20 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
 
         // حركة العقبات
         for (var haz in hazards) {
-          haz['x'] += haz['dir'] * haz['speed'];
-          if (haz['x'] < 160 || haz['x'] > 600) {
-            haz['dir'] = -haz['dir'];
+          haz['x'] += (haz['dir'] as double) * (haz['speed'] as double);
+          if ((haz['x'] as double) < 160 || (haz['x'] as double) > 600) {
+            haz['dir'] = -(haz['dir'] as double);
           }
         }
 
         // فحص الهبوط على المنصات
         for (var plat in platforms) {
-          if (playerX + 30 >= plat['x'] && 
-              playerX <= plat['x'] + plat['w'] &&
-              playerY + 40 >= plat['y'] && 
-              playerY + 40 <= plat['y'] + plat['h'] + 10 && 
+          if (playerX + 30 >= (plat['x'] as double) && 
+              playerX <= (plat['x'] as double) + (plat['w'] as double) &&
+              playerY + 40 >= (plat['y'] as double) && 
+              playerY + 40 <= (plat['y'] as double) + (plat['h'] as double) + 10 && 
               velocityY >= 0) {
-            playerY = plat['y'] - 40.0;
+            playerY = (plat['y'] as double) - 40.0;
             velocityY = 0.0;
             isJumping = false;
             break;
@@ -1159,7 +1159,7 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
         // جمع البلورات
         for (var crystal in crystals) {
           if (crystal['collected'] == false) {
-            double dist = sqrt(pow(playerX - crystal['x'], 2) + pow(playerY - crystal['y'], 2));
+            double dist = sqrt(pow(playerX - (crystal['x'] as double), 2) + pow(playerY - (crystal['y'] as double), 2));
             if (dist < 35) {
               crystal['collected'] = true;
               coinsCollected++;
@@ -1170,7 +1170,7 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
 
         // اصطدام العقبات (مع تفعيل وقت حماية لمنع الخسارة الفورية المتكررة)
         for (var haz in hazards) {
-          double distHaz = sqrt(pow(playerX - haz['x'], 2) + pow(playerY - haz['y'], 2));
+          double distHaz = sqrt(pow(playerX - (haz['x'] as double), 2) + pow(playerY - (haz['y'] as double), 2));
           if (distHaz < 30 && hitCooldown == 0) {
             _loseLife('اصطدمت بعائق نيون جارح!');
             hitCooldown = 40; // إطار حماية مؤقت
@@ -1281,11 +1281,11 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
                     ),
 
                     ...platforms.map((plat) => Positioned(
-                      left: plat['x'] - (playerX > 300 ? playerX - 300 : 0),
-                      top: plat['y'],
+                      left: (plat['x'] as double) - (playerX > 300 ? playerX - 300 : 0),
+                      top: plat['y'] as double,
                       child: Container(
-                        width: plat['w'],
-                        height: plat['h'],
+                        width: plat['w'] as double,
+                        height: plat['h'] as double,
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(colors: [Color(0xff00E676), Color(0xff00E5FF)]),
                           borderRadius: BorderRadius.circular(8),
@@ -1294,14 +1294,14 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
                     )).toList(),
 
                     ...crystals.where((c) => c['collected'] == false).map((c) => Positioned(
-                      left: c['x'] - (playerX > 300 ? playerX - 300 : 0),
-                      top: c['y'],
+                      left: (c['x'] as double) - (playerX > 300 ? playerX - 300 : 0),
+                      top: c['y'] as double,
                       child: const Icon(Icons.diamond, color: Color(0xff00E5FF), size: 26),
                     )).toList(),
 
                     ...hazards.map((h) => Positioned(
-                      left: h['x'] - (playerX > 300 ? playerX - 300 : 0),
-                      top: h['y'],
+                      left: (h['x'] as double) - (playerX > 300 ? playerX - 300 : 0),
+                      top: h['y'] as double,
                       child: const Icon(Icons.local_fire_department, color: Colors.redAccent, size: 28),
                     )).toList(),
 
