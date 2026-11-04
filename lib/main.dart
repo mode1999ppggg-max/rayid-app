@@ -123,12 +123,7 @@ class HomeScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 const Text('شاهد الإعلانات المؤهلة واجمع المكافآت والنقاط القابلة للاستبدال بكل شفافية.', style: TextStyle(color: Colors.grey, fontSize: 13)),
                 const SizedBox(height: 16),
-                ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xff00ff88),
-                  foregroundColor: Colors.black,
-                ).noDefaultPressed(
-                  onPressed: () {},
-                ) ?? ElevatedButton(
+                ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xff00ff88),
                     foregroundColor: Colors.black,
