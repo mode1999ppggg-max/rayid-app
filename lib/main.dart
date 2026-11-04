@@ -47,7 +47,7 @@ class MainNavigationHubState extends State<MainNavigationHub> {
   late int _currentIndex;
   final List<Widget> _pages = [
     const HomeScreen(),
-    const AdsRewardsScreen(), // قسم الإعلانات والمكافآت الأساسي
+    const AdsRewardsScreen(),
     const WalletScreen(),
     const GamesScreen(),
     const ChatScreen(),
@@ -90,73 +90,217 @@ class MainNavigationHubState extends State<MainNavigationHub> {
   }
 }
 
-// ================= 1. الصفحة الرئيسية =================
+// ================= 1. الصفحة الرئيسية الغنية بالتفاصيل والأدوات =================
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('RAYID PAY - الرئيسية'),
-        backgroundColor: const Color(0xff06090f),
-        automaticallyImplyLeading: false,
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xff0f1722), Color(0xff162231)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: const Color(0xff00ff88).withOpacity(0.4)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('مرحباً بك، لاعب_570575', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 8),
-                const Text('شاهد الإعلانات المؤهلة واجمع المكافآت والنقاط القابلة للاستبدال بكل شفافية.', style: TextStyle(color: Colors.grey, fontSize: 13)),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xff00ff88),
-                    foregroundColor: Colors.black,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                Row(
+                  children: [
+                    const CircleAvatar(
+                      radius: 22,
+                      backgroundColor: Color(0xff0f1722),
+                      child: Icon(Icons.person, color: Color(0xff00ff88)),
+                    ),
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Text('مرحباً بك،', style: TextStyle(color: Colors.grey, fontSize: 11)),
+                        Text('لاعب_570575', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+                      ],
+                    ),
+                  ],
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xff0f1722),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: const Color(0xff00ff88).withOpacity(0.4)),
                   ),
-                  onPressed: () {},
-                  child: const Text('ابدأ مشاهدة الإعلانات الآن', style: TextStyle(fontWeight: FontWeight.bold)),
+                  child: Row(
+                    children: const [
+                      CircleAvatar(radius: 4, backgroundColor: Color(0xff00ff88)),
+                      SizedBox(width: 6),
+                      Text('متصل بالمنظومة', style: TextStyle(color: Color(0xff00ff88), fontSize: 11)),
+                    ],
+                  ),
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 24),
-          const Text('تنبيه هام لنظام التطبيق', style: TextStyle(color: Color(0xff00f0ff), fontWeight: FontWeight.bold, fontSize: 15)),
-          const SizedBox(height: 8),
+            const SizedBox(height: 24),
+            // بطاقة الرصيد والأرباح الرئيسية الفاخرة
+            Container(
+              padding: const EdgeInsets.all(22),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xff0f1722), Color(0xff162231)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: const Color(0xff00ff88).withOpacity(0.4)),
+                boxShadow: [
+                  BoxShadow(color: const Color(0xff00ff88).withOpacity(0.08), blurRadius: 15, spreadRadius: 2)
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: const [
+                      Text('إجمالي أرباح الإعلانات', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                      Text('USD', style: TextStyle(color: Color(0xff00ff88), fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    '\$45.50',
+                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.w900, color: Color(0xff00ff88)),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xff06090f),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Row(
+                            children: const [
+                              Text('🟡', style: TextStyle(fontSize: 18)),
+                              SizedBox(width: 10),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('النقاط', style: TextStyle(color: Colors.grey, fontSize: 10)),
+                                  Text('1,240', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xff06090f),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Row(
+                            children: const [
+                              Icon(Icons.bolt, color: Color(0xff00f0ff), size: 20),
+                              SizedBox(width: 10),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('مستوى التفاعل', style: TextStyle(color: Colors.grey, fontSize: 10)),
+                                  Text('نشط جداً', style: TextStyle(color: Color(0xff00f0ff), fontWeight: FontWeight.bold, fontSize: 14)),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text('الإعلانات والخدمات السريعة', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _quickActionCard(context, Icons.play_circle_fill, 'الإعلانات', const AdsRewardsScreen(), Colors.greenAccent),
+                _quickActionCard(context, Icons.account_balance_wallet, 'المحفظة', const WalletScreen(), Colors.amber),
+                _quickActionCard(context, Icons.sports_esports, 'الألعاب', const GamesScreen(), Colors.purpleAccent),
+                _quickActionCard(context, Icons.chat, 'الدردشة', const ChatScreen(), Colors.blueAccent),
+              ],
+            ),
+            const SizedBox(height: 24),
+            const Text('أحدث النشاطات والمكافآت', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+            const SizedBox(height: 12),
+            _activityTile('إكمال مشاهدة إعلان مؤهل', '+50 نقطة (\$0.50)', 'منذ ساعة', Colors.greenAccent),
+            _activityTile('سحب أرباح عبر زين كاش', '-\$15.00', 'أمس', Colors.amber),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _quickActionCard(BuildContext context, IconData icon, String label, Widget destination, Color color) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => destination));
+      },
+      child: Column(
+        children: [
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: const Color(0xff0f1722),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.white.withOpacity(0.05)),
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: color.withOpacity(0.3)),
             ),
-            child: const Text(
-              '• المكافآت والأرباح مقتصرة حصرياً على مشاهدة الإعلانات المؤهلة.\n• الألعاب والدردشة هي مساحات ترفيهية واجتماعية بحتة وليست مصدراً للأموال.',
-              style: TextStyle(color: Colors.grey, fontSize: 13, height: 1.5),
-            ),
+            child: Icon(icon, color: color, size: 24),
           ),
+          const SizedBox(height: 8),
+          Text(label, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+        ],
+      ),
+    );
+  }
+
+  Widget _activityTile(String title, String amount, String time, Color color) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xff0f1722),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              CircleAvatar(backgroundColor: color.withOpacity(0.2), child: Icon(Icons.history, color: color, size: 18)),
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                  const SizedBox(height: 2),
+                  Text(time, style: const TextStyle(color: Colors.grey, fontSize: 10)),
+                ],
+              ),
+            ],
+          ),
+          Text(amount, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 14)),
         ],
       ),
     );
   }
 }
 
-// ================= 2. قسم الإعلانات والمكافآت (النشاط الأساسي) =================
+// ================= 2. مركز الإعلانات والمكافآت (النشاط الأساسي) =================
 class AdsRewardsScreen extends StatelessWidget {
   const AdsRewardsScreen({super.key});
 
@@ -282,7 +426,7 @@ class AdsRewardsScreen extends StatelessWidget {
   }
 }
 
-// ================= 3. المحفظة (مخصصة للمكافآت المكتسبة من الإعلانات) =================
+// ================= 3. المحفظة (أرباح الإعلانات) =================
 class WalletScreen extends StatelessWidget {
   const WalletScreen({super.key});
 
@@ -358,7 +502,7 @@ class WalletScreen extends StatelessWidget {
   }
 }
 
-// ================= 4. الألعاب والترفيه (للتسلية فقط بدون أرباح) =================
+// ================= 4. الألعاب والترفيه (ترفيهي فقط) =================
 class GamesScreen extends StatelessWidget {
   const GamesScreen({super.key});
 
@@ -443,7 +587,7 @@ class GamesScreen extends StatelessWidget {
   }
 }
 
-// ================= 5. الدردشة (للصداقة والتواصل الاجتماعي فقط بدون نقاط) =================
+// ================= 5. الدردشة (تواصل واجتماعي فقط) =================
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
 
@@ -549,7 +693,7 @@ class ChatBubble extends StatelessWidget {
   }
 }
 
-// ================= 6. الإعدادات والملف الشخصي وتغيير الصور =================
+// ================= 6. الإعدادات والملف الشخصي =================
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
