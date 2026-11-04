@@ -1,22 +1,51 @@
-name: rayid_app
-description: "A new Flutter rewards application"
-publish_to: 'none'
-version: 1.0.0+1
 
-environment:
-  sdk: '>=3.2.0 <4.0.0'
+name: Build Flutter APK
 
-dependencies:
-  flutter:
-    sdk: flutter
-  local_auth: ^2.3.0
-  http: ^1.1.0
-  cupertino_icons: ^1.0.6
-  shared_preferences: ^2.5.3
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
+permissions:
+  contents: write
 
-flutter:
-  uses-material-design: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.24.5'
+          cache: true
+
+      - name: Flutter version
+        run: flutter --version
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Check Dart
+        run: dart analyze --no-fatal-infos
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: rayid-app-release
+          path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
