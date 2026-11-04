@@ -236,7 +236,7 @@ class UserAppModel extends ChangeNotifier {
     return false;
   }
 
-  // دوال الرهان والبطولات (مضافة لخدمة ساحة روبلوكس)
+  // دوال الرهان والبطولات
   bool joinGameTournament(int entryFeePoints, String gameTitle) {
     if (points >= entryFeePoints) {
       points -= entryFeePoints;
@@ -542,7 +542,7 @@ class MainNavigationHubState extends State<MainNavigationHub> {
   }
 }
 
-// ================= 1. الصفحة الرئيسية (بدون بطاقات) =================
+// ================= 1. الصفحة الرئيسية =================
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -886,7 +886,7 @@ class WalletScreen extends StatelessWidget {
   }
 }
 
-// ================= 4. الألعاب والدردشة (مع تفعيل زر ساحة روبلوكس بنظام الرهان وصندوق الجوائز) =================
+// ================= 4. الألعاب والدردشة (مع ساحة روبلوكس وتفعيل الرهان) =================
 class GamesScreen extends StatelessWidget {
   const GamesScreen({super.key});
 
@@ -958,7 +958,7 @@ class GamesScreen extends StatelessWidget {
   }
 }
 
-// ساحة روبلوكس الكبرى (مفعلة بصندوق جوائز 10,000 نقطة ونظام أرباح الفائز)
+// ساحة روبلوكس الكبرى (بصندوق جوائز 10,000 نقطة ونظام أرباح الفائز - مع تصحيح الرمز $)
 class RobloxArenaScreen extends StatelessWidget {
   const RobloxArenaScreen({super.key});
 
@@ -988,7 +988,7 @@ class RobloxArenaScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 10),
                 Text(
-                  '100 لاعب مراهن بـ 100 نقطة لكل منهم.\n• إجمالي الصندوق: 10,000 نقطة.\n• حصة التطبيق (10%): 1,000 نقطة.\n• صافي جائزة الفائز الأول: 9,000 نقطة ($4.50 دولار)!',
+                  '100 لاعب مراهن بـ 100 نقطة لكل منهم.\n• إجمالي الصندوق: 10,000 نقطة.\n• حصة التطبيق (10%): 1,000 نقطة.\n• صافي جائزة الفائز الأول: 9,000 نقطة (\$4.50 دولار)!',
                   style: TextStyle(color: Colors.grey, fontSize: 12, height: 1.5),
                 ),
               ],
