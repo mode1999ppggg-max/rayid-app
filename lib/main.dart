@@ -6,7 +6,7 @@ void main() {
   runApp(const RayidApp());
 }
 
-// ================= نموذج البيانات المعماري (Clean Architecture Model) =================
+// ================= نموذج البيانات المركزي (UserAppModel) =================
 class UserAppModel extends ChangeNotifier {
   bool isLoggedIn = false;
 
@@ -20,24 +20,18 @@ class UserAppModel extends ChangeNotifier {
   int points = 1240;
 
   // نظام إحالة الأصدقاء
-  final String referralCode = 'RAYID-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
-  final int referralCount = 3;
+  String referralCode = 'RAYID-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
+  int referralCount = 3;
 
   // رسائل الدعم الفني المباشر
-  final List> supportMessages = [
+  List> supportMessages = [
     {'sender': 'support', 'text': 'مرحباً بك في دعم RAYID PAY. كيف يمكننا مساعدتك اليوم؟', 'time': 'الآن'}
   ];
 
-  // مجموعات الدردشة المجتمعية (ترفيه وتفاعل فقط)
-  final List> chatGroups = [
+  // المجموعات الاجتماعية (مؤمنة الأنواع لتجنب أخطاء البناء)
+  List> chatGroups = [
     {'name': 'مجموعة أرباح الإعلانات الكبرى', 'members': 1420, 'lastMsg': 'تم توزيع مكافآت الأسبوع بنجاح!'},
     {'name': 'متداولو زين كاش وماستر كارد', 'members': 850, 'lastMsg': 'شباب وصل السحب لو بعده؟'},
-  ];
-
-  // سجل الأنشطة والأرباح
-  final List> activities = [
-    {'title': 'إكمال مشاهدة إعلان مكافأة مؤهل', 'amount': '+50 نقطة (0.50 دولار / 660 د.ع)', 'time': 'منذ ساعة', 'isPositive': true},
-    {'title': 'سحب أرباح عبر زين كاش', 'amount': '-19,800 د.ع (15.00 دولار)', 'time': 'أمس', 'isPositive': false},
   ];
 
   void createGroup(String groupName) {
@@ -58,7 +52,7 @@ class UserAppModel extends ChangeNotifier {
   }
 
   String getShareMessage() {
-    return 'انضم إليّ في تطبيق RAYID PAY واكسب أرباحاً حقيقية من مشاهدة الإعلانات المؤهلة والسحب عبر زين كاش وماستر كارد!\nاستخدم كود الإحالة الخاص بي: $referralCode\nحمل التطبيق الآن وابدأ الربح!';
+    return 'انضم إليّ في تطبيق RAYID PAY واكسب أرباحاً حقيقية من مشاهدة الإعلانات والسحب عبر زين كاش وماستر كارد!\nاستخدم كود الإحالة الخاص بي: $referralCode\nحمل التطبيق الآن وابدأ الربح!';
   }
 
   Future<bool> signUpUser(String name, String email, String phone, String password) async {
@@ -105,17 +99,20 @@ class UserAppModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addAdReward(int addPoints, double addMoneyUSD) {
-    balanceUSD += addMoneyUSD;
-    points += addPoints;
+  void addActivity(String title, String amount, bool isPositive) {
     activities.insert(0, {
-      'title': 'مشاهدة إعلان ترويجي مؤهل',
-      'amount': '+$addPoints نقطة (+${(addMoneyUSD * 1320).toStringAsFixed(0)} د.ع)',
+      'title': title,
+      'amount': amount,
       'time': 'الآن',
-      'isPositive': true,
+      'isPositive': isPositive,
     });
     notifyListeners();
   }
+
+  List<dynamic> activities = [
+    {'title': 'إكمال مشاهدة إعلان مكافأة مؤهل', 'amount': '+50 نقطة (0.50 دولار / 660 د.ع)', 'time': 'منذ ساعة', 'isPositive': true},
+    {'title': 'سحب أرباح عبر زين كاش', 'amount': '-19,800 د.ع (15.00 دولار)', 'time': 'أمس', 'isPositive': false},
+  ];
 }
 
 final userModel = UserAppModel();
@@ -153,7 +150,7 @@ class RayidApp extends StatelessWidget {
   }
 }
 
-// ================= نظام المصادقة وإدارة الحسابات =================
+// ================= شاشة تسجيل الدخول وإنشاء الحساب =================
 class AuthWrapperScreen extends StatefulWidget {
   const AuthWrapperScreen({super.key});
 
@@ -266,7 +263,7 @@ class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
   }
 }
 
-// ================= مركز التنقل السفلي التفاعلي =================
+// ================= مركز التنقل السفلي =================
 class MainNavigationHub extends StatefulWidget {
   final int initialIndex;
   const MainNavigationHub({super.key, this.initialIndex = 0});
@@ -368,9 +365,9 @@ class HomeScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Row(
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
+                        children: const [
                           Text('إجمالي أرباح الإعلانات المتاحة', style: TextStyle(color: Colors.grey, fontSize: 13)),
                           Text('حساب نشط', style: TextStyle(color: Color(0xff00E676), fontSize: 11, fontWeight: FontWeight.bold)),
                         ],
@@ -422,7 +419,7 @@ class HomeScreen extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          CircleAvatar(backgroundColor: ((act['isPositive'] as bool?) == true ? const Color(0xff00E676) : Colors.amber).withOpacity(0.15), child: Icon(Icons.history, color: (act['isPositive'] as bool?) == true ? const Color(0xff00E676) : Colors.amber, size: 18)),
+                          CircleAvatar(backgroundColor: (act['isPositive'] == true ? const Color(0xff00E676) : Colors.amber).withOpacity(0.15), child: Icon(Icons.history, color: act['isPositive'] == true ? const Color(0xff00E676) : Colors.amber, size: 18)),
                           const SizedBox(width: 12),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -434,10 +431,10 @@ class HomeScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-                      Text(act['amount'].toString(), style: TextStyle(color: (act['isPositive'] as bool?) == true ? const Color(0xff00E676) : Colors.amber, fontWeight: FontWeight.bold, fontSize: 13)),
+                      Text(act['amount'].toString(), style: TextStyle(color: act['isPositive'] == true ? const Color(0xff00E676) : Colors.amber, fontWeight: FontWeight.bold, fontSize: 13)),
                     ],
                   ),
-                )),
+                )).toList(),
               ],
             ),
           ),
@@ -475,7 +472,7 @@ class ChartPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-// ================= 2. مركز أرباح الإعلانات (المصدر الوحيد للأرباح) =================
+// ================= 2. مركز الإعلانات والمكافآت =================
 class AdsRewardsScreen extends StatelessWidget {
   const AdsRewardsScreen({super.key});
 
@@ -512,7 +509,9 @@ class AdsRewardsScreen extends StatelessWidget {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black),
             onPressed: () {
-              userModel.addAdReward(addPoints, addMoneyUSD);
+              userModel.balanceUSD += addMoneyUSD;
+              userModel.points += addPoints;
+              userModel.addActivity('مشاهدة إعلان تجريبي ناجح', '+$addPoints نقطة (+${(addMoneyUSD * 1320).toStringAsFixed(0)} د.ع)', true);
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم التحقق من مشاهدة الإعلان وإضافة المكافأة بنجاح!'), backgroundColor: Colors.green));
             },
             child: const Text('شاهد الآن', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -523,7 +522,7 @@ class AdsRewardsScreen extends StatelessWidget {
   }
 }
 
-// ================= 3. المحفظة وبوابات السحب والإحالة =================
+// ================= 3. المحفظة وبوابات السحب + إحالة الأصدقاء =================
 class WalletScreen extends StatelessWidget {
   const WalletScreen({super.key});
 
@@ -690,7 +689,7 @@ class WalletScreen extends StatelessWidget {
   }
 }
 
-// ================= 4. منصة الألعاب الترفيهية =================
+// ================= 4. الألعاب والدردشة والمجموعات =================
 class GamesScreen extends StatelessWidget {
   const GamesScreen({super.key});
 
@@ -721,7 +720,7 @@ class GamesScreen extends StatelessWidget {
           Expanded(child: Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: color, foregroundColor: Colors.black),
-            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('جاري تشغيل $title للتسلية التفاعلية...'))),
+            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('جاري تشغيل $title للتسلية...'))),
             child: const Text('العب'),
           ),
         ],
@@ -730,7 +729,7 @@ class GamesScreen extends StatelessWidget {
   }
 }
 
-// ================= 5. الدردشة ومجموعات المجتمع =================
+// شاشة الدردشة والمجموعات مع التحويل الآمن للأنواع
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
 
@@ -782,7 +781,7 @@ class ChatScreen extends StatelessWidget {
           body: ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              const Text('المجموعات النشطة التفاعلية', style: TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.bold)),
+              const Text('المجموعات النشطة', style: TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
               ...userModel.chatGroups.map((group) => Container(
                 margin: const EdgeInsets.only(bottom: 12),
@@ -796,7 +795,7 @@ class ChatScreen extends StatelessWidget {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('جاري فتح غرفة دردشة: ${group['name']}')));
                   },
                 ),
-              )),
+              )).toList(),
             ],
           ),
         );
@@ -805,7 +804,7 @@ class ChatScreen extends StatelessWidget {
   }
 }
 
-// ================= 6. الدعم الفني المباشر =================
+// ================= شاشة الدعم الفني المباشر =================
 class SupportScreen extends StatefulWidget {
   const SupportScreen({super.key});
 
@@ -899,7 +898,7 @@ class _SupportScreenState extends State<SupportScreen> {
   }
 }
 
-// ================= 7. الإعدادات والخصوصية =================
+// ================= 5. شاشة الإعدادات =================
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -954,7 +953,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             'نحن نلتزم بحماية بياناتك الشخصية والمالية بأعلى معايير الأمان الرقمي في العراق.\n\n'
             '• البيانات المجمعة: نقوم بحفظ الاسم، البريد الإلكتروني، ورقم الهاتف لتوثيق الحساب وإرسال مستحقاتك بدقة.\n\n'
             '• أمان السحب المالي: جميع عمليات السحب عبر (زين كاش، آسيا سيل، وماستر كارد) مشفرة بالكامل وتتم عبر قنوات آمنة.\n\n'
-            '• الخصوصية: لا يتم مشاركة بياناتك الشخصية مع أي أطراف خارجية، وتُستخدم فقط لإدارة أرباحك من مشاهدة الإعلانات.',
+            '• الخصوصية: لا يتم مشاركة بياناتك الشخصية مع أي أطراف خارجية، وتُستخدم فقط لإدارة أرباحك من الإعلانات.',
             style: TextStyle(color: Colors.grey, height: 1.4, fontSize: 13),
           ),
         ),
