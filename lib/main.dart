@@ -17,26 +17,59 @@ class UserAppModel extends ChangeNotifier {
 
   double balanceUSD = 45.50;
   double get balanceIQD => balanceUSD * 1320;
+  
+  // نظام النقاط الجديد والحد الأدنى (3000 نقطة)
   int points = 1240;
+  final int minPointsForRedeem = 3000;
 
   // نظام إحالة الأصدقاء
   String referralCode = 'RAYID-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
   int referralCount = 3;
 
-  // رسائل الدعم الفني (تم استخدام var لتجنب مشاكل النسخ)
+  // رسائل الدعم الفني المباشر
   var supportMessages = [
     {'sender': 'support', 'text': 'مرحباً بك في دعم RAYID PAY. كيف يمكننا مساعدتك اليوم؟', 'time': 'الآن'}
   ];
 
-  // المجموعات الاجتماعية (تم استخدام var لتجنب مشاكل النسخ)
+  // المجموعات الاجتماعية مع رسائل تفاعلية لكل مجموعة
   var chatGroups = [
-    {'name': 'مجموعة أرباح الإعلانات الكبرى', 'members': 1420, 'lastMsg': 'تم توزيع مكافآت الأسبوع بنجاح!'},
-    {'name': 'متداولو زين كاش وماستر كارد', 'members': 850, 'lastMsg': 'شباب وصل السحب لو بعده؟'},
+    {
+      'name': 'مجموعة أرباح الإعلانات الكبرى', 
+      'members': 1420, 
+      'lastMsg': 'تم توزيع مكافآت الأسبوع بنجاح!',
+      'messages': [
+        {'sender': 'أحمد', 'text': 'شباب شوكت توزيع الأرباح هذا الأسبوع؟', 'time': '10:30 ص'},
+        {'sender': 'المشرف', 'text': 'تم توزيع مكافآت الأسبوع بنجاح!', 'time': '11:00 ص'},
+      ]
+    },
+    {
+      'name': 'متداولو زين كاش وماستر كارد', 
+      'members': 850, 
+      'lastMsg': 'شباب وصل السحب لو بعده؟',
+      'messages': [
+        {'sender': 'كرار', 'text': 'شباب وصل السحب لو بعده؟', 'time': 'أمس'},
+        {'sender': 'علي', 'text': 'إي وصلني اليوم خلال دقائق.', 'time': 'أمس'},
+      ]
+    },
   ];
+
+  void addMessageToGroup(int groupIndex, String text) {
+    if (text.trim().isEmpty) return;
+    var group = chatGroups[groupIndex];
+    var messages = group['messages'] as List>;
+    messages.add({'sender': userName, 'text': text, 'time': 'الآن'});
+    group['lastMsg'] = text;
+    notifyListeners();
+  }
 
   void createGroup(String groupName) {
     if (groupName.trim().isEmpty) return;
-    chatGroups.add({'name': groupName, 'members': 1, 'lastMsg': 'تم إنشاء المجموعة حديثاً.'});
+    chatGroups.add({
+      'name': groupName, 
+      'members': 1, 
+      'lastMsg': 'تم إنشاء المجموعة حديثاً.',
+      'messages': [{'sender': 'النظام', 'text': 'مرحباً بك في المجموعة الجديدة!', 'time': 'الآن'}]
+    });
     notifyListeners();
   }
 
@@ -49,6 +82,22 @@ class UserAppModel extends ChangeNotifier {
       supportMessages.add({'sender': 'support', 'text': 'تم استلام رسالتك بنجاح. سيقوم أحد ممثلي خدمة العملاء بالرد عليك قريباً.', 'time': 'الآن'});
       notifyListeners();
     });
+  }
+
+  // دالة تحويل النقاط (كل 3000 نقطة فما فوق يمكن تحويلها)
+  bool redeemPoints() {
+    if (points >= minPointsForRedeem) {
+      int redeemedUnits = points ~/ 200; // كل 200 نقطة تساوي جزء
+      double addedUSD = redeemedUnits * 0.10; // كل 200 نقطة = 10 سنت
+      
+      balanceUSD += addedUSD;
+      points = points % 200; // الباقي من النقاط
+
+      addActivity('استبدال نقاط ناجح', '+$addedUSD دولار (${redeemedUnits * 200} نقطة مستبدلة)', true);
+      notifyListeners();
+      return true;
+    }
+    return false;
   }
 
   String getShareMessage() {
@@ -110,7 +159,7 @@ class UserAppModel extends ChangeNotifier {
   }
 
   var activities = [
-    {'title': 'إكمال مشاهدة إعلان مكافأة مؤهل', 'amount': '+50 نقطة (0.50 دولار / 660 د.ع)', 'time': 'منذ ساعة', 'isPositive': true},
+    {'title': 'إكمال مشاهدة إعلان مكافأة مؤهل', 'amount': '+4 نقاط', 'time': 'منذ ساعة', 'isPositive': true},
     {'title': 'سحب أرباح عبر زين كاش', 'amount': '-19,800 د.ع (15.00 دولار)', 'time': 'أمس', 'isPositive': false},
   ];
 }
@@ -368,7 +417,7 @@ class HomeScreen extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: const [
-                          Text('إجمالي أرباح الإعلانات المتاحة', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                          Text('إجمالي أرباح الرصيد المتاح', style: TextStyle(color: Colors.grey, fontSize: 13)),
                           Text('حساب نشط', style: TextStyle(color: Color(0xff00E676), fontSize: 11, fontWeight: FontWeight.bold)),
                         ],
                       ),
@@ -384,8 +433,25 @@ class HomeScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('🟡 النقاط المتراكمة: ${userModel.points} نقطة', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                          Text('🟡 النقاط: ${userModel.points} / ${userModel.minPointsForRedeem} نقطة', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: userModel.points >= userModel.minPointsForRedeem ? const Color(0xff00E676) : Colors.grey[800],
+                              foregroundColor: Colors.black,
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                            ),
+                            onPressed: () {
+                              if (userModel.points >= userModel.minPointsForRedeem) {
+                                userModel.redeemPoints();
+                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تحويل النقاط إلى رصيد بنجاح!'), backgroundColor: Colors.green));
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('الحد الأدنى للتحويل هو ${userModel.minPointsForRedeem} نقطة!'), backgroundColor: Colors.orange));
+                              }
+                            },
+                            child: const Text('تحويل النقاط', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
+                          ),
                         ],
                       ),
                     ],
@@ -449,7 +515,7 @@ class HomeScreen extends StatelessWidget {
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xff1E1E1E),
         title: const Text('الإشعارات والتنبيهات', style: TextStyle(color: Colors.white)),
-        content: const Text('• تم تحديث نظام تتبع الإعلانات وإظهار العملة بالدينار والدولار.\n• تم إضافة 8 إعلانات مؤهلة جديدة للمستخدمين اليوم.', style: TextStyle(color: Colors.grey)),
+        content: const Text('• تم تحديث نظام الإعلانات: كل إعلان يمنح 4 نقاط[span_1](start_span)[span_1](end_span).\n• الحد الأدنى لتحويل النقاط هو 3000 نقطة لاستبدالها برصيد حقيقي.', style: TextStyle(color: Colors.grey)),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('إغلاق', style: TextStyle(color: Color(0xff00E676))))
         ],
@@ -472,7 +538,7 @@ class ChartPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-// ================= 2. مركز الإعلانات والمكافآت =================
+// ================= 2. مركز الإعلانات والمكافآت (4 نقاط لكل إعلان) =================
 class AdsRewardsScreen extends StatelessWidget {
   const AdsRewardsScreen({super.key});
 
@@ -483,14 +549,14 @@ class AdsRewardsScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _buildAdTile(context, 'إعلان مكافأة رقم #1', '+50 نقطة (660 د.ع / 0.50 دولار)', 50, 0.50),
-          _buildAdTile(context, 'إعلان ترويجي مميز', '+100 نقطة (1,320 د.ع / 1.00 دولار)', 100, 1.00),
+          _buildAdTile(context, 'إعلان مكافأة غير محدود', '+4 نقاط لكل إعلان مشاهدة', 4),
+          _buildAdTile(context, 'إعلان ترويجي إضافي', '+4 نقاط لكل إعلان مشاهدة', 4),
         ],
       ),
     );
   }
 
-  Widget _buildAdTile(BuildContext context, String title, String rewardText, int addPoints, double addMoneyUSD) {
+  Widget _buildAdTile(BuildContext context, String title, String rewardText, int addPoints) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
@@ -509,10 +575,9 @@ class AdsRewardsScreen extends StatelessWidget {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black),
             onPressed: () {
-              userModel.balanceUSD += addMoneyUSD;
               userModel.points += addPoints;
-              userModel.addActivity('مشاهدة إعلان تجريبي ناجح', '+$addPoints نقطة (+${(addMoneyUSD * 1320).toStringAsFixed(0)} د.ع)', true);
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم التحقق من مشاهدة الإعلان وإضافة المكافأة بنجاح!'), backgroundColor: Colors.green));
+              userModel.addActivity('مشاهدة إعلان ناجح', '+$addPoints نقاط', true);
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تمت إضافة 4 نقاط إلى رصيدك بنجاح!'), backgroundColor: Colors.green));
             },
             child: const Text('شاهد الآن', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
@@ -547,7 +612,7 @@ class WalletScreen extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text('(${userModel.balanceUSD.toStringAsFixed(2)} دولار أمريكي)', style: const TextStyle(fontSize: 13, color: Colors.grey, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 12),
-                    Text('🟡 النقاط: ${userModel.points} نقطة', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    Text('🟡 رصيد النقاط: ${userModel.points} نقطة', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
@@ -729,7 +794,7 @@ class GamesScreen extends StatelessWidget {
   }
 }
 
-// شاشة الدردشة والمجموعات
+// شاشة الدردشة والمجموعات (مفعلة وتفتح غرف الدردشة)[span_2](start_span)[span_2](end_span)
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
 
@@ -783,19 +848,126 @@ class ChatScreen extends StatelessWidget {
             children: [
               const Text('المجموعات النشطة', style: TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
-              ...userModel.chatGroups.map((group) => Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                decoration: BoxDecoration(color: const Color(0xff1E1E1E), borderRadius: BorderRadius.circular(16)),
-                child: ListTile(
-                  leading: const CircleAvatar(backgroundColor: Color(0xff00E676), child: Icon(Icons.groups, color: Colors.black)),
-                  title: Text(group['name'].toString(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
-                  subtitle: Text('${group['members']} عضو • ${group['lastMsg']}', style: const TextStyle(color: Colors.grey, fontSize: 11)),
-                  trailing: const Icon(Icons.arrow_forward_ios, color: Color(0xff00E676), size: 14),
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('جاري فتح غرفة دردشة: ${group['name']}')));
+              ...userModel.chatGroups.asMap().entries.map((entry) {
+                int index = entry.key;
+                var group = entry.value;
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(color: const Color(0xff1E1E1E), borderRadius: BorderRadius.circular(16)),
+                  child: ListTile(
+                    leading: const CircleAvatar(backgroundColor: Color(0xff00E676), child: Icon(Icons.groups, color: Colors.black)),
+                    title: Text(group['name'].toString(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                    subtitle: Text('${group['members']} عضو • ${group['lastMsg']}', style: const TextStyle(color: Colors.grey, fontSize: 11)),
+                    trailing: const Icon(Icons.arrow_forward_ios, color: Color(0xff00E676), size: 14),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => GroupChatRoomScreen(groupIndex: index)),
+                      );
+                    },
+                  ),
+                );
+              }).toList(),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+// ================= شاشة غرفة دردشة المجموعة الحقيقية =================
+class GroupChatRoomScreen extends StatefulWidget {
+  final int groupIndex;
+  const GroupChatRoomScreen({super.key, required this.groupIndex});
+
+  @override
+  State<GroupChatRoomScreen> createState() => _GroupChatRoomScreenState();
+}
+
+class _GroupChatRoomScreenState extends State<GroupChatRoomScreen> {
+  final TextEditingController _msgController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: userModel,
+      builder: (context, contextChild) {
+        var group = userModel.chatGroups[widget.groupIndex];
+        var messages = group['messages'] as List>;
+
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(group['name'].toString(), style: const TextStyle(fontSize: 16)),
+            backgroundColor: const Color(0xff121212),
+          ),
+          body: Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: messages.length,
+                  itemBuilder: (context, index) {
+                    var msg = messages[index];
+                    bool isMe = msg['sender'] == userModel.userName;
+                    return Align(
+                      alignment: isMe ? Alignment.centerLeft : Alignment.centerRight,
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.all(12),
+                        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
+                        decoration: BoxDecoration(
+                          color: isMe ? const Color(0xff00E676).withOpacity(0.2) : const Color(0xff1E1E1E),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: isMe ? const Color(0xff00E676) : Colors.grey.withOpacity(0.3)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(msg['sender']!, style: TextStyle(color: isMe ? const Color(0xff00E676) : Colors.amber, fontWeight: FontWeight.bold, fontSize: 11)),
+                            const SizedBox(height: 4),
+                            Text(msg['text']!, style: const TextStyle(color: Colors.white, fontSize: 13)),
+                            const SizedBox(height: 4),
+                            Text(msg['time']!, style: const TextStyle(color: Colors.grey, fontSize: 9)),
+                          ],
+                        ),
+                      ),
+                    );
                   },
                 ),
-              )).toList(),
+              ),
+              Container(
+                padding: const EdgeInsets.all(12),
+                color: const Color(0xff181818),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _msgController,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          hintText: 'اكتب رسالتك للمجموعة...',
+                          hintStyle: const TextStyle(color: Colors.grey),
+                          filled: true,
+                          fillColor: const Color(0xff121212),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    CircleAvatar(
+                      backgroundColor: const Color(0xff00E676),
+                      child: IconButton(
+                        icon: const Icon(Icons.send, color: Colors.black, size: 18),
+                        onPressed: () {
+                          userModel.addMessageToGroup(widget.groupIndex, _msgController.text);
+                          _msgController.clear();
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         );
