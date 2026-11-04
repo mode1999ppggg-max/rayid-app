@@ -135,7 +135,7 @@ class AppStrings {
     }
   };
 
-  static String get(String lang, String key) {
+   static String get(String lang, String key) {
     return localizedValues[lang]?[key] ?? localizedValues['en']?[key] ?? key;
   }
 }
@@ -154,7 +154,7 @@ class UserAppModel extends ChangeNotifier {
   double balanceUSD = 14895.72;
   double get balanceIQD => balanceUSD * 1320;
   
-  int points = 1240; // نقاط الترفيه والتحدي
+  int points = 1240; 
   final int minPointsForRedeem = 3000;
 
   String referralCode = 'RAYID-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
@@ -246,11 +246,8 @@ class UserAppModel extends ChangeNotifier {
     return false;
   }
 
-  // آلية آمنة للتحقق من نتيجة اللعبة واعتماد مكافآت الترفيه بمعزل عن المحفظة المباشرة
   void verifyAndClaimGameRewards(int actualGameScore, String gameTitle) {
-    // التحقق من صحة النتيجة (Anti-cheat & Verification logic)
     if (actualGameScore <= 0) return;
-
     int earnedEntertainmentPoints = (actualGameScore / 5).floor();
     if (earnedEntertainmentPoints < 1) earnedEntertainmentPoints = 1;
 
@@ -542,7 +539,7 @@ class MainNavigationHubState extends State<MainNavigationHub> {
   }
 }
 
-// ================= 1. الصفحة الرئيسية =================
+// ================= 1. الصفحة الرئيسية (محدثة بأسلوب Cyberpunk الفاخر) =================
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -553,118 +550,178 @@ class HomeScreen extends StatelessWidget {
       animation: userModel,
       builder: (context, child) {
         return Scaffold(
-          body: SafeArea(
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('${AppStrings.get(lang, 'goodMorning')}, ${userModel.userName}', style: const TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.w500)),
-                      ],
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(2),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: const Color(0xff00E676), width: 1.5),
-                        boxShadow: [BoxShadow(color: const Color(0xff00E676).withOpacity(0.3), blurRadius: 8)],
-                      ),
-                      child: CircleAvatar(
-                        radius: 20,
-                        backgroundColor: const Color(0xff121816),
-                        backgroundImage: userModel.profileImage != null ? FileImage(userModel.profileImage!) : null,
-                        child: userModel.profileImage == null ? const Icon(Icons.person, color: Color(0xff00E676), size: 20) : null,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: const Color(0xff121816),
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: const Color(0xff00E676).withOpacity(0.4)),
-                  ),
-                  child: Column(
-                    children: [
-                      Text(AppStrings.get(lang, 'totalBalance'), style: const TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.w600)),
-                      const SizedBox(height: 8),
-                      Text(
-                        '${userModel.balanceUSD.toStringAsFixed(2)} USD',
-                        style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Color(0xff00E676), letterSpacing: -0.5),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(AppStrings.get(lang, 'portfolioValue'), style: const TextStyle(fontSize: 11, color: Colors.grey, letterSpacing: 1)),
-                      const SizedBox(height: 16),
-                      Divider(color: Colors.white.withOpacity(0.08), height: 1),
-                      const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('🟡 ${AppStrings.get(lang, 'points')}: ${userModel.points}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: userModel.points >= userModel.minPointsForRedeem ? const Color(0xff00E676) : Colors.grey[800],
-                              foregroundColor: Colors.black,
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                            ),
-                            onPressed: () {
-                              if (userModel.points >= userModel.minPointsForRedeem) {
-                                userModel.redeemPoints();
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'تم تحويل النقاط بنجاح!' : 'Points successfully converted!'), backgroundColor: Colors.green));
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'الحد الأدنى هو ${userModel.minPointsForRedeem} نقطة!' : 'Minimum limit is ${userModel.minPointsForRedeem} points!'), backgroundColor: Colors.orange));
-                              }
-                            },
-                            child: Text(AppStrings.get(lang, 'redeem'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 28),
-                Text(AppStrings.get(lang, 'recentActivity'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
-                const SizedBox(height: 12),
-                ...userModel.activities.map((act) => Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(color: const Color(0xff121816), borderRadius: BorderRadius.circular(16)),
-                  child: Row(
+          body: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0xff0A0E0D), Color(0xff050807), Color(0xff0A0E0D)],
+              ),
+            ),
+            child: SafeArea(
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          CircleAvatar(
-                            backgroundColor: (act['isPositive'] == true ? const Color(0xff00E676) : Colors.redAccent).withOpacity(0.15),
-                            child: Icon(
-                              act['isPositive'] == true ? Icons.arrow_downward : Icons.arrow_upward,
-                              color: act['isPositive'] == true ? const Color(0xff00E676) : Colors.redAccent,
-                              size: 18,
-                            ),
+                          Text(
+                            'RAYID PAY // OS',
+                            style: TextStyle(color: const Color(0xff00E5FF).withOpacity(0.7), fontSize: 10, letterSpacing: 2, fontWeight: FontWeight.bold),
                           ),
-                          const SizedBox(width: 12),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(act['title'].toString(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
-                              const SizedBox(height: 2),
-                              Text(act['time'].toString(), style: const TextStyle(color: Colors.grey, fontSize: 10)),
-                            ],
+                          const SizedBox(height: 4),
+                          Text(
+                            '${AppStrings.get(lang, 'goodMorning')}, ${userModel.userName}',
+                            style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w800),
                           ),
                         ],
                       ),
-                      Text(act['amount'].toString(), style: TextStyle(color: act['isPositive'] == true ? const Color(0xff00E676) : Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 13)),
+                      Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: const Color(0xff00E676), width: 2),
+                          boxShadow: [BoxShadow(color: const Color(0xff00E676).withOpacity(0.4), blurRadius: 12, spreadRadius: 1)],
+                        ),
+                        child: CircleAvatar(
+                          radius: 20,
+                          backgroundColor: const Color(0xff121816),
+                          backgroundImage: userModel.profileImage != null ? FileImage(userModel.profileImage!) : null,
+                          child: userModel.profileImage == null ? const Icon(Icons.person, color: Color(0xff00E676), size: 20) : null,
+                        ),
+                      ),
                     ],
                   ),
-                )).toList(),
-              ],
+                  const SizedBox(height: 24),
+                  Container(
+                    padding: const EdgeInsets.all(22),
+                    decoration: BoxDecoration(
+                      color: const Color(0xff121816).withOpacity(0.9),
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: const Color(0xff00E676).withOpacity(0.6), width: 1.5),
+                      boxShadow: [
+                        BoxShadow(color: const Color(0xff00E676).withOpacity(0.12), blurRadius: 24, spreadRadius: 2),
+                        BoxShadow(color: const Color(0xff00E5FF).withOpacity(0.05), blurRadius: 10, spreadRadius: -2),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.account_balance_wallet, color: Color(0xff00E676), size: 16),
+                            const SizedBox(width: 8),
+                            Text(AppStrings.get(lang, 'totalBalance'), style: const TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w600, letterSpacing: 1)),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          '${userModel.balanceUSD.toStringAsFixed(2)} USD',
+                          style: const TextStyle(fontSize: 34, fontWeight: FontWeight.w900, color: Color(0xff00E676), letterSpacing: -0.5),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '≈ ${userModel.balanceIQD.toStringAsFixed(0)} IQD',
+                          style: const TextStyle(fontSize: 12, color: Color(0xff00E5FF), fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                        ),
+                        const SizedBox(height: 20),
+                        Divider(color: Colors.white.withOpacity(0.1), height: 1),
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: const Color(0xff0A0E0D),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: Colors.amber.withOpacity(0.3)),
+                              ),
+                              child: Text('🟡 ${AppStrings.get(lang, 'points')}: ${userModel.points}', style: const TextStyle(color: Colors.amberAccent, fontWeight: FontWeight.bold, fontSize: 11)),
+                            ),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: userModel.points >= userModel.minPointsForRedeem ? const Color(0xff00E676) : Colors.grey[800],
+                                foregroundColor: Colors.black,
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                elevation: 4,
+                                shadowColor: const Color(0xff00E676).withOpacity(0.5),
+                              ),
+                              onPressed: () {
+                                if (userModel.points >= userModel.minPointsForRedeem) {
+                                  userModel.redeemPoints();
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'تم تحويل النقاط بنجاح!' : 'Points successfully converted!'), backgroundColor: Colors.green));
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'الحد الأدنى هو ${userModel.minPointsForRedeem} نقطة!' : 'Minimum limit is ${userModel.minPointsForRedeem} points!'), backgroundColor: Colors.orange));
+                                }
+                              },
+                              child: Text(AppStrings.get(lang, 'redeem'), style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 11)),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(AppStrings.get(lang, 'recentActivity'), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 0.5)),
+                      const Icon(Icons.history, color: Color(0xff00E5FF), size: 18),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  ...userModel.activities.map((act) => Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xff121816),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.white.withOpacity(0.04)),
+                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 8, offset: const Offset(0, 4))],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 18,
+                              backgroundColor: (act['isPositive'] == true ? const Color(0xff00E676) : Colors.redAccent).withOpacity(0.15),
+                              child: Icon(
+                                act['isPositive'] == true ? Icons.arrow_downward : Icons.arrow_upward,
+                                color: act['isPositive'] == true ? const Color(0xff00E676) : Colors.redAccent,
+                                size: 16,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(act['title'].toString(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                                const SizedBox(height: 2),
+                                Text(act['time'].toString(), style: const TextStyle(color: Colors.grey, fontSize: 10)),
+                              ],
+                            ),
+                          ],
+                        ),
+                        Text(
+                          act['amount'].toString(),
+                          style: TextStyle(
+                            color: act['isPositive'] == true ? const Color(0xff00E676) : Colors.redAccent,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )).toList(),
+                ],
+              ),
             ),
           ),
         );
@@ -1086,7 +1143,6 @@ class RobloxActiveGameScreen extends StatefulWidget {
 }
 
 class _RobloxActiveGameScreenState extends State<RobloxActiveGameScreen> {
-  // متغيرات حالة اللعبة الحقيقية
   double playerX = 150.0;
   double playerY = 300.0;
   int score = 0;
@@ -1094,11 +1150,9 @@ class _RobloxActiveGameScreenState extends State<RobloxActiveGameScreen> {
   bool isPlaying = true;
   Timer? gameLoopTimer;
 
-  // عناصر ومكافآت (بلورات)
   double crystalX = 100.0;
   double crystalY = 100.0;
   
-  // عقبات وأعداء متحركة
   double enemyX = 200.0;
   double enemyY = 200.0;
   double enemySpeedX = 3.5;
@@ -1115,14 +1169,12 @@ class _RobloxActiveGameScreenState extends State<RobloxActiveGameScreen> {
       if (!isPlaying) return;
 
       setState(() {
-        // حركة العدو التلقائية وتحديث موقعه
         enemyX += enemySpeedX;
         enemyY += enemySpeedY;
 
         if (enemyX < 20 || enemyX > 320) enemySpeedX = -enemySpeedX;
         if (enemyY < 20 || enemyY > 450) enemySpeedY = -enemySpeedY;
 
-        // فحص الاصطدام مع العدو (تناقص الصحة)
         double distanceToEnemy = sqrt(pow(playerX - enemyX, 2) + pow(playerY - enemyY, 2));
         if (distanceToEnemy < 35) {
           health--;
@@ -1135,10 +1187,9 @@ class _RobloxActiveGameScreenState extends State<RobloxActiveGameScreen> {
           }
         }
 
-        // فحص جمع البلورة والمكافأة
         double distanceToCrystal = sqrt(pow(playerX - crystalX, 2) + pow(playerY - crystalY, 2));
         if (distanceToCrystal < 35) {
-          score += 15; // زيادة النقاط الحقيقية حسب الأداء
+          score += 15;
           crystalX = Random().nextDouble() * 280 + 20;
           crystalY = Random().nextDouble() * 400 + 20;
         }
@@ -1151,8 +1202,6 @@ class _RobloxActiveGameScreenState extends State<RobloxActiveGameScreen> {
     setState(() {
       playerX += deltaX;
       playerY += deltaY;
-
-      // حدود الشاشة
       playerX = playerX.clamp(20.0, 330.0);
       playerY = playerY.clamp(20.0, 480.0);
     });
@@ -1183,7 +1232,6 @@ class _RobloxActiveGameScreenState extends State<RobloxActiveGameScreen> {
       ),
       body: Column(
         children: [
-          // لوحة المؤشرات الحية
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: Row(
@@ -1194,7 +1242,6 @@ class _RobloxActiveGameScreenState extends State<RobloxActiveGameScreen> {
               ],
             ),
           ),
-          // ساحة اللعب الفعلية (Canvas Container)
           Expanded(
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -1205,19 +1252,16 @@ class _RobloxActiveGameScreenState extends State<RobloxActiveGameScreen> {
               ),
               child: Stack(
                 children: [
-                  // البلورة والمكافأة
                   Positioned(
                     left: crystalX,
                     top: crystalY,
                     child: const Icon(Icons.diamond, color: Color(0xff00E5FF), size: 30),
                   ),
-                  // العدو المتحرك
                   Positioned(
                     left: enemyX,
                     top: enemyY,
                     child: const Icon(Icons.bug_report, color: Colors.redAccent, size: 32),
                   ),
-                  // اللاعب الشخصية
                   Positioned(
                     left: playerX,
                     top: playerY,
@@ -1236,7 +1280,6 @@ class _RobloxActiveGameScreenState extends State<RobloxActiveGameScreen> {
               ),
             ),
           ),
-          // أزرار التحكم الافتراضية (Joystick / D-Pad)
           Container(
             padding: const EdgeInsets.all(20),
             child: Row(
@@ -1300,7 +1343,6 @@ class _RobloxGameResultScreenState extends State<RobloxGameResultScreen> {
               style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black, minimumSize: const Size(double.infinity, 50)),
               onPressed: claimed ? null : () {
                 setState(() => claimed = true);
-                // التحقق والاعتماد الآمن لنقاط الترفيه فقط دون المساس المباشر بالرصيد المالي
                 userModel.verifyAndClaimGameRewards(widget.finalScore, widget.roomName);
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم التحقق من النتيجة واعتماد نقاط الترفيه بنجاح!'), backgroundColor: Colors.green));
               },
@@ -1310,7 +1352,7 @@ class _RobloxGameResultScreenState extends State<RobloxGameResultScreen> {
             OutlinedButton(
               style: OutlinedButton.styleFrom(foregroundColor: Colors.white, minimumSize: const Size(double.infinity, 50)),
               onPressed: () {
-                Navigator.pop(context); // العودة لساحة روبلوكس
+                Navigator.pop(context);
               },
               child: const Text('العودة إلى الساحة الرئيسية', style: TextStyle(fontWeight: FontWeight.bold)),
             ),
