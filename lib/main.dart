@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'dart:async';
 
 void main() {
   runApp(const RayidApp());
@@ -886,7 +887,7 @@ class WalletScreen extends StatelessWidget {
   }
 }
 
-// ================= 4. الألعاب والدردشة (مع ساحة روبلوكس وتفعيل الرهان) =================
+// ================= 4. الألعاب والدردشة =================
 class GamesScreen extends StatelessWidget {
   const GamesScreen({super.key});
 
@@ -958,7 +959,7 @@ class GamesScreen extends StatelessWidget {
   }
 }
 
-// ساحة روبلوكس الكبرى (بصندوق جوائز 10,000 نقطة ونظام أرباح الفائز - مع تصحيح الرمز $)
+// ساحة روبلوكس الكبرى
 class RobloxArenaScreen extends StatelessWidget {
   const RobloxArenaScreen({super.key});
 
@@ -1026,12 +1027,15 @@ class RobloxArenaScreen extends StatelessWidget {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black),
             onPressed: () {
-              userModel.winTournamentReward(prizePool, roomName);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('مبروك! فزت بـ $winnerPrize نقطة صافي وتم إضافتها لرصيدك!'), backgroundColor: Colors.green),
+              // الانتقال إلى شاشة الغرفة الحية والعداد التنازلي التفاعلي
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RobloxRoomDetailScreen(roomName: roomName, prizePool: prizePool),
+                ),
               );
             },
-            child: const Text('إعلان الفائز', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
+            child: const Text('دخول الغرفة', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
           ),
         ],
       ),
@@ -1039,6 +1043,141 @@ class RobloxArenaScreen extends StatelessWidget {
   }
 }
 
+// ================= شاشة تفاصيل الغرفة واللعب التفاعلي داخل روبلوكس =================
+class RobloxRoomDetailScreen extends StatefulWidget {
+  final String roomName;
+  final int prizePool;
+
+  const RobloxRoomDetailScreen({super.key, required this.roomName, required this.prizePool});
+
+  @override
+  State<RobloxRoomDetailScreen> createState() => _RobloxRoomDetailScreenState();
+}
+
+class _RobloxRoomDetailScreenState extends State<RobloxRoomDetailScreen> {
+  int countdownSeconds = 15;
+  late Timer _timer;
+  bool isBattleStarted = false;
+
+  final List<String> competingPlayers = [
+    'محمد رايد (أنت)',
+    'كرار البصراوي',
+    'أحمد العراقي',
+    'حيدر البابلي',
+    'مصطفى الغدير',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _startCountdown();
+  }
+
+  void _startCountdown() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (countdownSeconds > 0) {
+        setState(() {
+          countdownSeconds--;
+        });
+      } else {
+        _timer.cancel();
+        setState(() {
+          isBattleStarted = true;
+        });
+        // منح الجائزة تلقائياً عند انتهاء المعركة بنجاح
+        userModel.winTournamentReward(widget.prizePool, widget.roomName);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    int winnerPrize = (widget.prizePool * 0.90).round();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.roomName, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+        backgroundColor: const Color(0xff0A0E0D),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: const Color(0xff121816),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xff00E676).withOpacity(0.3)),
+              ),
+              child: Column(
+                children: [
+                  const Text('حالة السيرفر والبطولة الحية', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                  const SizedBox(height: 8),
+                  Text(
+                    isBattleStarted ? '🎮 انتهت المعركة وتم إعلان الفائز!' : '⏳ تبدأ المعركة خلال: $countdownSeconds ثانية',
+                    style: TextStyle(
+                      color: isBattleStarted ? const Color(0xff00E676) : Colors.amber,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text('🏆 صافي الجائزة للمركز الأول: $winnerPrize نقطة', style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text('اللاعبون المنافسون في السيرفر', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            Expanded(
+              child: ListView.builder(
+                itemCount: competingPlayers.length,
+                itemBuilder: (context, index) {
+                  bool isMe = index == 0;
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: isMe ? const Color(0xff00E676).withOpacity(0.1) : const Color(0xff121816),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: isMe ? const Color(0xff00E676) : Colors.white.withOpacity(0.05)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            CircleAvatar(
+                              backgroundColor: isMe ? const Color(0xff00E676) : Colors.grey[800],
+                              child: Icon(Icons.person, color: isMe ? Colors.black : Colors.white, size: 18),
+                            ),
+                            const SizedBox(width: 12),
+                            Text(competingPlayers[index], style: TextStyle(color: isMe ? const Color(0xff00E676) : Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                          ],
+                        ),
+                        const Text('🟢 متصل', style: TextStyle(color: Colors.grey, fontSize: 11)),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ================= الشاشات المتبقية (الدردشة والدعم والإعدادات) =================
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
 
