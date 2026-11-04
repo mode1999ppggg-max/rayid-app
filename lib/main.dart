@@ -1,4 +1,4 @@
- import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
@@ -88,7 +88,7 @@ class MainNavigationHubState extends State<MainNavigationHub> {
   }
 }
 
-// ================= 1. الشاشة الرئيسية =================
+// ================= 1. الشاشة الرئيسية الغنية بالتفاصيل =================
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -205,20 +205,114 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 24),
+            const Text(
+              'الخدمات السريعة',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildQuickServiceItem(Icons.flash_on, 'شحن سريع', Colors.amber),
+                _buildQuickServiceItem(Icons.card_giftcard, 'المكافآت', Colors.purpleAccent),
+                _buildQuickServiceItem(Icons.history, 'العمليات', Colors.blueAccent),
+                _buildQuickServiceItem(Icons.support_agent, 'الدعم', Colors.greenAccent),
+              ],
+            ),
           ],
         ),
       ),
     );
   }
+
+  Widget _buildQuickServiceItem(IconData icon, String title, Color color) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: const Color(0xff121b26),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.white.withOpacity(0.05)),
+          ),
+          child: Icon(icon, color: color, size: 24),
+        ),
+        const SizedBox(height: 8),
+        Text(title, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+      ],
+    );
+  }
 }
 
-// ================= 2. شاشة الألعاب =================
+// ================= 2. شاشة الألعاب المطورة =================
 class GamesScreen extends StatelessWidget {
   const GamesScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: Text('الألعاب', style: TextStyle(color: Colors.white, fontSize: 20))),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('ألعاب وتحديات RAYID'),
+        backgroundColor: const Color(0xff0b1017),
+        automaticallyImplyLeading: false,
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          _buildGameCard(context, 'دوري ألعاب الباتل رويال', 'اربح حتى \$50 يومياً', Icons.sports_esports, Colors.redAccent),
+          _buildGameCard(context, 'تحديات الأسئلة الذكية', 'اجمع نقاط وأبدلها بأموال حقيقية', Icons.lightbulb, Colors.amber),
+          _buildGameCard(context, 'عجلة الحظ اليومية', 'لف وارجح جوائز فورية', Icons.pie_chart, Colors.purpleAccent),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGameCard(BuildContext context, String title, String subtitle, IconData icon, Color color) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xff121b26),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withOpacity(0.4)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: color, size: 30),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+                const SizedBox(height: 4),
+                Text(subtitle, style: TextStyle(color: Colors.grey[400], fontSize: 12)),
+              ],
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: color,
+              foregroundColor: Colors.black,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('جاري الدخول إلى $title')),
+              );
+            },
+            child: const Text('دخول', style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -306,18 +400,108 @@ class WalletScreen extends StatelessWidget {
   }
 }
 
-// ================= 4. شاشة الدردشة =================
+// ================= 4. شاشة الدردشة المطورة =================
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: Text('الدردشة', style: TextStyle(color: Colors.white, fontSize: 20))),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('دردشة المجتمع'),
+        backgroundColor: const Color(0xff0b1017),
+        automaticallyImplyLeading: false,
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              children: const [
+                ChatBubble(sender: 'أحمد', message: 'شباب شوكت توزيع الأرباح هذا الأسبوع؟', time: '08:00 ص', isMe: false),
+                ChatBubble(sender: 'أنت', message: 'قريباً جداً، انتظر التحديث الجديد', time: '08:02 ص', isMe: true),
+                ChatBubble(sender: 'الدعم الفني', message: 'مرحباً بك في مجتمع RAYID PAY. لأي استفسار نحن هنا!', time: '08:05 ص', isMe: false),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(10),
+            color: const Color(0xff0b1017),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      hintText: 'اكتب رسالتك هنا...',
+                      hintStyle: const TextStyle(color: Colors.grey),
+                      filled: true,
+                      fillColor: const Color(0xff121b26),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                CircleAvatar(
+                  backgroundColor: const Color(0xff00ff88),
+                  child: IconButton(
+                    icon: const Icon(Icons.send, color: Colors.black, size: 18),
+                    onPressed: () {},
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
 
-// ================= 5. شاشة الإعدادات الفعالة مع تغيير الصورة والخيارات =================
+class ChatBubble extends StatelessWidget {
+  final String sender;
+  final String message;
+  final String time;
+  final bool isMe;
+
+  const ChatBubble({super.key, required this.sender, required this.message, required this.time, required this.isMe});
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: isMe ? Alignment.centerLeft : Alignment.centerRight,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(12),
+        constraints: const BoxConstraints(maxWidth: 250),
+        decoration: BoxDecoration(
+          color: isMe ? const Color(0xff00ff88).withOpacity(0.15) : const Color(0xff121b26),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: isMe ? const Color(0xff00ff88).withOpacity(0.3) : Colors.transparent),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(sender, style: TextStyle(color: isMe ? const Color(0xff00ff88) : Colors.grey[400], fontSize: 11, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 4),
+            Text(message, style: const TextStyle(color: Colors.white, fontSize: 13)),
+            const SizedBox(height: 4),
+            Align(
+              alignment: Alignment.bottomLeft,
+              child: Text(time, style: const TextStyle(color: Colors.grey, fontSize: 9)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ================= 5. شاشة الإعدادات الفعالة بالكامل =================
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
