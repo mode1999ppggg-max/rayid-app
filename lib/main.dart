@@ -21,12 +21,12 @@ class RayidApp extends StatelessWidget {
         );
       },
       theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color(0xff06090f),
-        primaryColor: const Color(0xff00ff88),
+        scaffoldBackgroundColor: const Color(0xff121212), // Premium Dark Mode
+        primaryColor: const Color(0xff00E676), // Neon Green
         colorScheme: const ColorScheme.dark(
-          primary: Color(0xff00ff88),
-          secondary: Color(0xff00f0ff),
-          surface: Color(0xff0f1722),
+          primary: Color(0xff00E676),
+          secondary: Color(0xff00E5FF),
+          surface: Color(0xff1E1E1E),
         ),
       ),
       home: const MainNavigationHub(),
@@ -74,9 +74,9 @@ class MainNavigationHubState extends State<MainNavigationHub> {
         currentIndex: _currentIndex,
         onTap: changeTab,
         type: BottomNavigationBarType.fixed,
-        backgroundColor: const Color(0xff06090f),
-        selectedItemColor: const Color(0xff00ff88),
-        unselectedItemColor: Colors.grey[700],
+        backgroundColor: const Color(0xff181818),
+        selectedItemColor: const Color(0xff00E676),
+        unselectedItemColor: Colors.grey[600],
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'الرئيسية'),
           BottomNavigationBarItem(icon: Icon(Icons.play_circle_filled_outlined), label: 'الإعلانات'),
@@ -90,7 +90,7 @@ class MainNavigationHubState extends State<MainNavigationHub> {
   }
 }
 
-// ================= 1. الصفحة الرئيسية الغنية بالتفاصيل والأدوات =================
+// ================= 1. الصفحة الرئيسية (المالية الاستثمارية المحدثة) =================
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -101,6 +101,7 @@ class HomeScreen extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            // الشريط العلوي للمستخدم
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -108,8 +109,8 @@ class HomeScreen extends StatelessWidget {
                   children: [
                     const CircleAvatar(
                       radius: 22,
-                      backgroundColor: Color(0xff0f1722),
-                      child: Icon(Icons.person, color: Color(0xff00ff88)),
+                      backgroundColor: Color(0xff1E1E1E),
+                      child: Icon(Icons.person, color: Color(0xff00E676)),
                     ),
                     const SizedBox(width: 12),
                     Column(
@@ -121,38 +122,21 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: const Color(0xff0f1722),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0xff00ff88).withOpacity(0.4)),
-                  ),
-                  child: Row(
-                    children: const [
-                      CircleAvatar(radius: 4, backgroundColor: Color(0xff00ff88)),
-                      SizedBox(width: 6),
-                      Text('متصل بالمنظومة', style: TextStyle(color: Color(0xff00ff88), fontSize: 11)),
-                    ],
-                  ),
+                IconButton(
+                  icon: const Icon(Icons.notifications_outlined, color: Colors.white70),
+                  onPressed: () {},
                 ),
               ],
             ),
-            const SizedBox(height: 24),
-            // بطاقة الرصيد والأرباح الرئيسية الفاخرة
+            const SizedBox(height: 20),
+
+            // بطاقة الرصيد والأرباح الرئيسية (Financial Card)
             Container(
-              padding: const EdgeInsets.all(22),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xff0f1722), Color(0xff162231)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: const Color(0xff00ff88).withOpacity(0.4)),
-                boxShadow: [
-                  BoxShadow(color: const Color(0xff00ff88).withOpacity(0.08), blurRadius: 15, spreadRadius: 2)
-                ],
+                color: const Color(0xff1E1E1E),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.white.withOpacity(0.05)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -160,110 +144,80 @@ class HomeScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: const [
-                      Text('إجمالي أرباح الإعلانات', style: TextStyle(color: Colors.grey, fontSize: 13)),
-                      Text('USD', style: TextStyle(color: Color(0xff00ff88), fontWeight: FontWeight.bold)),
+                      Text('إجمالي الأرباح المتاحة', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                      Text('+12.4% هذا الأسبوع', style: TextStyle(color: Color(0xff00E676), fontSize: 11, fontWeight: FontWeight.bold)),
                     ],
                   ),
                   const SizedBox(height: 8),
                   const Text(
                     '\$45.50',
-                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.w900, color: Color(0xff00ff88)),
+                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Color(0xff00E676)),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
                   Row(
                     children: [
-                      Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: const Color(0xff06090f),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Row(
-                            children: const [
-                              Text('🟡', style: TextStyle(fontSize: 18)),
-                              SizedBox(width: 10),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('النقاط', style: TextStyle(color: Colors.grey, fontSize: 10)),
-                                  Text('1,240', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: const Color(0xff06090f),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Row(
-                            children: const [
-                              Icon(Icons.bolt, color: Color(0xff00f0ff), size: 20),
-                              SizedBox(width: 10),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('مستوى التفاعل', style: TextStyle(color: Colors.grey, fontSize: 10)),
-                                  Text('نشط جداً', style: TextStyle(color: Color(0xff00f0ff), fontWeight: FontWeight.bold, fontSize: 14)),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                      const Text('🟡 النقاط المكتسبة: ', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                      const Text('1,240 نقطة', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // مخطط الأرباح (Earnings Graph Simulation)
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xff1E1E1E),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.white.withOpacity(0.05)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: const [
+                      Text('نظرة عامة على الأرباح اليومية', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                      Text('آخر 7 أيام', style: TextStyle(color: Colors.grey, fontSize: 11)),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  // محاكاة بصرية لمخطط بياني خطي ناعم
+                  SizedBox(
+                    height: 110,
+                    child: CustomPaint(
+                      size: const Size(double.infinity, 110),
+                      painter: ChartPainter(),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: const [
+                      Text('السبت', style: TextStyle(color: Colors.grey, fontSize: 10)),
+                      Text('الأحد', style: TextStyle(color: Colors.grey, fontSize: 10)),
+                      Text('الإثنين', style: TextStyle(color: Colors.grey, fontSize: 10)),
+                      Text('الثلاثاء', style: TextStyle(color: Colors.grey, fontSize: 10)),
+                      Text('الأربعاء', style: TextStyle(color: Colors.grey, fontSize: 10)),
+                      Text('الخميس', style: TextStyle(color: Colors.grey, fontSize: 10)),
+                      Text('الجمعة', style: TextStyle(color: Colors.grey, fontSize: 10)),
                     ],
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 24),
-            const Text('الإعلانات والخدمات السريعة', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+
+            // سجل الأنشطة والمكافآت (مباشرة تحت المخطط وبدون تكرار)
+            const Text('سجل الأنشطة والمكافآت', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
             const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _quickActionCard(context, Icons.play_circle_fill, 'الإعلانات', const AdsRewardsScreen(), Colors.greenAccent),
-                _quickActionCard(context, Icons.account_balance_wallet, 'المحفظة', const WalletScreen(), Colors.amber),
-                _quickActionCard(context, Icons.sports_esports, 'الألعاب', const GamesScreen(), Colors.purpleAccent),
-                _quickActionCard(context, Icons.chat, 'الدردشة', const ChatScreen(), Colors.blueAccent),
-              ],
-            ),
-            const SizedBox(height: 24),
-            const Text('أحدث النشاطات والمكافآت', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
-            const SizedBox(height: 12),
-            _activityTile('إكمال مشاهدة إعلان مؤهل', '+50 نقطة (\$0.50)', 'منذ ساعة', Colors.greenAccent),
-            _activityTile('سحب أرباح عبر زين كاش', '-\$15.00', 'أمس', Colors.amber),
+            _activityTile('إكمال مشاهدة إعلان مكافأة مؤهل', '+50 نقطة (\$0.50)', 'منذ ساعة', const Color(0xff00E676)),
+            _activityTile('استبدال نقاط برصيد محفظة', '-\$5.00', 'أمس', Colors.amber),
+            _activityTile('مكافأة مشاهدة إعلان ترويجي', '+30 نقطة (\$0.30)', 'منذ يومين', const Color(0xff00E676)),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _quickActionCard(BuildContext context, IconData icon, String label, Widget destination, Color color) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => destination));
-      },
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: const Color(0xff0f1722),
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: color.withOpacity(0.3)),
-            ),
-            child: Icon(icon, color: color, size: 24),
-          ),
-          const SizedBox(height: 8),
-          Text(label, style: const TextStyle(color: Colors.grey, fontSize: 12)),
-        ],
       ),
     );
   }
@@ -273,7 +227,7 @@ class HomeScreen extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xff0f1722),
+        color: const Color(0xff1E1E1E),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -281,7 +235,7 @@ class HomeScreen extends StatelessWidget {
         children: [
           Row(
             children: [
-              CircleAvatar(backgroundColor: color.withOpacity(0.2), child: Icon(Icons.history, color: color, size: 18)),
+              CircleAvatar(backgroundColor: color.withOpacity(0.15), child: Icon(Icons.history, color: color, size: 18)),
               const SizedBox(width: 12),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -300,7 +254,43 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// ================= 2. مركز الإعلانات والمكافآت (النشاط الأساسي) =================
+// رسام المخطط البياني الخطي الناعم (Line Chart Painter)
+class ChartPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    Paint linePaint = Paint()
+      ..color = const Color(0xff00E676)
+      ..strokeWidth = 3.0
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    Paint fillPaint = Paint()
+      ..shader = LinearGradient(
+        colors: [const Color(0xff00E676).withOpacity(0.3), const Color(0xff00E676).withOpacity(0.0)],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height))
+      ..style = PaintingStyle.fill;
+
+    Path path = Path();
+    path.moveTo(0, size.height * 0.7);
+    path.quadraticBezierTo(size.width * 0.2, size.height * 0.3, size.width * 0.4, size.height * 0.5);
+    path.quadraticBezierTo(size.width * 0.7, size.height * 0.8, size.width, size.height * 0.2);
+
+    Path fillPath = Path.from(path);
+    fillPath.lineTo(size.width, size.height);
+    fillPath.lineTo(0, size.height);
+    fillPath.close();
+
+    canvas.drawPath(fillPath, fillPaint);
+    canvas.drawPath(path, linePaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+// ================= 2. مركز الإعلانات والمكافآت =================
 class AdsRewardsScreen extends StatelessWidget {
   const AdsRewardsScreen({super.key});
 
@@ -309,7 +299,7 @@ class AdsRewardsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('مركز الإعلانات والمكافآت'),
-        backgroundColor: const Color(0xff06090f),
+        backgroundColor: const Color(0xff121212),
         automaticallyImplyLeading: false,
       ),
       body: ListView(
@@ -318,9 +308,9 @@ class AdsRewardsScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: const Color(0xff0f1722),
+              color: const Color(0xff1E1E1E),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xff00ff88), width: 1.5),
+              border: Border.all(color: const Color(0xff00E676), width: 1.5),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -330,12 +320,12 @@ class AdsRewardsScreen extends StatelessWidget {
                   children: const [
                     Text('الإعلانات المتاحة اليوم', style: TextStyle(color: Colors.grey, fontSize: 12)),
                     SizedBox(height: 6),
-                    Text('8 إعلانات مؤهلة', style: TextStyle(color: Color(0xff00ff88), fontSize: 20, fontWeight: FontWeight.w900)),
+                    Text('8 إعلانات مؤهلة', style: TextStyle(color: Color(0xff00E676), fontSize: 20, fontWeight: FontWeight.w900)),
                   ],
                 ),
                 const CircleAvatar(
                   radius: 26,
-                  backgroundColor: Color(0xff00ff88),
+                  backgroundColor: Color(0xff00E676),
                   child: Icon(Icons.play_arrow, color: Colors.black, size: 30),
                 ),
               ],
@@ -346,12 +336,6 @@ class AdsRewardsScreen extends StatelessWidget {
           const SizedBox(height: 12),
           _buildAdTile(context, 'إعلان مكافأة رقم #1', '+50 نقطة (\$0.50)', '30 ثانية'),
           _buildAdTile(context, 'إعلان مكافأة رقم #2', '+30 نقطة (\$0.30)', '20 ثانية'),
-          _buildAdTile(context, 'إعلان ترويجي مميز', '+100 نقطة (\$1.00)', '45 ثانية'),
-          const SizedBox(height: 24),
-          const Text('سجل المشاهدات والمكافآت الأخيرة', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 12),
-          _historyTile('إكمال مشاهدة إعلان مؤهل', '+40 نقطة', 'منذ ساعة', Colors.greenAccent),
-          _historyTile('استبدال نقاط برصيد محفظة', '-\$5.00', 'أمس', Colors.amber),
         ],
       ),
     );
@@ -362,9 +346,8 @@ class AdsRewardsScreen extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xff0f1722),
+        color: const Color(0xff1E1E1E),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -379,13 +362,13 @@ class AdsRewardsScreen extends StatelessWidget {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xff00ff88),
+              backgroundColor: const Color(0xff00E676),
               foregroundColor: Colors.black,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('جاري تحميل الإعلان وتحقق المشاهدة...')),
+                const SnackBar(content: Text('جاري تحميل الإعلان والتحقق من المشاهدة...')),
               );
             },
             child: const Text('شاهد الآن', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -394,39 +377,9 @@ class AdsRewardsScreen extends StatelessWidget {
       ),
     );
   }
-
-  Widget _historyTile(String title, String value, String time, Color color) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: const Color(0xff0f1722),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.check_circle_outline, color: color, size: 20),
-              const SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
-                  Text(time, style: const TextStyle(color: Colors.grey, fontSize: 10)),
-                ],
-              ),
-            ],
-          ),
-          Text(value, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 13)),
-        ],
-      ),
-    );
-  }
 }
 
-// ================= 3. المحفظة (أرباح الإعلانات) =================
+// ================= 3. المحفظة =================
 class WalletScreen extends StatelessWidget {
   const WalletScreen({super.key});
 
@@ -435,7 +388,7 @@ class WalletScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('المحفظة وأرباح الإعلانات'),
-        backgroundColor: const Color(0xff06090f),
+        backgroundColor: const Color(0xff121212),
         automaticallyImplyLeading: false,
       ),
       body: ListView(
@@ -444,9 +397,9 @@ class WalletScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(22),
             decoration: BoxDecoration(
-              color: const Color(0xff0f1722),
+              color: const Color(0xff1E1E1E),
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: const Color(0xff00ff88), width: 1.5),
+              border: Border.all(color: const Color(0xff00E676), width: 1.5),
             ),
             child: Column(
               children: [
@@ -454,15 +407,13 @@ class WalletScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 const Text(
                   'USD \$45.50',
-                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.w900, color: Color(0xff00ff88)),
+                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.w900, color: Color(0xff00E676)),
                 ),
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: const [
-                    Text('🟡', style: TextStyle(fontSize: 16)),
-                    SizedBox(width: 6),
-                    Text('النقاط المتراكمة: 1,240', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    Text('🟡 النقاط المتراكمة: 1,240 نقطة', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ],
@@ -473,7 +424,6 @@ class WalletScreen extends StatelessWidget {
           const SizedBox(height: 12),
           _buildWithdrawTile(context, 'AsiaCell Cash (آسياسيل)', 'سحب أرباح الإعلانات فورياً', Icons.phone_android, Colors.redAccent),
           _buildWithdrawTile(context, 'ZainCash (زين كاش)', 'سحب أرباح الإعلانات فورياً', Icons.phone_iphone, Colors.amber),
-          _buildWithdrawTile(context, 'MasterCard (ماستر كارد)', 'تحويل بنكي آمن', Icons.credit_card, Colors.blueAccent),
         ],
       ),
     );
@@ -483,15 +433,14 @@ class WalletScreen extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: const Color(0xff0f1722),
+        color: const Color(0xff1E1E1E),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
       ),
       child: ListTile(
         leading: Icon(icon, color: iconColor, size: 28),
         title: Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
         subtitle: Text(subtitle, style: TextStyle(color: Colors.grey[400], fontSize: 12)),
-        trailing: const Icon(Icons.arrow_forward_ios, color: Color(0xff00ff88), size: 16),
+        trailing: const Icon(Icons.arrow_forward_ios, color: Color(0xff00E676), size: 16),
         onTap: () {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('فتح بوابة سحب أرباح الإعلانات عبر $title')),
@@ -502,7 +451,7 @@ class WalletScreen extends StatelessWidget {
   }
 }
 
-// ================= 4. الألعاب والترفيه (ترفيهي فقط) =================
+// ================= 4. الألعاب والترفيه =================
 class GamesScreen extends StatelessWidget {
   const GamesScreen({super.key});
 
@@ -511,7 +460,7 @@ class GamesScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('قسم الألعاب والتسلية (ترفيهي فقط)'),
-        backgroundColor: const Color(0xff06090f),
+        backgroundColor: const Color(0xff121212),
         automaticallyImplyLeading: false,
       ),
       body: ListView(
@@ -532,7 +481,6 @@ class GamesScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           _buildGameCard(context, 'تحديات الأركيد السريعة', 'استمتع باللعب وحقق أفضل رقم قياسي', Icons.sports_esports, Colors.redAccent),
-          _buildGameCard(context, 'ألعاب الألغاز والذكاء', 'نشّط عقلك وتحدى أصدقاءك بلا حدود', Icons.extension, Colors.amber),
         ],
       ),
     );
@@ -543,9 +491,8 @@ class GamesScreen extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: const Color(0xff0f1722),
+        color: const Color(0xff1E1E1E),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.4)),
       ),
       child: Row(
         children: [
@@ -587,7 +534,7 @@ class GamesScreen extends StatelessWidget {
   }
 }
 
-// ================= 5. الدردشة (تواصل واجتماعي فقط) =================
+// ================= 5. الدردشة =================
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
 
@@ -596,7 +543,7 @@ class ChatScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('دردشة المجتمع (ترفيه وتواصل فقط)'),
-        backgroundColor: const Color(0xff06090f),
+        backgroundColor: const Color(0xff121212),
         automaticallyImplyLeading: false,
       ),
       body: Column(
@@ -621,7 +568,7 @@ class ChatScreen extends StatelessWidget {
           ),
           Container(
             padding: const EdgeInsets.all(12),
-            color: const Color(0xff06090f),
+            color: const Color(0xff121212),
             child: Row(
               children: [
                 Expanded(
@@ -631,7 +578,7 @@ class ChatScreen extends StatelessWidget {
                       hintText: 'اكتب رسالتك الاجتماعية...',
                       hintStyle: const TextStyle(color: Colors.grey),
                       filled: true,
-                      fillColor: const Color(0xff0f1722),
+                      fillColor: const Color(0xff1E1E1E),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                     ),
@@ -639,7 +586,7 @@ class ChatScreen extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 CircleAvatar(
-                  backgroundColor: const Color(0xff00ff88),
+                  backgroundColor: const Color(0xff00E676),
                   child: IconButton(
                     icon: const Icon(Icons.send, color: Colors.black, size: 18),
                     onPressed: () {},
@@ -671,14 +618,13 @@ class ChatBubble extends StatelessWidget {
         padding: const EdgeInsets.all(14),
         constraints: const BoxConstraints(maxWidth: 260),
         decoration: BoxDecoration(
-          color: isMe ? const Color(0xff00ff88).withOpacity(0.15) : const Color(0xff0f1722),
+          color: isMe ? const Color(0xff00E676).withOpacity(0.15) : const Color(0xff1E1E1E),
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: isMe ? const Color(0xff00ff88).withOpacity(0.3) : Colors.transparent),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(sender, style: TextStyle(color: isMe ? const Color(0xff00ff88) : Colors.grey[400], fontSize: 11, fontWeight: FontWeight.bold)),
+            Text(sender, style: TextStyle(color: isMe ? const Color(0xff00E676) : Colors.grey[400], fontSize: 11, fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
             Text(message, style: const TextStyle(color: Colors.white, fontSize: 13)),
             const SizedBox(height: 4),
@@ -693,7 +639,7 @@ class ChatBubble extends StatelessWidget {
   }
 }
 
-// ================= 6. الإعدادات والملف الشخصي =================
+// ================= 6. الإعدادات =================
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -725,7 +671,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('الإعدادات والحساب'),
-        backgroundColor: const Color(0xff06090f),
+        backgroundColor: const Color(0xff121212),
         automaticallyImplyLeading: false,
       ),
       body: ListView(
@@ -742,13 +688,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(color: const Color(0xff00ff88), width: 2),
+                          border: Border.all(color: const Color(0xff00E676), width: 2),
                         ),
                         child: CircleAvatar(
                           radius: 44,
-                          backgroundColor: const Color(0xff0f1722),
+                          backgroundColor: const Color(0xff1E1E1E),
                           backgroundImage: _profileImage != null ? FileImage(_profileImage!) : null,
-                          child: _profileImage == null ? const Icon(Icons.person, size: 44, color: Color(0xff00ff88)) : null,
+                          child: _profileImage == null ? const Icon(Icons.person, size: 44, color: Color(0xff00E676)) : null,
                         ),
                       ),
                       const Positioned(
@@ -756,7 +702,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         right: 0,
                         child: CircleAvatar(
                           radius: 12,
-                          backgroundColor: Color(0xff00ff88),
+                          backgroundColor: Color(0xff00E676),
                           child: Icon(Icons.camera_alt, size: 14, color: Colors.black),
                         ),
                       ),
@@ -771,16 +717,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          _buildSettingTile(context, Icons.security, 'الأمان وحماية الحساب', const SecurityScreen()),
-          _buildSettingTile(context, Icons.notifications_none, 'إعدادات الإشعارات', const NotificationsSettingsScreen()),
+          _buildSettingTile(context, Icons.security, 'الأمان وحماية الحساب'),
+          _buildSettingTile(context, Icons.notifications_none, 'إعدادات الإشعارات'),
           Container(
             margin: const EdgeInsets.only(bottom: 12),
             decoration: BoxDecoration(
-              color: const Color(0xff0f1722),
+              color: const Color(0xff1E1E1E),
               borderRadius: BorderRadius.circular(18),
             ),
             child: ListTile(
-              leading: const Icon(Icons.language, color: Color(0xff00ff88)),
+              leading: const Icon(Icons.language, color: Color(0xff00E676)),
               title: Text('لغة التطبيق ($_selectedLanguage)', style: const TextStyle(color: Colors.white, fontSize: 14)),
               trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
               onTap: () {
@@ -788,25 +734,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
               },
             ),
           ),
-          _buildSettingTile(context, Icons.help_outline, 'الدعم الفني والمساعدة', const SupportScreen()),
+          _buildSettingTile(context, Icons.help_outline, 'الدعم الفني والمساعدة'),
         ],
       ),
     );
   }
 
-  Widget _buildSettingTile(BuildContext context, IconData icon, String title, Widget destination) {
+  Widget _buildSettingTile(BuildContext context, IconData icon, String title) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: const Color(0xff0f1722),
+        color: const Color(0xff1E1E1E),
         borderRadius: BorderRadius.circular(18),
       ),
       child: ListTile(
-        leading: Icon(icon, color: const Color(0xff00ff88)),
+        leading: Icon(icon, color: const Color(0xff00E676)),
         title: Text(title, style: const TextStyle(color: Colors.white, fontSize: 14)),
         trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
         onTap: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => destination));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('فتح إعدادات: $title')),
+          );
         },
       ),
     );
@@ -817,7 +765,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: const Color(0xff0f1722),
+          backgroundColor: const Color(0xff1E1E1E),
           title: const Text('اختر لغة التطبيق', style: TextStyle(color: Colors.white)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -840,80 +788,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         );
       },
-    );
-  }
-}
-
-class SecurityScreen extends StatelessWidget {
-  const SecurityScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('الأمان وحماية الحساب'), backgroundColor: const Color(0xff06090f)),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: const [
-          SwitchListTile(
-            title: Text('التحقق بخطوتين (PIN)', style: TextStyle(color: Colors.white)),
-            value: true,
-            activeColor: Color(0xff00ff88),
-            onChanged: null,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class NotificationsSettingsScreen extends StatelessWidget {
-  const NotificationsSettingsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('إعدادات الإشعارات'), backgroundColor: const Color(0xff06090f)),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: const [
-          SwitchListTile(
-            title: Text('تفعيل الإشعارات والتنبيهات', style: TextStyle(color: Colors.white)),
-            value: true,
-            activeColor: Color(0xff00ff88),
-            onChanged: null,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class SupportScreen extends StatelessWidget {
-  const SupportScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('الدعم الفني'), backgroundColor: const Color(0xff06090f)),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Center(
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xff00ff88),
-              foregroundColor: Colors.black,
-              minimumSize: const Size(200, 50),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-            ),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('جاري فتح محادثة الدعم المباشر...')),
-              );
-            },
-            child: const Text('مراسلة الدعم المباشر', style: TextStyle(fontWeight: FontWeight.bold)),
-          ),
-        ),
-      ),
     );
   }
 }
