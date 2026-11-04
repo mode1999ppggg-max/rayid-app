@@ -31,7 +31,7 @@ jobs:
           cache: true
 
       - name: Create Android Structure
-        run: flutter create --template=app --platforms=android --org com.rayid --project-name rayid_app --force .
+        run: flutter create --template=app --platforms=android --org com.rayid --project-name rayid_app .
 
       - name: Install dependencies
         run: flutter pub get
