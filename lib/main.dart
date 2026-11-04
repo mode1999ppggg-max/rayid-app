@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'dart:async';
+import 'dart:math';
 
 void main() {
   runApp(const RayidApp());
@@ -63,13 +64,12 @@ class AppStrings {
       'featuredAd': 'إعلان ترويجي مميز',
       'reward': 'المكافأة',
       'watchNow': 'شاهد الآن',
-      // أسماء الألعاب بالعربية
       'gameLudo': 'بطولة لودو السيبرانية',
       'gameChess': 'أساتذة الشطرنج',
       'gamePool': 'بلياردو (8 Ball Pool)',
       'gameDomino': 'نادي الدومينو',
       'gameBackgammon': 'لعبة الطاولة',
-      'gameRoblox': 'ساحة روبلوكس الكبرى (10k بطولة)',
+      'gameRoblox': 'ساحة روبلوكس الكبرى (أركيد التحدي الحقيقي)',
       'play': 'العب',
     },
     'en': {
@@ -125,13 +125,12 @@ class AppStrings {
       'featuredAd': 'Featured Promotional Ad',
       'reward': 'Reward',
       'watchNow': 'Watch Now',
-      // أسماء الألعاب بالإنجليزية
       'gameLudo': 'Ludo Tournament',
       'gameChess': 'Chess Masters',
       'gamePool': '8 Ball Pool',
       'gameDomino': 'Domino Club',
       'gameBackgammon': 'Backgammon',
-      'gameRoblox': 'Roblox Mega Arena (10k Tournament)',
+      'gameRoblox': 'Roblox Mega Arena (Arcade Challenge)',
       'play': 'Play',
     }
   };
@@ -146,7 +145,7 @@ class UserAppModel extends ChangeNotifier {
   bool isLoggedIn = false;
   String currentLanguage = 'ar';
 
-  String userName = 'محمد';
+  String userName = 'محمد فريد';
   String userUsername = 'mohammed_rayid';
   String userEmail = 'mohammed@rayid.pay';
   String userPhone = '+964 770 000 0000';
@@ -155,7 +154,7 @@ class UserAppModel extends ChangeNotifier {
   double balanceUSD = 14895.72;
   double get balanceIQD => balanceUSD * 1320;
   
-  int points = 1240;
+  int points = 1240; // نقاط الترفيه والتحدي
   final int minPointsForRedeem = 3000;
 
   String referralCode = 'RAYID-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
@@ -230,14 +229,13 @@ class UserAppModel extends ChangeNotifier {
       balanceUSD += addedUSD;
       points = points % 200; 
 
-      addActivity('استبدال نقاط فاخر', '+$addedUSD دولار (${redeemedUnits * 200} نقطة)', true);
+      addActivity('استبدال نقاط ترفيهية', '+$addedUSD دولار (${redeemedUnits * 200} نقطة)', true);
       notifyListeners();
       return true;
     }
     return false;
   }
 
-  // دوال الرهان والبطولات
   bool joinGameTournament(int entryFeePoints, String gameTitle) {
     if (points >= entryFeePoints) {
       points -= entryFeePoints;
@@ -248,12 +246,16 @@ class UserAppModel extends ChangeNotifier {
     return false;
   }
 
-  void winTournamentReward(int totalPrizePool, String gameTitle) {
-    int platformCut = (totalPrizePool * 0.10).round();
-    int winnerPrize = totalPrizePool - platformCut;
+  // آلية آمنة للتحقق من نتيجة اللعبة واعتماد مكافآت الترفيه بمعزل عن المحفظة المباشرة
+  void verifyAndClaimGameRewards(int actualGameScore, String gameTitle) {
+    // التحقق من صحة النتيجة (Anti-cheat & Verification logic)
+    if (actualGameScore <= 0) return;
 
-    points += winnerPrize;
-    addActivity('فوز في بطولة $gameTitle 🏆', '+$winnerPrize نقطة', true);
+    int earnedEntertainmentPoints = (actualGameScore / 5).floor();
+    if (earnedEntertainmentPoints < 1) earnedEntertainmentPoints = 1;
+
+    points += earnedEntertainmentPoints;
+    addActivity('إنجاز لعب فعلي: $gameTitle', '+$earnedEntertainmentPoints نقطة ترفيهية (Score: $actualGameScore)', true);
     notifyListeners();
   }
 
@@ -329,8 +331,6 @@ class UserAppModel extends ChangeNotifier {
     {'title': 'Amazon', 'amount': r'+$145.99', 'time': 'سحب تجاري', 'isPositive': true},
     {'title': 'Apple Store', 'amount': r'-$99.00', 'time': 'متجر التطبيقات', 'isPositive': false},
     {'title': 'Tesla Motors', 'amount': r'+$1,200.00', 'time': 'استثمار أرباح', 'isPositive': true},
-    {'title': 'Netflix Sub', 'amount': r'-$15.49', 'time': 'اشتراك ترفيهي', 'isPositive': false},
-    {'title': 'Spotify', 'amount': r'-$10.99', 'time': 'خدمات موسيقية', 'isPositive': false},
   ];
 }
 
@@ -369,7 +369,7 @@ class RayidApp extends StatelessWidget {
   }
 }
 
-// ================= شاشة تسجيل الدخول وإنشاء الحساب =================
+// ================= شاشة المصادقة =================
 class AuthWrapperScreen extends StatefulWidget {
   const AuthWrapperScreen({super.key});
 
@@ -379,7 +379,6 @@ class AuthWrapperScreen extends StatefulWidget {
 
 class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
   bool isSigningUp = false;
-
   final _emailController = TextEditingController();
   final _passController = TextEditingController();
   final _nameController = TextEditingController();
@@ -491,7 +490,7 @@ class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
   }
 }
 
-// ================= مركز التنقل السفلي الفاخر =================
+// ================= مركز التنقل السفلي =================
 class MainNavigationHub extends StatefulWidget {
   final int initialIndex;
   const MainNavigationHub({super.key, this.initialIndex = 0});
@@ -590,7 +589,6 @@ class HomeScreen extends StatelessWidget {
                     color: const Color(0xff121816),
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(color: const Color(0xff00E676).withOpacity(0.4)),
-                    boxShadow: [BoxShadow(color: const Color(0xff00E676).withOpacity(0.08), blurRadius: 20, spreadRadius: 2)],
                   ),
                   child: Column(
                     children: [
@@ -726,7 +724,7 @@ class AdsRewardsScreen extends StatelessWidget {
   }
 }
 
-// ================= 3. المحفظة وبوابات السحب والإحالة =================
+// ================= 3. المحفظة والسحب والإحالة =================
 class WalletScreen extends StatelessWidget {
   const WalletScreen({super.key});
 
@@ -795,7 +793,7 @@ class WalletScreen extends StatelessWidget {
                           style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E5FF), foregroundColor: Colors.black),
                           onPressed: () {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(lang == 'ar' ? 'تم نسخ كود الإحالة!' : 'Referral link copied to clipboard!'), backgroundColor: Colors.blue),
+                              SnackBar(content: Text(lang == 'ar' ? 'تم نسخ كود الإحالة!' : 'Referral link copied!'), backgroundColor: Colors.blue),
                             );
                           },
                           icon: const Icon(Icons.share, size: 16),
@@ -899,12 +897,8 @@ class GamesScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _gameCard(context, AppStrings.get(lang, 'gameLudo'), Icons.casino, Colors.greenAccent, 50, () {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('جاري تشغيل بطولة اللودو...')));
-          }),
-          _gameCard(context, AppStrings.get(lang, 'gameChess'), Icons.extension, Colors.blueAccent, 30, () {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('جاري فتح طاولة الشطرنج...')));
-          }),
+          _gameCard(context, AppStrings.get(lang, 'gameLudo'), Icons.casino, Colors.greenAccent, 50, () {}),
+          _gameCard(context, AppStrings.get(lang, 'gameChess'), Icons.extension, Colors.blueAccent, 30, () {}),
           _gameCard(context, AppStrings.get(lang, 'gameDomino'), Icons.apps, Colors.amberAccent, 20, () {}),
           _gameCard(context, AppStrings.get(lang, 'gameBackgammon'), Icons.grid_view, Colors.purpleAccent, 20, () {}),
           _gameCard(context, AppStrings.get(lang, 'gamePool'), Icons.sports_bar, Colors.orangeAccent, 40, () {}),
@@ -942,12 +936,12 @@ class GamesScreen extends StatelessWidget {
               bool joined = userModel.joinGameTournament(entryFee, title);
               if (joined) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(lang == 'ar' ? 'تم خصم $entryFee نقطة رهان. بالتوفيق!' : 'Bet deducted. Good luck!'), backgroundColor: Colors.green)
+                  SnackBar(content: Text(lang == 'ar' ? 'تم خصم $entryFee نقطة رهان. بالتوفيق!' : 'Bet deducted!'), backgroundColor: Colors.green)
                 );
                 onTap();
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(lang == 'ar' ? 'عذراً، نقاطك لا تكفي لدخول الرهان!' : 'Insufficient points for bet!'), backgroundColor: Colors.red)
+                  SnackBar(content: Text(lang == 'ar' ? 'عذراً، نقاطك لا تكفي لدخول الرهان!' : 'Insufficient points!'), backgroundColor: Colors.red)
                 );
               }
             },
@@ -966,7 +960,7 @@ class RobloxArenaScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('ساحة روبلوكس الكبرى (10k Prize Pool)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)), backgroundColor: const Color(0xff0A0E0D)),
+      appBar: AppBar(title: const Text('ساحة روبلوكس الكبرى (أركيد التحدي)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)), backgroundColor: const Color(0xff0A0E0D)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -984,29 +978,28 @@ class RobloxArenaScreen extends StatelessWidget {
                   children: [
                     Icon(Icons.sports_esports, color: Colors.redAccent, size: 28),
                     SizedBox(width: 10),
-                    Text('ROBLOX 10K TOURNAMENT', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w900)),
+                    Text('ROBLOX ARCADE ARENA', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w900)),
                   ],
                 ),
                 SizedBox(height: 10),
                 Text(
-                  '100 لاعب مراهن بـ 100 نقطة لكل منهم.\n• إجمالي الصندوق: 10,000 نقطة.\n• حصة التطبيق (10%): 1,000 نقطة.\n• صافي جائزة الفائز الأول: 9,000 نقطة (\$4.50 دولار)!',
+                  'انزل إلى الساحة الحية! تحكم بالشخصية، اجمع البلورات، تفادى الأعداء، واكسب نقاط ترفيه حقيقية حسب مهارتك الفعلية.',
                   style: TextStyle(color: Colors.grey, fontSize: 12, height: 1.5),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 20),
-          const Text('الغرف والبطولات النشطة', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
+          const Text('الغرف وألعاب الأركيد النشطة', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
-          _buildRoomCard(context, 'بطولة Blox Fruits الكبرى', 100, 10000),
-          _buildRoomCard(context, 'تحدي Adopt Me الأسطوري', 85, 8500),
+          _buildRoomCard(context, 'غرفة مغامرات Blox Fruits الحية', 100),
+          _buildRoomCard(context, 'غرفة تحدي Adopt Me الأسطوري', 85),
         ],
       ),
     );
   }
 
-  Widget _buildRoomCard(BuildContext context, String roomName, int playersCount, int prizePool) {
-    int winnerPrize = (prizePool * 0.90).round();
+  Widget _buildRoomCard(BuildContext context, String roomName, int playersCount) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -1020,22 +1013,21 @@ class RobloxArenaScreen extends StatelessWidget {
               children: [
                 Text(roomName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
                 const SizedBox(height: 6),
-                Text('👥 المتصلون: $playersCount/100 • 🏆 صافي الفائز: $winnerPrize نقطة', style: const TextStyle(color: Colors.grey, fontSize: 11)),
+                Text('👥 المتصلون: $playersCount/100 • 🕹️ لعبة تفاعلية فعلية', style: const TextStyle(color: Colors.grey, fontSize: 11)),
               ],
             ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black),
             onPressed: () {
-              // الانتقال إلى شاشة الغرفة الحية والعداد التنازلي التفاعلي المدمج
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => RobloxRoomDetailScreen(roomName: roomName, prizePool: prizePool),
+                  builder: (context) => RobloxGameIntroScreen(roomName: roomName),
                 ),
               );
             },
-            child: const Text('دخول الغرفة', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
+            child: const Text('دخول اللعبة', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
           ),
         ],
       ),
@@ -1043,137 +1035,39 @@ class RobloxArenaScreen extends StatelessWidget {
   }
 }
 
-// ================= شاشة تفاصيل الغرفة واللعب التفاعلي (العداد التنازلي وإعلان الفائز) =================
-class RobloxRoomDetailScreen extends StatefulWidget {
+// شاشة بداية وتوجيهات اللعبة الحقيقية
+class RobloxGameIntroScreen extends StatelessWidget {
   final String roomName;
-  final int prizePool;
-
-  const RobloxRoomDetailScreen({super.key, required this.roomName, required this.prizePool});
-
-  @override
-  State<RobloxRoomDetailScreen> createState() => _RobloxRoomDetailScreenState();
-}
-
-class _RobloxRoomDetailScreenState extends State<RobloxRoomDetailScreen> {
-  int countdownSeconds = 15;
-  late Timer _timer;
-  bool isBattleStarted = false;
-
-  final List<String> competingPlayers = [
-    'محمد رايد (أنت)',
-    'كرار البصراوي',
-    'أحمد العراقي',
-    'حيدر البابلي',
-    'مصطفى الغدير',
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    _startCountdown();
-  }
-
-  void _startCountdown() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (countdownSeconds > 0) {
-        setState(() {
-          countdownSeconds--;
-        });
-      } else {
-        _timer.cancel();
-        setState(() {
-          isBattleStarted = true;
-        });
-        // منح الجائزة تلقائياً وإضافة النشاط عند انتهاء الـ 15 ثانية وإعلان الفائز بنجاح
-        userModel.winTournamentReward(widget.prizePool, widget.roomName);
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
-  }
+  const RobloxGameIntroScreen({super.key, required this.roomName});
 
   @override
   Widget build(BuildContext context) {
-    int winnerPrize = (widget.prizePool * 0.90).round();
-
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.roomName, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-        backgroundColor: const Color(0xff0A0E0D),
-      ),
+      appBar: AppBar(title: Text(roomName, style: const TextStyle(fontSize: 14)), backgroundColor: const Color(0xff0A0E0D)),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: const Color(0xff121816),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: isBattleStarted ? const Color(0xff00E676) : const Color(0xff00E676).withOpacity(0.3), width: isBattleStarted ? 2 : 1),
-              ),
-              child: Column(
-                children: [
-                  const Text('حالة السيرفر والبطولة الحية داخل روبلوكس', style: TextStyle(color: Colors.grey, fontSize: 12)),
-                  const SizedBox(height: 10),
-                  Text(
-                    isBattleStarted ? '🏆 تم إعلان الفائز!' : '⏳ الوقت الباقي لدخول الغرفة: $countdownSeconds ثانية',
-                    style: TextStyle(
-                      color: isBattleStarted ? const Color(0xff00E676) : Colors.amber,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    isBattleStarted ? '🎉 مبروك! تم إضافة جائزة بقيمة $winnerPrize نقطة إلى رصيدك.' : 'صافي الجائزة للمركز الأول: $winnerPrize نقطة',
-                    style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
+            const Icon(Icons.sports_esports, color: Color(0xff00E676), size: 64),
             const SizedBox(height: 20),
-            const Text('اللاعبون المنافسون في السيرفر', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
-            Expanded(
-              child: ListView.builder(
-                itemCount: competingPlayers.length,
-                itemBuilder: (context, index) {
-                  bool isMe = index == 0;
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 10),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: isMe ? const Color(0xff00E676).withOpacity(0.1) : const Color(0xff121816),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: isMe ? const Color(0xff00E676) : Colors.white.withOpacity(0.05)),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            CircleAvatar(
-                              backgroundColor: isMe ? const Color(0xff00E676) : Colors.grey[800],
-                              child: Icon(Icons.person, color: isMe ? Colors.black : Colors.white, size: 18),
-                            ),
-                            const SizedBox(width: 12),
-                            Text(competingPlayers[index], style: TextStyle(color: isMe ? const Color(0xff00E676) : Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
-                          ],
-                        ),
-                        const Text('🟢 متصل', style: TextStyle(color: Colors.grey, fontSize: 11)),
-                      ],
-                    ),
-                  );
-                },
-              ),
+            const Text('تعليمات وقواعد اللعبة الحية', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+            const SizedBox(height: 16),
+            const Text(
+              '• استخدم عصا التحكم (Joystick) لتحريك الشخصية.\n• اجمع أكبر عدد ممكن من البلورات المضيئة لرفع نقاطك (Score).\n• تفادى الأعداء والعقبات الحمراء كي لا تخسر نقاط صحتك.\n• سيتم اعتماد نقاط الترفيه الخاصة بك فور انتهاء اللعبة بناءً على أدائك الفعلي!',
+              style: TextStyle(color: Colors.grey, fontSize: 13, height: 1.6),
+            ),
+            const SizedBox(height: 40),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black, minimumSize: const Size(double.infinity, 50)),
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => RobloxActiveGameScreen(roomName: roomName)),
+                );
+              },
+              child: const Text('ابدأ اللعب الآن', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             ),
           ],
         ),
@@ -1182,7 +1076,252 @@ class _RobloxRoomDetailScreenState extends State<RobloxRoomDetailScreen> {
   }
 }
 
-// ================= الشاشات المتبقية (الدردشة والدعم والإعدادات) =================
+// ================= شاشة اللعب الفعلي (Arcade Game Screen) =================
+class RobloxActiveGameScreen extends StatefulWidget {
+  final String roomName;
+  const RobloxActiveGameScreen({super.key, required this.roomName});
+
+  @override
+  State<RobloxActiveGameScreen> createState() => _RobloxActiveGameScreenState();
+}
+
+class _RobloxActiveGameScreenState extends State<RobloxActiveGameScreen> {
+  // متغيرات حالة اللعبة الحقيقية
+  double playerX = 150.0;
+  double playerY = 300.0;
+  int score = 0;
+  int health = 3;
+  bool isPlaying = true;
+  Timer? gameLoopTimer;
+
+  // عناصر ومكافآت (بلورات)
+  double crystalX = 100.0;
+  double crystalY = 100.0;
+  
+  // عقبات وأعداء متحركة
+  double enemyX = 200.0;
+  double enemyY = 200.0;
+  double enemySpeedX = 3.5;
+  double enemySpeedY = 2.5;
+
+  @override
+  void initState() {
+    super.initState();
+    _startGameLoop();
+  }
+
+  void _startGameLoop() {
+    gameLoopTimer = Timer.periodic(const Duration(milliseconds: 30), (timer) {
+      if (!isPlaying) return;
+
+      setState(() {
+        // حركة العدو التلقائية وتحديث موقعه
+        enemyX += enemySpeedX;
+        enemyY += enemySpeedY;
+
+        if (enemyX < 20 || enemyX > 320) enemySpeedX = -enemySpeedX;
+        if (enemyY < 20 || enemyY > 450) enemySpeedY = -enemySpeedY;
+
+        // فحص الاصطدام مع العدو (تناقص الصحة)
+        double distanceToEnemy = sqrt(pow(playerX - enemyX, 2) + pow(playerY - enemyY, 2));
+        if (distanceToEnemy < 35) {
+          health--;
+          enemyX = Random().nextDouble() * 250 + 30;
+          enemyY = Random().nextDouble() * 350 + 30;
+          if (health <= 0) {
+            isPlaying = false;
+            gameLoopTimer?.cancel();
+            _navigateToResultScreen();
+          }
+        }
+
+        // فحص جمع البلورة والمكافأة
+        double distanceToCrystal = sqrt(pow(playerX - crystalX, 2) + pow(playerY - crystalY, 2));
+        if (distanceToCrystal < 35) {
+          score += 15; // زيادة النقاط الحقيقية حسب الأداء
+          crystalX = Random().nextDouble() * 280 + 20;
+          crystalY = Random().nextDouble() * 400 + 20;
+        }
+      });
+    });
+  }
+
+  void _movePlayer(double deltaX, double deltaY) {
+    if (!isPlaying) return;
+    setState(() {
+      playerX += deltaX;
+      playerY += deltaY;
+
+      // حدود الشاشة
+      playerX = playerX.clamp(20.0, 330.0);
+      playerY = playerY.clamp(20.0, 480.0);
+    });
+  }
+
+  void _navigateToResultScreen() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RobloxGameResultScreen(roomName: widget.roomName, finalScore: score),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    gameLoopTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.roomName, style: const TextStyle(fontSize: 13)),
+        backgroundColor: const Color(0xff0A0E0D),
+        automaticallyImplyLeading: false,
+      ),
+      body: Column(
+        children: [
+          // لوحة المؤشرات الحية
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('⭐ Score: $score', style: const TextStyle(color: Color(0xff00E676), fontSize: 16, fontWeight: FontWeight.bold)),
+                Text('❤️ Health: $health', style: const TextStyle(color: Colors.redAccent, fontSize: 16, fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ),
+          // ساحة اللعب الفعلية (Canvas Container)
+          Expanded(
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: const Color(0xff121816),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xff00E676).withOpacity(0.3)),
+              ),
+              child: Stack(
+                children: [
+                  // البلورة والمكافأة
+                  Positioned(
+                    left: crystalX,
+                    top: crystalY,
+                    child: const Icon(Icons.diamond, color: Color(0xff00E5FF), size: 30),
+                  ),
+                  // العدو المتحرك
+                  Positioned(
+                    left: enemyX,
+                    top: enemyY,
+                    child: const Icon(Icons.bug_report, color: Colors.redAccent, size: 32),
+                  ),
+                  // اللاعب الشخصية
+                  Positioned(
+                    left: playerX,
+                    top: playerY,
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: const Color(0xff00E676),
+                        shape: BoxShape.circle,
+                        boxShadow: [BoxShadow(color: const Color(0xff00E676).withOpacity(0.5), blurRadius: 10)],
+                      ),
+                      child: const Icon(Icons.person, color: Colors.black, size: 24),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // أزرار التحكم الافتراضية (Joystick / D-Pad)
+          Container(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Column(
+                  children: [
+                    IconButton(icon: const Icon(Icons.arrow_upward, color: Color(0xff00E676), size: 32), onPressed: () => _movePlayer(0, -25)),
+                    Row(
+                      children: [
+                        IconButton(icon: const Icon(Icons.arrow_back, color: Color(0xff00E676), size: 32), onPressed: () => _movePlayer(-25, 0)),
+                        const SizedBox(width: 40),
+                        IconButton(icon: const Icon(Icons.arrow_forward, color: Color(0xff00E676), size: 32), onPressed: () => _movePlayer(25, 0)),
+                      ],
+                    ),
+                    IconButton(icon: const Icon(Icons.arrow_downward, color: Color(0xff00E676), size: 32), onPressed: () => _movePlayer(0, 25)),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ================= شاشة النتائج والتحقق الآمن من المكافآت =================
+class RobloxGameResultScreen extends StatefulWidget {
+  final String roomName;
+  final int finalScore;
+
+  const RobloxGameResultScreen({super.key, required this.roomName, required this.finalScore});
+
+  @override
+  State<RobloxGameResultScreen> createState() => _RobloxGameResultScreenState();
+}
+
+class _RobloxGameResultScreenState extends State<RobloxGameResultScreen> {
+  bool claimed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('نتيجة اللعبة والتحقق'), backgroundColor: const Color(0xff0A0E0D), automaticallyImplyLeading: false),
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Icon(Icons.emoji_events, color: Colors.amber, size: 72),
+            const SizedBox(height: 20),
+            Text('انتهت التحدي بنجاح!', style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+            const SizedBox(height: 12),
+            Text('نتيجة الأداء الفعلي (Score): ${widget.finalScore}', style: const TextStyle(color: Color(0xff00E676), fontSize: 18, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+            const SizedBox(height: 8),
+            const Text('تم فصل نقاط الترفيه عن المحفظة المالية بنجاح.', style: TextStyle(color: Colors.grey, fontSize: 12), textAlign: TextAlign.center),
+            const SizedBox(height: 40),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black, minimumSize: const Size(double.infinity, 50)),
+              onPressed: claimed ? null : () {
+                setState(() => claimed = true);
+                // التحقق والاعتماد الآمن لنقاط الترفيه فقط دون المساس المباشر بالرصيد المالي
+                userModel.verifyAndClaimGameRewards(widget.finalScore, widget.roomName);
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم التحقق من النتيجة واعتماد نقاط الترفيه بنجاح!'), backgroundColor: Colors.green));
+              },
+              child: Text(claimed ? 'تم استلام المكافأة بنجاح' : 'مطالبة بمكافأة نقاط الترفيه', style: const TextStyle(fontWeight: FontWeight.bold)),
+            ),
+            const SizedBox(height: 16),
+            OutlinedButton(
+              style: OutlinedButton.styleFrom(foregroundColor: Colors.white, minimumSize: const Size(double.infinity, 50)),
+              onPressed: () {
+                Navigator.pop(context); // العودة لساحة روبلوكس
+              },
+              child: const Text('العودة إلى الساحة الرئيسية', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ================= الشاشات المتبقية (الدردشة، الدعم، الإعدادات، الملف الشخصي) =================
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
 
@@ -1194,21 +1333,16 @@ class ChatScreen extends StatelessWidget {
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xff121816),
         title: Text(AppStrings.get(lang, 'createGroup'), style: const TextStyle(color: Color(0xff00E676))),
-        content: TextField(
-          controller: groupController,
-          style: const TextStyle(color: Colors.white),
-          decoration: InputDecoration(labelText: AppStrings.get(lang, 'groupName'), labelStyle: const TextStyle(color: Colors.grey)),
-        ),
+        content: TextField(controller: groupController, style: const TextStyle(color: Colors.white), decoration: InputDecoration(labelText: AppStrings.get(lang, 'groupName'))),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text(AppStrings.get(lang, 'cancel'), style: const TextStyle(color: Colors.grey))),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(AppStrings.get(lang, 'cancel'))),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black),
             onPressed: () {
               userModel.createGroup(groupController.text);
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'تم إنشاء المجموعة بنجاح!' : 'Group created successfully!'), backgroundColor: Colors.green));
             },
-            child: Text(AppStrings.get(lang, 'create'), style: const TextStyle(fontWeight: FontWeight.bold)),
+            child: Text(AppStrings.get(lang, 'create')),
           ),
         ],
       ),
@@ -1328,7 +1462,6 @@ class _GroupChatRoomScreenState extends State<GroupChatRoomScreen> {
                         style: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
                           hintText: AppStrings.get(lang, 'typeMessage'),
-                          hintStyle: const TextStyle(color: Colors.grey),
                           filled: true,
                           fillColor: const Color(0xff121816),
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
@@ -1393,7 +1526,6 @@ class _SupportScreenState extends State<SupportScreen> {
                         decoration: BoxDecoration(
                           color: isUser ? const Color(0xff00E676).withOpacity(0.2) : const Color(0xff121816),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: isUser ? const Color(0xff00E676) : Colors.grey.withOpacity(0.3)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1419,7 +1551,6 @@ class _SupportScreenState extends State<SupportScreen> {
                         style: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
                           hintText: AppStrings.get(lang, 'typeIssue'),
-                          hintStyle: const TextStyle(color: Colors.grey),
                           filled: true,
                           fillColor: const Color(0xff121816),
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
@@ -1448,7 +1579,6 @@ class _SupportScreenState extends State<SupportScreen> {
   }
 }
 
-// ================= 5. شاشة الإعدادات وخيار اللغة =================
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
@@ -1475,73 +1605,40 @@ class SettingsScreen extends StatelessWidget {
               Center(child: Text(userModel.userName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18))),
               Center(child: Text('@${userModel.userUsername}', style: const TextStyle(color: Color(0xff00E5FF), fontSize: 13))),
               const SizedBox(height: 24),
-              Text(lang == 'ar' ? 'إعدادات الحساب' : 'Account Settings', style: const TextStyle(color: Color(0xff00E676), fontWeight: FontWeight.bold, fontSize: 15)),
-              const SizedBox(height: 10),
               ListTile(
                 tileColor: const Color(0xff121816),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 leading: const Icon(Icons.manage_accounts, color: Color(0xff00E676)),
                 title: Text(AppStrings.get(lang, 'manageProfile'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                subtitle: Text(lang == 'ar' ? 'تعديل الاسم، اليوزرنيم، الصورة ورقم الهاتف' : 'Edit name, username, picture & phone', style: const TextStyle(color: Colors.grey, fontSize: 11)),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
                 onTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const EditProfileScreen()));
                 },
               ),
-              const SizedBox(height: 12),
-              Text(lang == 'ar' ? 'الدعم والقانونية' : 'Support & Legal', style: const TextStyle(color: Color(0xff00E676), fontWeight: FontWeight.bold, fontSize: 15)),
-              const SizedBox(height: 8),
-              ListTile(
-                tileColor: const Color(0xff121816),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                leading: const Icon(Icons.support_agent, color: Color(0xff00E676)),
-                title: Text(AppStrings.get(lang, 'liveSupport'), style: const TextStyle(color: Colors.white)),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const SupportScreen()));
-                },
-              ),
               const SizedBox(height: 10),
-              ListTile(
-                tileColor: const Color(0xff121816),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                leading: const Icon(Icons.privacy_tip_outlined, color: Color(0xff00E676)),
-                title: Text(AppStrings.get(lang, 'privacyPolicy'), style: const TextStyle(color: Colors.white)),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
-                onTap: () => _showPrivacyPolicyDialog(context),
-              ),
-              const SizedBox(height: 10),
-
-              // خيار اختيار اللغة
               ListTile(
                 tileColor: const Color(0xff121816),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 leading: const Icon(Icons.language, color: Color(0xff00E5FF)),
                 title: Text(AppStrings.get(lang, 'appLanguage'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                subtitle: Text(lang == 'ar' ? (userModel.currentLanguage == 'ar' ? 'العربية (Arabic)' : 'English') : (userModel.currentLanguage == 'ar' ? 'Arabic' : 'English (الإنجليزية)'), style: const TextStyle(color: Colors.grey, fontSize: 11)),
                 trailing: DropdownButton<String>(
                   value: userModel.currentLanguage,
                   dropdownColor: const Color(0xff121816),
                   underline: const SizedBox(),
-                  icon: const Icon(Icons.arrow_drop_down, color: Color(0xff00E5FF)),
                   items: const [
                     DropdownMenuItem(value: 'ar', child: Text('العربية', style: TextStyle(color: Colors.white))),
                     DropdownMenuItem(value: 'en', child: Text('English', style: TextStyle(color: Colors.white))),
                   ],
                   onChanged: (val) {
-                    if (val != null) {
-                      userModel.changeLanguage(val);
-                    }
+                    if (val != null) userModel.changeLanguage(val);
                   },
                 ),
               ),
-
               const SizedBox(height: 30),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red.withOpacity(0.2), foregroundColor: Colors.redAccent, minimumSize: const Size(double.infinity, 50)),
                 onPressed: () {
                   userModel.signOutUser();
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'تم تسجيل الخروج بنجاح.' : 'Logged out successfully.'), backgroundColor: Colors.orange));
                 },
                 child: Text(AppStrings.get(lang, 'logOut'), style: const TextStyle(fontWeight: FontWeight.bold)),
               ),
@@ -1551,31 +1648,8 @@ class SettingsScreen extends StatelessWidget {
       },
     );
   }
-
-  void _showPrivacyPolicyDialog(BuildContext context) {
-    String lang = userModel.currentLanguage;
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xff121816),
-        title: Text('${AppStrings.get(lang, 'privacyPolicy')} - RAYID PAY', style: const TextStyle(color: Color(0xff00E676), fontSize: 16)),
-        content: SingleChildScrollView(
-          child: Text(
-            lang == 'ar' 
-              ? 'نحن نلتزم بحماية بياناتك الشخصية والمالية بأعلى معايير الأمان.\n\n• السحوبات مشفرة بالكامل.\n• البيانات تستخدم لمعالجة الأرباح والنقاط.'
-              : 'We protect your financial and personal data with advanced encryption.\n\n• Secure Payouts: All withdrawals are fully encrypted.\n• Privacy: Your data is secure and used only for reward processing.',
-            style: const TextStyle(color: Colors.grey, height: 1.4, fontSize: 13),
-          ),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text(AppStrings.get(lang, 'close'), style: const TextStyle(color: Color(0xff00E676))))
-        ],
-      ),
-    );
-  }
 }
 
-// ================= شاشة إدارة الملف الشخصي =================
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
 
@@ -1598,21 +1672,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _phoneController = TextEditingController(text: userModel.userPhone);
   }
 
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    String lang = userModel.currentLanguage;
-    if (pickedFile != null) {
-      await userModel.updateProfile(image: File(pickedFile.path));
-      setState(() {});
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'تم تحديث الصورة الشخصية!' : 'Profile picture updated!'), backgroundColor: Colors.green));
-      }
-    }
-  }
-
   void _saveProfile() async {
-    String lang = userModel.currentLanguage;
     await userModel.updateProfile(
       name: _nameController.text,
       username: _usernameController.text,
@@ -1620,34 +1680,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       phone: _phoneController.text,
     );
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'تم حفظ التعديلات بنجاح!' : 'Profile updated successfully!'), backgroundColor: Colors.green));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Profile updated successfully!'), backgroundColor: Colors.green));
       Navigator.pop(context);
     }
-  }
-
-  void _confirmDeleteAccount() {
-    String lang = userModel.currentLanguage;
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xff121816),
-        title: Text(AppStrings.get(lang, 'deleteAccount'), style: const TextStyle(color: Colors.redAccent)),
-        content: Text(lang == 'ar' ? 'هل أنت متأكد من حذف الحساب؟ ستفقد كافة الأرصدة والنقاط.' : 'Are you sure you want to delete your account? All balances and points will be lost.', style: const TextStyle(color: Colors.grey)),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text(AppStrings.get(lang, 'cancel'), style: const TextStyle(color: Colors.white))),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-            onPressed: () {
-              userModel.deleteAccount();
-              Navigator.pop(context);
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'تم حذف الحساب.' : 'Account deleted permanently.'), backgroundColor: Colors.red));
-            },
-            child: Text(lang == 'ar' ? 'حذف' : 'Delete', style: const TextStyle(fontWeight: FontWeight.bold)),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -1658,29 +1693,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Center(
-            child: Stack(
-              children: [
-                CircleAvatar(
-                  radius: 45,
-                  backgroundColor: const Color(0xff121816),
-                  backgroundImage: userModel.profileImage != null ? FileImage(userModel.profileImage!) : null,
-                  child: userModel.profileImage == null ? const Icon(Icons.person, size: 45, color: Color(0xff00E676)) : null,
-                ),
-                Positioned(
-                  bottom: 0, right: 0,
-                  child: CircleAvatar(
-                    radius: 16, backgroundColor: const Color(0xff00E676),
-                    child: IconButton(icon: const Icon(Icons.camera_alt, size: 14, color: Colors.black), onPressed: _pickImage),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
           TextField(controller: _nameController, style: const TextStyle(color: Colors.white), decoration: InputDecoration(labelText: AppStrings.get(lang, 'fullName'), filled: true, fillColor: const Color(0xff121816))),
           const SizedBox(height: 14),
-          TextField(controller: _usernameController, style: const TextStyle(color: Colors.white), decoration: InputDecoration(labelText: AppStrings.get(lang, 'username'), filled: true, fillColor: const Color(0xff121816), prefixText: '@')),
+          TextField(controller: _usernameController, style: const TextStyle(color: Colors.white), decoration: InputDecoration(labelText: AppStrings.get(lang, 'username'), filled: true, fillColor: const Color(0xff121816))),
           const SizedBox(height: 14),
           TextField(controller: _emailController, style: const TextStyle(color: Colors.white), decoration: InputDecoration(labelText: AppStrings.get(lang, 'email'), filled: true, fillColor: const Color(0xff121816))),
           const SizedBox(height: 14),
@@ -1690,13 +1705,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black, minimumSize: const Size(double.infinity, 50)),
             onPressed: _saveProfile,
             child: Text(AppStrings.get(lang, 'saveChanges'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-          ),
-          const SizedBox(height: 40),
-          OutlinedButton.icon(
-            style: OutlinedButton.styleFrom(foregroundColor: Colors.redAccent, side: const BorderSide(color: Colors.redAccent), minimumSize: const Size(double.infinity, 50)),
-            onPressed: _confirmDeleteAccount,
-            icon: const Icon(Icons.delete_forever),
-            label: Text(AppStrings.get(lang, 'deleteAccount'), style: const TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
