@@ -62,9 +62,6 @@ class AppStrings {
       'featuredAd': 'إعلان ترويجي مميز',
       'reward': 'المكافأة',
       'watchNow': 'شاهد الآن',
-      // أسماء البطاقات بالعربية
-      'cardAetos': 'بطاقة أتوس السوداء',
-      'cardTitanium': 'بطاقة تيتانيوم بريمير',
       // أسماء الألعاب بالعربية
       'gameLudo': 'بطولة لودو السيبرانية',
       'gameChess': 'أساتذة الشطرنج',
@@ -127,9 +124,6 @@ class AppStrings {
       'featuredAd': 'Featured Promotional Ad',
       'reward': 'Reward',
       'watchNow': 'Watch Now',
-      // أسماء البطاقات بالإنجليزية
-      'cardAetos': 'AETOS BLACK CARD',
-      'cardTitanium': 'TITANIUM PREMIERE',
       // أسماء الألعاب بالإنجليزية
       'gameLudo': 'Ludo Tournament',
       'gameChess': 'Chess Masters',
@@ -528,56 +522,9 @@ class MainNavigationHubState extends State<MainNavigationHub> {
   }
 }
 
-// ================= 1. الصفحة الرئيسية =================
+// ================= 1. الصفحة الرئيسية (بدون بطاقات) =================
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
-  void _showCardDetails(BuildContext context, String cardName, String cardNumber, String balance) {
-    String lang = userModel.currentLanguage;
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xff121816),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Row(
-          children: [
-            const Icon(Icons.credit_card, color: Color(0xff00E676)),
-            const SizedBox(width: 8),
-            Expanded(child: Text(cardName, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold))),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(lang == 'ar' ? 'رقم البطاقة الافتراضي:' : 'Virtual Card Number:', style: const TextStyle(color: Colors.grey, fontSize: 12)),
-            const SizedBox(height: 4),
-            Text(cardNumber, style: const TextStyle(color: Colors.white, fontSize: 15, fontFamily: 'monospace', fontWeight: FontWeight.bold)),
-            const SizedBox(height: 16),
-            Text(lang == 'ar' ? 'الرصيد المتاح في البطاقة:' : 'Available Balance:', style: const TextStyle(color: Colors.grey, fontSize: 12)),
-            const SizedBox(height: 4),
-            Text(balance, style: const TextStyle(color: Color(0xff00E676), fontSize: 20, fontWeight: FontWeight.w900)),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(color: const Color(0xff0A0E0D), borderRadius: BorderRadius.circular(10)),
-              child: Text(
-                lang == 'ar' ? '✅ هذه البطاقة نشطة ومحمية عبر نظام التشفير السيبراني لـ RAYID PAY.' : '✅ This card is active and protected under RAYID PAY encryption.',
-                style: const TextStyle(color: Colors.grey, fontSize: 11, height: 1.3),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black),
-            onPressed: () => Navigator.pop(context),
-            child: Text(AppStrings.get(lang, 'close'), style: const TextStyle(fontWeight: FontWeight.bold)),
-          ),
-        ],
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -662,64 +609,6 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(height: 24),
-                Text(AppStrings.get(lang, 'wallet'), style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    // بطاقة AETOS (اتصال بـ _showCardDetails)
-                    Expanded(
-                      child: InkWell(
-                        onTap: () => _showCardDetails(context, AppStrings.get(lang, 'cardAetos'), '4SB9 12XX XXXX 7E91', '\$${userModel.balanceUSD.toStringAsFixed(2)}'),
-                        borderRadius: BorderRadius.circular(18),
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(colors: [Color(0xff16221D), Color(0xff0E1412)]),
-                            borderRadius: BorderRadius.circular(18),
-                            border: Border.all(color: const Color(0xff00E676).withOpacity(0.3)),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(AppStrings.get(lang, 'cardAetos'), style: const TextStyle(color: Color(0xff00E676), fontSize: 10, fontWeight: FontWeight.bold)),
-                              const SizedBox(height: 8),
-                              const Text('4SB9 12XX XXXX 7E91', style: TextStyle(color: Colors.white70, fontSize: 11, fontFamily: 'monospace')),
-                              const SizedBox(height: 12),
-                              Text('\$${userModel.balanceUSD.toStringAsFixed(2)}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    // بطاقة Titanium (اتصال بـ _showCardDetails)
-                    Expanded(
-                      child: InkWell(
-                        onTap: () => _showCardDetails(context, AppStrings.get(lang, 'cardTitanium'), 'S67B 34XX XXXX 8012', '\$5,885.27'),
-                        borderRadius: BorderRadius.circular(18),
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(colors: [Color(0xff161F24), Color(0xff0E1216)]),
-                            borderRadius: BorderRadius.circular(18),
-                            border: Border.all(color: const Color(0xff00E5FF).withOpacity(0.3)),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(AppStrings.get(lang, 'cardTitanium'), style: const TextStyle(color: Color(0xff00E5FF), fontSize: 10, fontWeight: FontWeight.bold)),
-                              const SizedBox(height: 8),
-                              const Text('S67B 34XX XXXX 8012', style: TextStyle(color: Colors.white70, fontSize: 11, fontFamily: 'monospace')),
-                              const SizedBox(height: 12),
-                              const Text('\$5,885.27', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
                 ),
                 const SizedBox(height: 28),
                 Text(AppStrings.get(lang, 'recentActivity'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
