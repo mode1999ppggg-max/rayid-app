@@ -11,6 +11,7 @@ class UserAppModel extends ChangeNotifier {
   bool isLoggedIn = false;
 
   String userName = 'لاعب_570575';
+  String userUsername = 'player_570'; // يوزرنيم مثل إنستغرام
   String userEmail = 'player570@rayid.pay';
   String userPhone = '+964 770 000 0000';
   File? profileImage;
@@ -18,7 +19,6 @@ class UserAppModel extends ChangeNotifier {
   double balanceUSD = 45.50;
   double get balanceIQD => balanceUSD * 1320;
   
-  // نظام النقاط الجديد والحد الأدنى (3000 نقطة)
   int points = 1240;
   final int minPointsForRedeem = 3000;
 
@@ -84,7 +84,6 @@ class UserAppModel extends ChangeNotifier {
     });
   }
 
-  // دالة تحويل النقاط (كل 3000 نقطة فما فوق يمكن تحويلها)
   bool redeemPoints() {
     if (points >= minPointsForRedeem) {
       int redeemedUnits = points ~/ 200; 
@@ -104,9 +103,10 @@ class UserAppModel extends ChangeNotifier {
     return 'انضم إليّ في تطبيق RAYID PAY واكسب أرباحاً حقيقية من مشاهدة الإعلانات والسحب عبر زين كاش وماستر كارد!\nاستخدم كود الإحالة الخاص بي: $referralCode\nحمل التطبيق الآن وابدأ الربح!';
   }
 
-  Future<bool> signUpUser(String name, String email, String phone, String password) async {
+  Future<bool> signUpUser(String name, String username, String email, String phone, String password) async {
     await Future.delayed(const Duration(milliseconds: 600));
     userName = name;
+    userUsername = username;
     userEmail = email;
     userPhone = phone;
     isLoggedIn = true;
@@ -127,8 +127,22 @@ class UserAppModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> updateProfile({String? name, String? email, String? phone, File? image}) async {
+  // حذف الحساب نهائياً
+  void deleteAccount() {
+    isLoggedIn = false;
+    userName = '';
+    userUsername = '';
+    userEmail = '';
+    userPhone = '';
+    balanceUSD = 0.0;
+    points = 0;
+    profileImage = null;
+    notifyListeners();
+  }
+
+  Future<void> updateProfile({String? name, String? username, String? email, String? phone, File? image}) async {
     if (name != null) userName = name;
+    if (username != null) userUsername = username;
     if (email != null) userEmail = email;
     if (phone != null) userPhone = phone;
     if (image != null) profileImage = image;
@@ -213,6 +227,7 @@ class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
   final _emailController = TextEditingController();
   final _passController = TextEditingController();
   final _nameController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _phoneController = TextEditingController();
   bool _isLoading = false;
 
@@ -226,12 +241,12 @@ class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
     bool success = false;
 
     if (isSigningUp) {
-      if (_nameController.text.isEmpty || _phoneController.text.isEmpty) {
+      if (_nameController.text.isEmpty || _usernameController.text.isEmpty || _phoneController.text.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('يرجى إكمال جميع الحقول المطلوبة لإنشاء الحساب.'), backgroundColor: Colors.red));
         setState(() => _isLoading = false);
         return;
       }
-      success = await userModel.signUpUser(_nameController.text, _emailController.text, _phoneController.text, _passController.text);
+      success = await userModel.signUpUser(_nameController.text, _usernameController.text, _emailController.text, _phoneController.text, _passController.text);
     } else {
       success = await userModel.signInUser(_emailController.text, _passController.text);
     }
@@ -265,6 +280,12 @@ class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
                     controller: _nameController,
                     style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(labelText: 'الاسم الكامل', filled: true, fillColor: const Color(0xff1E1E1E), border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none)),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: _usernameController,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(labelText: 'اسم المستخدم (مثل instagram: @username)', filled: true, fillColor: const Color(0xff1E1E1E), border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none)),
                   ),
                   const SizedBox(height: 16),
                   TextField(
@@ -515,7 +536,7 @@ class HomeScreen extends StatelessWidget {
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xff1E1E1E),
         title: const Text('الإشعارات والتنبيهات', style: TextStyle(color: Colors.white)),
-        content: const Text('• تم تحديث نظام الإعلانات: كل إعلان يمنح 4 نقاط.\n• الحد الأدنى لتحويل النقاط هو 3000 نقطة لاستبدالها برصيد حقيقي.', style: TextStyle(color: Colors.grey)),
+        content: const Text('• تم تحديث ملف المستخدم وإضافة اليوزرنيم وحذف الحساب.\n• تم إعادة ترتيب المحفظة والإحالة.', style: TextStyle(color: Colors.grey)),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('إغلاق', style: TextStyle(color: Color(0xff00E676))))
         ],
@@ -587,7 +608,7 @@ class AdsRewardsScreen extends StatelessWidget {
   }
 }
 
-// ================= 3. المحفظة وبوابات السحب + إحالة الأصدقاء =================
+// ================= 3. المحفظة وبوابات السحب + إحالة الأصدقاء (تحت المحفظة) =================
 class WalletScreen extends StatelessWidget {
   const WalletScreen({super.key});
 
@@ -618,7 +639,15 @@ class WalletScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              // بطاقة نظام إحالة الأصدقاء
+              // طرق السحب المتاحة في العراق (أولاً)
+              const Text('طرق السحب المتاحة في العراق', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 12),
+              _buildWithdrawTile(context, 'AsiaCell Cash (آسياسيل)', Icons.phone_android, Colors.redAccent),
+              _buildWithdrawTile(context, 'ZainCash (زين كاش)', Icons.phone_iphone, Colors.amber),
+              _buildWithdrawTile(context, 'Mastercard (ماستر كارد)', Icons.credit_card, Colors.blueAccent),
+              const SizedBox(height: 20),
+
+              // بطاقة نظام إحالة الأصدقاء (أصبحت تحت المحفظات وطرق السحب تماماً)
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -662,13 +691,6 @@ class WalletScreen extends StatelessWidget {
                   ],
                 ),
               ),
-
-              const SizedBox(height: 24),
-              const Text('طرق السحب المتاحة في العراق', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 12),
-              _buildWithdrawTile(context, 'AsiaCell Cash (آسياسيل)', Icons.phone_android, Colors.redAccent),
-              _buildWithdrawTile(context, 'ZainCash (زين كاش)', Icons.phone_iphone, Colors.amber),
-              _buildWithdrawTile(context, 'Mastercard (ماستر كارد)', Icons.credit_card, Colors.blueAccent),
             ],
           ),
         );
@@ -1070,71 +1092,9 @@ class _SupportScreenState extends State<SupportScreen> {
   }
 }
 
-// ================= 5. شاشة الإعدادات =================
-class SettingsScreen extends StatefulWidget {
+// ================= 5. شاشة الإعدادات (مع زر إدارة الملف الشخصي) =================
+class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
-
-  @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
-}
-
-class _SettingsScreenState extends State<SettingsScreen> {
-  late final TextEditingController _nameController;
-  late final TextEditingController _emailController;
-  late final TextEditingController _phoneController;
-
-  @override
-  void initState() {
-    super.initState();
-    _nameController = TextEditingController(text: userModel.userName);
-    _emailController = TextEditingController(text: userModel.userEmail);
-    _phoneController = TextEditingController(text: userModel.userPhone);
-  }
-
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      await userModel.updateProfile(image: File(pickedFile.path));
-      setState(() {});
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تحديث الصورة الشخصية بنجاح!'), backgroundColor: Colors.green));
-      }
-    }
-  }
-
-  void _saveProfile() async {
-    await userModel.updateProfile(
-      name: _nameController.text,
-      email: _emailController.text,
-      phone: _phoneController.text,
-    );
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم حفظ بيانات الحساب بنجاح!'), backgroundColor: Colors.green));
-    }
-  }
-
-  void _showPrivacyPolicyDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xff1E1E1E),
-        title: const Text('سياسة الخصوصية - RAYID PAY', style: TextStyle(color: Color(0xff00E676), fontSize: 16)),
-        content: const SingleChildScrollView(
-          child: Text(
-            'نحن نلتزم بحماية بياناتك الشخصية والمالية بأعلى معايير الأمان الرقمي في العراق.\n\n'
-            '• البيانات المجمعة: نقوم بحفظ الاسم، البريد الإلكتروني، ورقم الهاتف لتوثيق الحساب وإرسال مستحقاتك بدقة.\n\n'
-            '• أمان السحب المالي: جميع عمليات السحب عبر (زين كاش، آسيا سيل، وماستر كارد) مشفرة بالكامل وتتم عبر قنوات آمنة.\n\n'
-            '• الخصوصية: لا يتم مشاركة بياناتك الشخصية مع أي أطراف خارجية، وتُستخدم فقط لإدارة أرباحك من الإعلانات.',
-            style: TextStyle(color: Colors.grey, height: 1.4, fontSize: 13),
-          ),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('إغلاق', style: TextStyle(color: Color(0xff00E676))))
-        ],
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -1155,31 +1115,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       backgroundImage: userModel.profileImage != null ? FileImage(userModel.profileImage!) : null,
                       child: userModel.profileImage == null ? const Icon(Icons.person, size: 40, color: Color(0xff00E676)) : null,
                     ),
-                    Positioned(
-                      bottom: 0, right: 0,
-                      child: CircleAvatar(
-                        radius: 14, backgroundColor: const Color(0xff00E676),
-                        child: IconButton(icon: const Icon(Icons.camera_alt, size: 12, color: Colors.black), onPressed: _pickImage),
-                      ),
-                    ),
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
-              const Text('إدارة الحساب الشخصي', style: TextStyle(color: Color(0xff00E676), fontWeight: FontWeight.bold, fontSize: 15)),
-              const SizedBox(height: 10),
-              TextField(controller: _nameController, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(labelText: 'الاسم الكامل', filled: true, fillColor: Color(0xff1E1E1E))),
-              const SizedBox(height: 10),
-              TextField(controller: _emailController, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(labelText: 'البريد الإلكتروني', filled: true, fillColor: Color(0xff1E1E1E))),
-              const SizedBox(height: 10),
-              TextField(controller: _phoneController, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(labelText: 'رقم الهاتف', filled: true, fillColor: Color(0xff1E1E1E))),
               const SizedBox(height: 12),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black),
-                onPressed: _saveProfile,
-                child: const Text('حفظ التعديلات', style: TextStyle(fontWeight: FontWeight.bold)),
+              Center(
+                child: Text(userModel.userName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+              ),
+              Center(
+                child: Text('@${userModel.userUsername}', style: const TextStyle(color: Color(0xff00E5FF), fontSize: 13)),
               ),
               const SizedBox(height: 24),
+
+              const Text('إعدادات الحساب', style: TextStyle(color: Color(0xff00E676), fontWeight: FontWeight.bold, fontSize: 15)),
+              const SizedBox(height: 10),
+
+              // زر إدارة الملف الشخصي المنفصل
+              ListTile(
+                tileColor: const Color(0xff1E1E1E),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                leading: const Icon(Icons.manage_accounts, color: Color(0xff00E676)),
+                title: const Text('إدارة الملف الشخصي', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                subtitle: const Text('تعديل الاسم، اليوزرنيم، الصورة، الهاتف والبريد', style: TextStyle(color: Colors.grey, fontSize: 11)),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const EditProfileScreen()));
+                },
+              ),
+              const SizedBox(height: 12),
 
               const Text('الدعم والقانونية', style: TextStyle(color: Color(0xff00E676), fontWeight: FontWeight.bold, fontSize: 15)),
               const SizedBox(height: 8),
@@ -1218,6 +1181,173 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         );
       },
+    );
+  }
+
+  void _showPrivacyPolicyDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xff1E1E1E),
+        title: const Text('سياسة الخصوصية - RAYID PAY', style: TextStyle(color: Color(0xff00E676), fontSize: 16)),
+        content: const SingleChildScrollView(
+          child: Text(
+            'نحن نلتزم بحماية بياناتك الشخصية والمالية بأعلى معايير الأمان الرقمي في العراق.\n\n'
+            '• البيانات المجمعة: نقوم بحفظ الاسم، اليوزرنيم، البريد الإلكتروني، ورقم الهاتف.\n'
+            '• أمان السحب المالي: جميع عمليات السحب مشفرة وآمنة بالكامل.',
+            style: TextStyle(color: Colors.grey, height: 1.4, fontSize: 13),
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('إغلاق', style: TextStyle(color: Color(0xff00E676))))
+        ],
+      ),
+    );
+  }
+}
+
+// ================= صفحة إدارة الملف الشخصي المتكاملة =================
+class EditProfileScreen extends StatefulWidget {
+  const EditProfileScreen({super.key});
+
+  @override
+  State<EditProfileScreen> createState() => _EditProfileScreenState();
+}
+
+class _EditProfileScreenState extends State<EditProfileScreen> {
+  late final TextEditingController _nameController;
+  late final TextEditingController _usernameController;
+  late final TextEditingController _emailController;
+  late final TextEditingController _phoneController;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: userModel.userName);
+    _usernameController = TextEditingController(text: userModel.userUsername);
+    _emailController = TextEditingController(text: userModel.userEmail);
+    _phoneController = TextEditingController(text: userModel.userPhone);
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      await userModel.updateProfile(image: File(pickedFile.path));
+      setState(() {});
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تحديث الصورة الشخصية بنجاح!'), backgroundColor: Colors.green));
+      }
+    }
+  }
+
+  void _saveProfile() async {
+    await userModel.updateProfile(
+      name: _nameController.text,
+      username: _usernameController.text,
+      email: _emailController.text,
+      phone: _phoneController.text,
+    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم حفظ تعديلات الملف الشخصي بنجاح!'), backgroundColor: Colors.green));
+      Navigator.pop(context);
+    }
+  }
+
+  void _confirmDeleteAccount() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xff1E1E1E),
+        title: const Text('حذف الحساب نهائياً', style: TextStyle(color: Colors.redAccent)),
+        content: const Text('هل أنت متأكد من رغبتك في حذف حسابك؟ سيتم فقدان جميع أرصدتك ونقاطك ولا يمكن التراجع عن هذا الإجراء.', style: TextStyle(color: Colors.grey)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('إلغاء', style: TextStyle(color: Colors.white))),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            onPressed: () {
+              userModel.deleteAccount();
+              Navigator.pop(context);
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم حذف الحساب نهائياً.'), backgroundColor: Colors.red));
+            },
+            child: const Text('حذف نهائي', style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('إدارة الملف الشخصي'),
+        backgroundColor: const Color(0xff121212),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Center(
+            child: Stack(
+              children: [
+                CircleAvatar(
+                  radius: 45,
+                  backgroundColor: const Color(0xff1E1E1E),
+                  backgroundImage: userModel.profileImage != null ? FileImage(userModel.profileImage!) : null,
+                  child: userModel.profileImage == null ? const Icon(Icons.person, size: 45, color: Color(0xff00E676)) : null,
+                ),
+                Positioned(
+                  bottom: 0, right: 0,
+                  child: CircleAvatar(
+                    radius: 16, backgroundColor: const Color(0xff00E676),
+                    child: IconButton(icon: const Icon(Icons.camera_alt, size: 14, color: Colors.black), onPressed: _pickImage),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          TextField(
+            controller: _nameController, 
+            style: const TextStyle(color: Colors.white), 
+            decoration: const InputDecoration(labelText: 'الاسم الكامل', filled: true, fillColor: Color(0xff1E1E1E))
+          ),
+          const SizedBox(height: 14),
+          TextField(
+            controller: _usernameController, 
+            style: const TextStyle(color: Colors.white), 
+            decoration: const InputDecoration(labelText: 'اسم المستخدم (Username)', filled: true, fillColor: Color(0xff1E1E1E), prefixText: '@')
+          ),
+          const SizedBox(height: 14),
+          TextField(
+            controller: _emailController, 
+            style: const TextStyle(color: Colors.white), 
+            decoration: const InputDecoration(labelText: 'البريد الإلكتروني', filled: true, fillColor: Color(0xff1E1E1E))
+          ),
+          const SizedBox(height: 14),
+          TextField(
+            controller: _phoneController, 
+            style: const TextStyle(color: Colors.white), 
+            decoration: const InputDecoration(labelText: 'رقم الهاتف', filled: true, fillColor: Color(0xff1E1E1E))
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black, minimumSize: const Size(double.infinity, 50)),
+            onPressed: _saveProfile,
+            child: const Text('حفظ التعديلات', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+          ),
+          const SizedBox(height: 40),
+
+          // زر حذف الحساب
+          OutlinedButton.icon(
+            style: OutlinedButton.styleFrom(foregroundColor: Colors.redAccent, side: const BorderSide(color: Colors.redAccent), minimumSize: const Size(double.infinity, 50)),
+            onPressed: _confirmDeleteAccount,
+            icon: const Icon(Icons.delete_forever),
+            label: const Text('حذف الحساب نهائياً', style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
     );
   }
 }
