@@ -6,14 +6,13 @@ void main() {
   runApp(const RayidApp());
 }
 
-// نموذج بيانات مالي يدعم الدينار العراقي والدولار
 class AppDataModel extends ChangeNotifier {
   double balanceUSD = 45.50;
-  double get balanceIQD => balanceUSD * 1320; // سعر الصرف التقريبي للتوضيح
+  double get balanceIQD => balanceUSD * 1320;
   int points = 1240;
   List<dynamic> activities = [
-    {'title': 'إكمال مشاهدة إعلان مكافأة مؤهل', 'amount': '+50 نقطة (0.50\$ / 660 د.ع)', 'time': 'منذ ساعة', 'isPositive': true},
-    {'title': 'سحب أرباح عبر زين كاش', 'amount': '-19,800 د.ع (15.00\$)', 'time': 'أمس', 'isPositive': false},
+    {'title': 'إكمال مشاهدة إعلان مكافأة مؤهل', 'amount': '+50 نقطة (0.50 دولار / 660 د.ع)', 'time': 'منذ ساعة', 'isPositive': true},
+    {'title': 'سحب أرباح عبر زين كاش', 'amount': '-19,800 د.ع (15.00 دولار)', 'time': 'أمس', 'isPositive': false},
   ];
 
   void updateBalance(double newBalanceUSD, int newPoints) {
@@ -63,7 +62,6 @@ class RayidApp extends StatelessWidget {
   }
 }
 
-// ================= شاشة تسجيل دخول المطور =================
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -151,7 +149,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-// ================= مركز التنقل السفلي التفاعلي =================
 class MainNavigationHub extends StatefulWidget {
   final int initialIndex;
   const MainNavigationHub({super.key, this.initialIndex = 0});
@@ -207,7 +204,6 @@ class MainNavigationHubState extends State<MainNavigationHub> {
   }
 }
 
-// ================= 1. الصفحة الرئيسية التفاعلية =================
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -274,7 +270,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '(${appData.balanceUSD.toStringAsFixed(2)}\$ أمريكي)',
+                        '(${appData.balanceUSD.toStringAsFixed(2)} دولار أمريكي)',
                         style: const TextStyle(fontSize: 13, color: Colors.grey, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 16),
@@ -409,7 +405,6 @@ class ChartPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-// ================= 2. مركز الإعلانات والمكافآت =================
 class AdsRewardsScreen extends StatelessWidget {
   const AdsRewardsScreen({super.key});
 
@@ -424,8 +419,8 @@ class AdsRewardsScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _buildAdTile(context, 'إعلان مكافأة رقم #1', '+50 نقطة (660 د.ع / 0.50\$)', 50, 0.50),
-          _buildAdTile(context, 'إعلان ترويجي مميز', '+100 نقطة (1,320 د.ع / 1.00\$)', 100, 1.00),
+          _buildAdTile(context, 'إعلان مكافأة رقم #1', '+50 نقطة (660 د.ع / 0.50 دولار)', 50, 0.50),
+          _buildAdTile(context, 'إعلان ترويجي مميز', '+100 نقطة (1,320 د.ع / 1.00 دولار)', 100, 1.00),
         ],
       ),
     );
@@ -464,7 +459,6 @@ class AdsRewardsScreen extends StatelessWidget {
   }
 }
 
-// ================= 3. المحفظة =================
 class WalletScreen extends StatelessWidget {
   const WalletScreen({super.key});
 
@@ -487,7 +481,7 @@ class WalletScreen extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text('${appData.balanceIQD.toStringAsFixed(0)} د.ع', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xff00E676))),
                     const SizedBox(height: 4),
-                    Text('(${appData.balanceUSD.toStringAsFixed(2)}\$ أمريكي)', style: const TextStyle(fontSize: 13, color: Colors.grey, fontWeight: FontWeight.bold)),
+                    Text('(${appData.balanceUSD.toStringAsFixed(2)} دولار أمريكي)', style: const TextStyle(fontSize: 13, color: Colors.grey, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 12),
                     Text('🟡 النقاط: ${appData.points} نقطة', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   ],
@@ -527,7 +521,6 @@ class WalletScreen extends StatelessWidget {
   }
 }
 
-// ================= 4. الألعاب =================
 class GamesScreen extends StatelessWidget {
   const GamesScreen({super.key});
 
@@ -567,7 +560,6 @@ class GamesScreen extends StatelessWidget {
   }
 }
 
-// ================= 5. الدردشة =================
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
 
@@ -595,7 +587,6 @@ class ChatScreen extends StatelessWidget {
   }
 }
 
-// ================= 6. الإعدادات ولوحة تحكم المطور =================
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -629,7 +620,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             controller: _balanceController,
             keyboardType: TextInputType.number,
             style: const TextStyle(color: Colors.white),
-            decoration: const InputDecoration(labelText: 'تعديل الرصيد بالدولار ($)', filled: true, fillColor: Color(0xff1E1E1E)),
+            decoration: const InputDecoration(labelText: 'تعديل الرصيد بالدولار الامريكي', filled: true, fillColor: Color(0xff1E1E1E)),
           ),
           const SizedBox(height: 12),
           TextField(
