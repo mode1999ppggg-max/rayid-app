@@ -223,7 +223,7 @@ class GamesScreen extends StatelessWidget {
   }
 }
 
-// ================= 3. شاشة المحفظة (مع طرق السحب الأصلية) =================
+// ================= 3. شاشة المحفظة =================
 class WalletScreen extends StatelessWidget {
   const WalletScreen({super.key});
 
@@ -317,14 +317,365 @@ class ChatScreen extends StatelessWidget {
   }
 }
 
-// ================= 5. شاشة الإعدادات =================
-class SettingsScreen extends StatelessWidget {
+// ================= 5. شاشة الإعدادات الفعالة مع تغيير الصورة والخيارات =================
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  File? _profileImage;
+  String _selectedLanguage = 'العربية';
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _profileImage = File(pickedFile.path);
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('تم تحديث الصورة الشخصية بنجاح!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('الإعدادات'), backgroundColor: const Color(0xff0b1017)),
-      body: const Center(child: Text('صفحة الإعدادات', style: TextStyle(color: Colors.white))),
+      appBar: AppBar(
+        title: const Text('إعدادات الحساب'),
+        backgroundColor: const Color(0xff0b1017),
+        automaticallyImplyLeading: false,
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Center(
+            child: Column(
+              children: [
+                GestureDetector(
+                  onTap: _pickImage,
+                  child: Stack(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: const Color(0xff00ff88),
+                            width: 2,
+                          ),
+                        ),
+                        child: CircleAvatar(
+                          radius: 40,
+                          backgroundColor: const Color(0xff121b26),
+                          backgroundImage:
+                              _profileImage != null ? FileImage(_profileImage!) : null,
+                          child: _profileImage == null
+                              ? const Icon(Icons.person, size: 40, color: Color(0xff00ff88))
+                              : null,
+                        ),
+                      ),
+                      const Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: CircleAvatar(
+                          radius: 10,
+                          backgroundColor: Color(0xff00ff88),
+                          child: Icon(Icons.camera_alt, size: 12, color: Colors.black),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'لاعب_570575',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'ID: #RAYID-9924',
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          _buildSettingTile(
+            context,
+            Icons.person_outline,
+            'تعديل الملف الشخصي',
+            const EditProfileScreen(),
+          ),
+          _buildSettingTile(
+            context,
+            Icons.security,
+            'الأمان وحماية الحساب',
+            const SecurityScreen(),
+          ),
+          _buildSettingTile(
+            context,
+            Icons.notifications_none,
+            'إعدادات الإشعارات',
+            const NotificationsSettingsScreen(),
+          ),
+          Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              color: const Color(0xff121b26),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: ListTile(
+              leading: const Icon(Icons.language, color: Color(0xff00ff88)),
+              title: Text(
+                'لغة التطبيق ($_selectedLanguage)',
+                style: const TextStyle(color: Colors.white, fontSize: 14),
+              ),
+              trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
+              onTap: () {
+                _showLanguageDialog(context);
+              },
+            ),
+          ),
+          _buildSettingTile(
+            context,
+            Icons.help_outline,
+            'الدعم الفني والمساعدة',
+            const SupportScreen(),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red.withOpacity(0.15),
+              foregroundColor: Colors.redAccent,
+              minimumSize: const Size(double.infinity, 50),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('تم تسجيل الخروج بنجاح')),
+              );
+            },
+            child: const Text(
+              'تسجيل الخروج',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSettingTile(
+    BuildContext context,
+    IconData icon,
+    String title,
+    Widget destinationScreen,
+  ) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xff121b26),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: ListTile(
+        leading: Icon(icon, color: const Color(0xff00ff88)),
+        title: Text(title, style: const TextStyle(color: Colors.white, fontSize: 14)),
+        trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => destinationScreen),
+          );
+        },
+      ),
+    );
+  }
+
+  void _showLanguageDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xff121b26),
+          title: const Text('اختر لغة التطبيق', style: TextStyle(color: Colors.white)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: const Text('العربية', style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  setState(() {
+                    _selectedLanguage = 'العربية';
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: const Text('English', style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  setState(() {
+                    _selectedLanguage = 'English';
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+// ================= الشاشات الفرعية للإعدادات =================
+class EditProfileScreen extends StatelessWidget {
+  const EditProfileScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('تعديل الملف الشخصي'),
+        backgroundColor: const Color(0xff0b1017),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          children: [
+            TextField(
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'اسم اللاعب الجديد',
+                labelStyle: const TextStyle(color: Colors.grey),
+                filled: true,
+                fillColor: const Color(0xff121b26),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+            const Spacer(),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xff00ff88),
+                foregroundColor: Colors.black,
+                minimumSize: const Size(double.infinity, 50),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('تم حفظ التعديلات بنجاح!'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              },
+              child: const Text('حفظ التغييرات', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class SecurityScreen extends StatelessWidget {
+  const SecurityScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('الأمان وحماية الحساب'),
+        backgroundColor: const Color(0xff0b1017),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          SwitchListTile(
+            title: const Text('التحقق بخطوتين (PIN)', style: TextStyle(color: Colors.white)),
+            value: true,
+            activeColor: const Color(0xff00ff88),
+            onChanged: (val) {},
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class NotificationsSettingsScreen extends StatelessWidget {
+  const NotificationsSettingsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('إعدادات الإشعارات'),
+        backgroundColor: const Color(0xff0b1017),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          SwitchListTile(
+            title: const Text('تفعيل الإشعارات', style: TextStyle(color: Colors.white)),
+            value: true,
+            activeColor: const Color(0xff00ff88),
+            onChanged: (val) {},
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class SupportScreen extends StatelessWidget {
+  const SupportScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('الدعم الفني'),
+        backgroundColor: const Color(0xff0b1017),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Center(
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xff00ff88),
+              foregroundColor: Colors.black,
+            ),
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('جاري فتح محادثة الدعم الفني...')),
+              );
+            },
+            child: const Text('مراسلة الدعم المباشر'),
+          ),
+        ),
+      ),
     );
   }
 }
