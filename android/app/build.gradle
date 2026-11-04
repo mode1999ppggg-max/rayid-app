@@ -5,15 +5,25 @@ plugins {
 }
 
 android {
-    namespace "com.example.rayid_app"
-    compileSdk = 35
+    namespace "com.rayid.app"
+    compileSdk flutter.compileSdk
+    ndkVersion flutter.ndkVersion
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
 
     defaultConfig {
-        applicationId "com.example.rayid_app"
-        minSdk flutter.minSdkVersion
-        targetSdk 34
-        versionCode 1
-        versionName "1.0"
+        applicationId "com.rayid.app"
+        minSdk flutter.minSdk
+        targetSdk flutter.targetSdk
+        versionCode flutterVersionCode.toInteger()
+        versionName flutterVersionName
     }
 
     buildTypes {
@@ -24,5 +34,5 @@ android {
 }
 
 flutter {
-    source '../..'
+    source = "../.."
 }
