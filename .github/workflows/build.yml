@@ -26,4 +26,4 @@ jobs:
         run: flutter pub get
 
       - name: Build APK Release
-        run: flutter build apk --release --no-pub --no-sound-null-safety
+        run: flutter build apk --release --no-pub
