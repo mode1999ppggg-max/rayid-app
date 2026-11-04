@@ -62,6 +62,17 @@ class AppStrings {
       'featuredAd': 'إعلان ترويجي مميز',
       'reward': 'المكافأة',
       'watchNow': 'شاهد الآن',
+      // أسماء البطاقات بالعربية
+      'cardAetos': 'بطاقة أتوس السوداء',
+      'cardTitanium': 'بطاقة تيتانيوم بريمير',
+      // أسماء الألعاب بالعربية
+      'gameLudo': 'بطولة لودو السيبرانية',
+      'gameChess': 'أساتذة الشطرنج',
+      'gamePool': 'بلياردو (8 Ball Pool)',
+      'gameDomino': 'نادي الدومينو',
+      'gameBackgammon': 'لعبة الطاولة',
+      'gameRoblox': 'ساحة روبلوكس',
+      'play': 'العب',
     },
     'en': {
       'appName': 'RAYID PAY',
@@ -116,6 +127,17 @@ class AppStrings {
       'featuredAd': 'Featured Promotional Ad',
       'reward': 'Reward',
       'watchNow': 'Watch Now',
+      // أسماء البطاقات بالإنجليزية
+      'cardAetos': 'AETOS BLACK CARD',
+      'cardTitanium': 'TITANIUM PREMIERE',
+      // أسماء الألعاب بالإنجليزية
+      'gameLudo': 'Ludo Tournament',
+      'gameChess': 'Chess Masters',
+      'gamePool': '8 Ball Pool',
+      'gameDomino': 'Domino Club',
+      'gameBackgammon': 'Backgammon',
+      'gameRoblox': 'Roblox Arena',
+      'play': 'Play',
     }
   };
 
@@ -127,7 +149,7 @@ class AppStrings {
 // ================= نموذج البيانات المركزي (UserAppModel) =================
 class UserAppModel extends ChangeNotifier {
   bool isLoggedIn = false;
-  String currentLanguage = 'ar'; // اللغة الافتراضية العربية (ar أو en)
+  String currentLanguage = 'ar';
 
   String userName = 'محمد';
   String userUsername = 'mohammed_rayid';
@@ -599,44 +621,62 @@ class HomeScreen extends StatelessWidget {
                 const SizedBox(height: 12),
                 Row(
                   children: [
+                    // بطاقة AETOS
                     Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(colors: [Color(0xff16221D), Color(0xff0E1412)]),
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: const Color(0xff00E676).withOpacity(0.3)),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('AETOS BLACK CARD', style: TextStyle(color: Color(0xff00E676), fontSize: 10, fontWeight: FontWeight.bold)),
-                            const SizedBox(height: 8),
-                            const Text('4SB9 12XX XXXX 7E91', style: TextStyle(color: Colors.white70, fontSize: 11, fontFamily: 'monospace')),
-                            const SizedBox(height: 12),
-                            Text('\$${userModel.balanceUSD.toStringAsFixed(2)}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
-                          ],
+                      child: InkWell(
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(lang == 'ar' ? 'تم فتح تفاصيل بطاقة أتوس' : 'AETOS Card Details Opened'))
+                          );
+                        },
+                        borderRadius: BorderRadius.circular(18),
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(colors: [Color(0xff16221D), Color(0xff0E1412)]),
+                            borderRadius: BorderRadius.circular(18),
+                            border: Border.all(color: const Color(0xff00E676).withOpacity(0.3)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(AppStrings.get(lang, 'cardAetos'), style: const TextStyle(color: Color(0xff00E676), fontSize: 10, fontWeight: FontWeight.bold)),
+                              const SizedBox(height: 8),
+                              const Text('4SB9 12XX XXXX 7E91', style: TextStyle(color: Colors.white70, fontSize: 11, fontFamily: 'monospace')),
+                              const SizedBox(height: 12),
+                              Text('\$${userModel.balanceUSD.toStringAsFixed(2)}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                     const SizedBox(width: 12),
+                    // بطاقة Titanium
                     Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(colors: [Color(0xff161F24), Color(0xff0E1216)]),
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: const Color(0xff00E5FF).withOpacity(0.3)),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('TITANIUM PREMIERE', style: TextStyle(color: Color(0xff00E5FF), fontSize: 10, fontWeight: FontWeight.bold)),
-                            const SizedBox(height: 8),
-                            const Text('S67B 34XX XXXX 8012', style: TextStyle(color: Colors.white70, fontSize: 11, fontFamily: 'monospace')),
-                            const SizedBox(height: 12),
-                            const Text('\$5,885.27', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
-                          ],
+                      child: InkWell(
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(lang == 'ar' ? 'تم فتح تفاصيل بطاقة تيتانيوم' : 'Titanium Card Details Opened'))
+                          );
+                        },
+                        borderRadius: BorderRadius.circular(18),
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(colors: [Color(0xff161F24), Color(0xff0E1216)]),
+                            borderRadius: BorderRadius.circular(18),
+                            border: Border.all(color: const Color(0xff00E5FF).withOpacity(0.3)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(AppStrings.get(lang, 'cardTitanium'), style: const TextStyle(color: Color(0xff00E5FF), fontSize: 10, fontWeight: FontWeight.bold)),
+                              const SizedBox(height: 8),
+                              const Text('S67B 34XX XXXX 8012', style: TextStyle(color: Colors.white70, fontSize: 11, fontFamily: 'monospace')),
+                              const SizedBox(height: 12),
+                              const Text('\$5,885.27', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -910,12 +950,12 @@ class GamesScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _gameCard(context, 'لـودو (Ludo Tournament)', Icons.casino, Colors.greenAccent),
-          _gameCard(context, 'شطرنج (Chess Masters)', Icons.extension, Colors.blueAccent),
-          _gameCard(context, 'دومينو (Domino Club)', Icons.apps, Colors.amberAccent),
-          _gameCard(context, 'طاولة زهر (Backgammon)', Icons.grid_view, Colors.purpleAccent),
-          _gameCard(context, 'بليارد (8 Ball Pool)', Icons.sports_bar, Colors.orangeAccent),
-          _gameCard(context, 'روبلوكس (Roblox Arena)', Icons.sports_esports, Colors.redAccent),
+          _gameCard(context, AppStrings.get(lang, 'gameLudo'), Icons.casino, Colors.greenAccent),
+          _gameCard(context, AppStrings.get(lang, 'gameChess'), Icons.extension, Colors.blueAccent),
+          _gameCard(context, AppStrings.get(lang, 'gameDomino'), Icons.apps, Colors.amberAccent),
+          _gameCard(context, AppStrings.get(lang, 'gameBackgammon'), Icons.grid_view, Colors.purpleAccent),
+          _gameCard(context, AppStrings.get(lang, 'gamePool'), Icons.sports_bar, Colors.orangeAccent),
+          _gameCard(context, AppStrings.get(lang, 'gameRoblox'), Icons.sports_esports, Colors.redAccent),
         ],
       ),
     );
@@ -923,21 +963,33 @@ class GamesScreen extends StatelessWidget {
 
   Widget _gameCard(BuildContext context, String title, IconData icon, Color color) {
     String lang = userModel.currentLanguage;
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: const Color(0xff121816), borderRadius: BorderRadius.circular(20)),
-      child: Row(
-        children: [
-          Icon(icon, color: color, size: 30),
-          const SizedBox(width: 16),
-          Expanded(child: Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: color, foregroundColor: Colors.black),
-            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'جاري تشغيل اللعبة...' : 'Launching game...'))),
-            child: Text(lang == 'ar' ? 'العب' : 'Play'),
-          ),
-        ],
+    return InkWell(
+      onTap: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(lang == 'ar' ? 'جاري تشغيل لعبة $title' : 'Launching $title'))
+        );
+      },
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 14),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(color: const Color(0xff121816), borderRadius: BorderRadius.circular(20)),
+        child: Row(
+          children: [
+            Icon(icon, color: color, size: 30),
+            const SizedBox(width: 16),
+            Expanded(child: Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: color, foregroundColor: Colors.black),
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(lang == 'ar' ? 'جاري تشغيل لعبة $title' : 'Launching $title'))
+                );
+              },
+              child: Text(AppStrings.get(lang, 'play'), style: const TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1442,7 +1494,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           const SizedBox(height: 14),
           TextField(controller: _usernameController, style: const TextStyle(color: Colors.white), decoration: InputDecoration(labelText: AppStrings.get(lang, 'username'), filled: true, fillColor: const Color(0xff121816), prefixText: '@')),
           const SizedBox(height: 14),
-          TextField(controller: _emailController, style: const TextStyle(color: Colors.white), decoration: InputDecoration(labelText: AppStrings.get(lang, 'email'), filled: true, fillColor: const Color(0xff121816))),
+          TextField(controller: _emailController, style: constTextStyle(color: Colors.white), decoration: InputDecoration(labelText: AppStrings.get(lang, 'email'), filled: true, fillColor: const Color(0xff121816))),
           const SizedBox(height: 14),
           TextField(controller: _phoneController, style: const TextStyle(color: Colors.white), decoration: InputDecoration(labelText: AppStrings.get(lang, 'phone'), filled: true, fillColor: const Color(0xff121816))),
           const SizedBox(height: 24),
