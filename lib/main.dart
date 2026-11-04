@@ -165,11 +165,11 @@ class UserAppModel extends ChangeNotifier {
   }
 
   var activities = [
-    {'title': 'Amazon', 'amount': '+$145.99', 'time': 'سحب تجاري', 'isPositive': true},
-    {'title': 'Apple Store', 'amount': '-$99.00', 'time': 'متجر التطبيقات', 'isPositive': false},
-    {'title': 'Tesla Motors', 'amount': '+$1,200.00', 'time': 'استثمار أرباح', 'isPositive': true},
-    {'title': 'Netflix Sub', 'amount': '-$15.49', 'time': 'اشتراك ترفيهي', 'isPositive': false},
-    {'title': 'Spotify', 'amount': '-$10.99', 'time': 'خدمات موسيقية', 'isPositive': false},
+    {'title': 'Amazon', 'amount': r'+$145.99', 'time': 'سحب تجاري', 'isPositive': true},
+    {'title': 'Apple Store', 'amount': r'-$99.00', 'time': 'متجر التطبيقات', 'isPositive': false},
+    {'title': 'Tesla Motors', 'amount': r'+$1,200.00', 'time': 'استثمار أرباح', 'isPositive': true},
+    {'title': 'Netflix Sub', 'amount': r'-$15.49', 'time': 'اشتراك ترفيهي', 'isPositive': false},
+    {'title': 'Spotify', 'amount': r'-$10.99', 'time': 'خدمات موسيقية', 'isPositive': false},
   ];
 }
 
@@ -185,12 +185,12 @@ class RayidApp extends StatelessWidget {
       title: 'RAYID PAY',
       builder: (context, child) {
         return Directionality(
-          textDirection: TextDirection.ltr, // ليتطابق مع تصميم الصورة تماماً
+          textDirection: TextDirection.ltr,
           child: child!,
         );
       },
       theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color(0xff0A0E0D), // أسود زمردي فاخر نفس الصورة
+        scaffoldBackgroundColor: const Color(0xff0A0E0D),
         primaryColor: const Color(0xff00E676),
         colorScheme: const ColorScheme.dark(
           primary: Color(0xff00E676),
@@ -311,7 +311,7 @@ class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
                   onPressed: _isLoading ? null : _submitAuth,
                   child: _isLoading 
                     ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.black, strokeWidth: 2))
-                    : Text(isSigningUp, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
+                    : Text(isSigningUp ? 'Create Account' : 'Sign In', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
                 ),
                 const SizedBox(height: 16),
 
@@ -328,7 +328,7 @@ class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
   }
 }
 
-// ================= مركز التنقل السفلي الفاخر (مطابق للصورة) =================
+// ================= مركز التنقل السفلي الفاخر =================
 class MainNavigationHub extends StatefulWidget {
   final int initialIndex;
   const MainNavigationHub({super.key, this.initialIndex = 0});
@@ -378,7 +378,7 @@ class MainNavigationHubState extends State<MainNavigationHub> {
   }
 }
 
-// ================= 1. الصفحة الرئيسية (تطابق الصورة الأصلية تماماً) =================
+// ================= 1. الصفحة الرئيسية =================
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -392,7 +392,6 @@ class HomeScreen extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                // رأس الصفحة: تحية المستخدم وأيقونة الملف الشخصي المتوهجة
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -419,8 +418,6 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 24),
-
-                // بطاقة إجمالي الرصيد الفاخرة (مطابقة للصورة)
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
@@ -471,8 +468,6 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
-
-                // قسم البطاقات (Wallet Cards الفاخرة مثل الصورة)
                 const Text('Wallet', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
                 Row(
@@ -481,7 +476,7 @@ class HomeScreen extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(colors: [const Color(0xff16221D), const Color(0xff0E1412)]),
+                          gradient: const LinearGradient(colors: [Color(0xff16221D), Color(0xff0E1412)]),
                           borderRadius: BorderRadius.circular(18),
                           border: Border.all(color: const Color(0xff00E676).withOpacity(0.3)),
                         ),
@@ -502,7 +497,7 @@ class HomeScreen extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(colors: [const Color(0xff161F24), const Color(0xff0E1216)]),
+                          gradient: const LinearGradient(colors: [Color(0xff161F24), Color(0xff0E1216)]),
                           borderRadius: BorderRadius.circular(18),
                           border: Border.all(color: const Color(0xff00E5FF).withOpacity(0.3)),
                         ),
@@ -521,8 +516,6 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 28),
-
-                // قسم النشاطات الحديثة (Recent Activity مطابقة للصورة تماماً)
                 const Text('Recent Activity', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
                 const SizedBox(height: 12),
                 ...userModel.activities.map((act) => Container(
@@ -615,7 +608,7 @@ class AdsRewardsScreen extends StatelessWidget {
   }
 }
 
-// ================= 3. المحفظة وبوابات السحب والإحالة تحتها =================
+// ================= 3. المحفظة وبوابات السحب والإحالة =================
 class WalletScreen extends StatelessWidget {
   const WalletScreen({super.key});
 
@@ -645,15 +638,12 @@ class WalletScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-
               const Text('Available Iraqi Payout Methods', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
               _buildWithdrawTile(context, 'AsiaCell Cash', Icons.phone_android, Colors.redAccent),
               _buildWithdrawTile(context, 'ZainCash', Icons.phone_iphone, Colors.amber),
               _buildWithdrawTile(context, 'Mastercard Gateway', Icons.credit_card, Colors.blueAccent),
               const SizedBox(height: 24),
-
-              // بطاقة الإحالة تحت بوابات السحب تماماً
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -1077,7 +1067,7 @@ class _SupportScreenState extends State<SupportScreen> {
   }
 }
 
-// ================= 5. شاشة الإعدادات (الملف الشخصي واليوزرنيم وحذف الحساب) =================
+// ================= 5. شاشة الإعدادات والملف الشخصي =================
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
@@ -1103,10 +1093,8 @@ class SettingsScreen extends StatelessWidget {
               Center(child: Text(userModel.userName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18))),
               Center(child: Text('@${userModel.userUsername}', style: const TextStyle(color: Color(0xff00E5FF), fontSize: 13))),
               const SizedBox(height: 24),
-
               const Text('Account Settings', style: TextStyle(color: Color(0xff00E676), fontWeight: FontWeight.bold, fontSize: 15)),
               const SizedBox(height: 10),
-
               ListTile(
                 tileColor: const Color(0xff121816),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -1119,10 +1107,8 @@ class SettingsScreen extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 12),
-
               const Text('Support & Legal', style: TextStyle(color: Color(0xff00E676), fontWeight: FontWeight.bold, fontSize: 15)),
               const SizedBox(height: 8),
-              
               ListTile(
                 tileColor: const Color(0xff121816),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -1134,7 +1120,6 @@ class SettingsScreen extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 10),
-
               ListTile(
                 tileColor: const Color(0xff121816),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -1144,7 +1129,6 @@ class SettingsScreen extends StatelessWidget {
                 onTap: () => _showPrivacyPolicyDialog(context),
               ),
               const SizedBox(height: 30),
-
               ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red.withOpacity(0.2), foregroundColor: Colors.redAccent, minimumSize: const Size(double.infinity, 50)),
                 onPressed: () {
@@ -1180,7 +1164,7 @@ class SettingsScreen extends StatelessWidget {
   }
 }
 
-// ================= شاشة إدارة الملف الشخصي وتعديل البيانات والحذف =================
+// ================= شاشة إدارة الملف الشخصي =================
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
 
