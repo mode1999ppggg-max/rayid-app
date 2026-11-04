@@ -21,8 +21,8 @@ class RayidApp extends StatelessWidget {
         );
       },
       theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color(0xff121212), // Premium Dark Mode
-        primaryColor: const Color(0xff00E676), // Neon Green
+        scaffoldBackgroundColor: const Color(0xff121212),
+        primaryColor: const Color(0xff00E676),
         colorScheme: const ColorScheme.dark(
           primary: Color(0xff00E676),
           secondary: Color(0xff00E5FF),
@@ -34,7 +34,7 @@ class RayidApp extends StatelessWidget {
   }
 }
 
-// ================= مركز التنقل السفلي الاحترافي =================
+// ================= مركز التنقل السفلي =================
 class MainNavigationHub extends StatefulWidget {
   final int initialIndex;
   const MainNavigationHub({super.key, this.initialIndex = 0});
@@ -90,7 +90,7 @@ class MainNavigationHubState extends State<MainNavigationHub> {
   }
 }
 
-// ================= 1. الصفحة الرئيسية (المالية الاستثمارية المحدثة) =================
+// ================= 1. الصفحة الرئيسية =================
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -101,7 +101,6 @@ class HomeScreen extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            // الشريط العلوي للمستخدم
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -129,8 +128,6 @@ class HomeScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20),
-
-            // بطاقة الرصيد والأرباح الرئيسية (Financial Card)
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -164,8 +161,6 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-
-            // مخطط الأرباح (Earnings Graph Simulation)
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -184,7 +179,6 @@ class HomeScreen extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 20),
-                  // محاكاة بصرية لمخطط بياني خطي ناعم
                   SizedBox(
                     height: 110,
                     child: CustomPaint(
@@ -192,30 +186,14 @@ class HomeScreen extends StatelessWidget {
                       painter: ChartPainter(),
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text('السبت', style: TextStyle(color: Colors.grey, fontSize: 10)),
-                      Text('الأحد', style: TextStyle(color: Colors.grey, fontSize: 10)),
-                      Text('الإثنين', style: TextStyle(color: Colors.grey, fontSize: 10)),
-                      Text('الثلاثاء', style: TextStyle(color: Colors.grey, fontSize: 10)),
-                      Text('الأربعاء', style: TextStyle(color: Colors.grey, fontSize: 10)),
-                      Text('الخميس', style: TextStyle(color: Colors.grey, fontSize: 10)),
-                      Text('الجمعة', style: TextStyle(color: Colors.grey, fontSize: 10)),
-                    ],
-                  ),
                 ],
               ),
             ),
             const SizedBox(height: 24),
-
-            // سجل الأنشطة والمكافآت (مباشرة تحت المخطط وبدون تكرار)
             const Text('سجل الأنشطة والمكافآت', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
             const SizedBox(height: 12),
             _activityTile('إكمال مشاهدة إعلان مكافأة مؤهل', '+50 نقطة (\$0.50)', 'منذ ساعة', const Color(0xff00E676)),
             _activityTile('استبدال نقاط برصيد محفظة', '-\$5.00', 'أمس', Colors.amber),
-            _activityTile('مكافأة مشاهدة إعلان ترويجي', '+30 نقطة (\$0.30)', 'منذ يومين', const Color(0xff00E676)),
           ],
         ),
       ),
@@ -254,7 +232,6 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// رسام المخطط البياني الخطي الناعم (Line Chart Painter)
 class ChartPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
@@ -290,7 +267,7 @@ class ChartPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-// ================= 2. مركز الإعلانات والمكافآت =================
+// ================= 2. قسم الإعلانات والمكافآت =================
 class AdsRewardsScreen extends StatelessWidget {
   const AdsRewardsScreen({super.key});
 
@@ -451,7 +428,7 @@ class WalletScreen extends StatelessWidget {
   }
 }
 
-// ================= 4. الألعاب والترفيه =================
+// ================= 4. الألعاب والترفيه (سايبربانك ترفيهي بحت) =================
 class GamesScreen extends StatelessWidget {
   const GamesScreen({super.key});
 
@@ -459,7 +436,7 @@ class GamesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('قسم الألعاب والتسلية (ترفيهي فقط)'),
+        title: const Text('منصة الألعاب السيبرانية (ترفيهي)'),
         backgroundColor: const Color(0xff121212),
         automaticallyImplyLeading: false,
       ),
@@ -474,13 +451,17 @@ class GamesScreen extends StatelessWidget {
               border: Border.all(color: Colors.amber.withOpacity(0.3)),
             ),
             child: const Text(
-              'ملاحظة: هذه الألعاب مخصصة للترفيه والتحديات الشخصية فقط ولا تمنح أي أرباح مالية.',
+              'ملاحظة: جميع الألعاب مخصصة للتسلية والترفيه والتحديات الشخصية فقط ولا تمنح أي أرباح مالية.',
               style: TextStyle(color: Colors.amber, fontSize: 12),
               textAlign: TextAlign.center,
             ),
           ),
           const SizedBox(height: 16),
-          _buildGameCard(context, 'تحديات الأركيد السريعة', 'استمتع باللعب وحقق أفضل رقم قياسي', Icons.sports_esports, Colors.redAccent),
+          _buildGameCard(context, 'لـودو سايبربانك (Cyber Ludo)', 'طاولة نيون مستقبلية ونرد هولوغرام', Icons.casino, Colors.greenAccent),
+          _buildGameCard(context, 'شطرنج النيون (Neon Chess)', 'تحدي ذكاء بقطع معدنية مضيئة', Icons.extension, Colors.blueAccent),
+          _buildGameCard(context, 'دومينوز رقمية (Cyber Dominoes)', 'أحجار دومينوز متوهجة في الظلام', AppsIconHelper.domino, Colors.purpleAccent),
+          _buildGameCard(context, 'روبلوكس المستقبل (Cyber Roblox)', 'عالم افتراضي مكعب بطابع سايبربانك', Icons.sports_esports, Colors.orangeAccent),
+          _buildGameCard(context, 'كرة قدم السيبربانك (Cyber Football)', 'ملاعب ليزرية وكرة إلكترونية مضيئة', Icons.sports_soccer, Colors.redAccent),
         ],
       ),
     );
@@ -488,11 +469,12 @@ class GamesScreen extends StatelessWidget {
 
   Widget _buildGameCard(BuildContext context, String title, String subtitle, IconData icon, Color color) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(18),
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: const Color(0xff1E1E1E),
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withOpacity(0.3)),
       ),
       child: Row(
         children: [
@@ -502,16 +484,16 @@ class GamesScreen extends StatelessWidget {
               color: color.withOpacity(0.15),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(icon, color: color, size: 32),
+            child: Icon(icon, color: color, size: 30),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+                Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
                 const SizedBox(height: 4),
-                Text(subtitle, style: TextStyle(color: Colors.grey[400], fontSize: 12)),
+                Text(subtitle, style: TextStyle(color: Colors.grey[400], fontSize: 11)),
               ],
             ),
           ),
@@ -523,15 +505,19 @@ class GamesScreen extends StatelessWidget {
             ),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('بدء اللعبة للترفيه: $title')),
+                SnackBar(content: Text('جاري تشغيل لعبة: $title')),
               );
             },
-            child: const Text('العب الآن', style: TextStyle(fontWeight: FontWeight.bold)),
+            child: const Text('العب', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
     );
   }
+}
+
+class AppsIconHelper {
+  static const IconData domino = Icons.grid_view;
 }
 
 // ================= 5. الدردشة =================
@@ -542,7 +528,7 @@ class ChatScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('دردشة المجتمع (ترفيه وتواصل فقط)'),
+        title: const Text('دردشة المجتمع (تواصل فقط)'),
         backgroundColor: const Color(0xff121212),
         automaticallyImplyLeading: false,
       ),
@@ -561,8 +547,8 @@ class ChatScreen extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: const [
-                ChatBubble(sender: 'أحمد', message: 'مرحباً بالجميع، كيف الحال في المجتمع؟', time: '08:00 ص', isMe: false),
-                ChatBubble(sender: 'أنت', message: 'أهلاً بك، نسجّل مشاهدات الإعلانات ونستمتع بالدردشة!', time: '08:02 ص', isMe: true),
+                ChatBubble(sender: 'أحمد', message: 'منو يلعب ويانا شطرنج نيون اليوم؟', time: '08:00 ص', isMe: false),
+                ChatBubble(sender: 'أنت', message: 'أنا جاهز، خل نتحدى بلودو سايبربانك بعدين!', time: '08:02 ص', isMe: true),
               ],
             ),
           ),
@@ -575,7 +561,7 @@ class ChatScreen extends StatelessWidget {
                   child: TextField(
                     style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
-                      hintText: 'اكتب رسالتك الاجتماعية...',
+                      hintText: 'اكتب رسالتك للمجتمع...',
                       hintStyle: const TextStyle(color: Colors.grey),
                       filled: true,
                       fillColor: const Color(0xff1E1E1E),
