@@ -1027,7 +1027,7 @@ class RobloxArenaScreen extends StatelessWidget {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black),
             onPressed: () {
-              // الانتقال إلى شاشة الغرفة الحية والعداد التنازلي التفاعلي
+              // الانتقال إلى شاشة الغرفة الحية والعداد التنازلي التفاعلي المدمج
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -1043,7 +1043,7 @@ class RobloxArenaScreen extends StatelessWidget {
   }
 }
 
-// ================= شاشة تفاصيل الغرفة واللعب التفاعلي داخل روبلوكس =================
+// ================= شاشة تفاصيل الغرفة واللعب التفاعلي (العداد التنازلي وإعلان الفائز) =================
 class RobloxRoomDetailScreen extends StatefulWidget {
   final String roomName;
   final int prizePool;
@@ -1084,7 +1084,7 @@ class _RobloxRoomDetailScreenState extends State<RobloxRoomDetailScreen> {
         setState(() {
           isBattleStarted = true;
         });
-        // منح الجائزة تلقائياً عند انتهاء المعركة بنجاح
+        // منح الجائزة تلقائياً وإضافة النشاط عند انتهاء الـ 15 ثانية وإعلان الفائز بنجاح
         userModel.winTournamentReward(widget.prizePool, widget.roomName);
       }
     });
@@ -1115,22 +1115,27 @@ class _RobloxRoomDetailScreenState extends State<RobloxRoomDetailScreen> {
               decoration: BoxDecoration(
                 color: const Color(0xff121816),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xff00E676).withOpacity(0.3)),
+                border: Border.all(color: isBattleStarted ? const Color(0xff00E676) : const Color(0xff00E676).withOpacity(0.3), width: isBattleStarted ? 2 : 1),
               ),
               child: Column(
                 children: [
-                  const Text('حالة السيرفر والبطولة الحية', style: TextStyle(color: Colors.grey, fontSize: 13)),
-                  const SizedBox(height: 8),
+                  const Text('حالة السيرفر والبطولة الحية داخل روبلوكس', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                  const SizedBox(height: 10),
                   Text(
-                    isBattleStarted ? '🎮 انتهت المعركة وتم إعلان الفائز!' : '⏳ تبدأ المعركة خلال: $countdownSeconds ثانية',
+                    isBattleStarted ? '🏆 تم إعلان الفائز!' : '⏳ الوقت الباقي لدخول الغرفة: $countdownSeconds ثانية',
                     style: TextStyle(
                       color: isBattleStarted ? const Color(0xff00E676) : Colors.amber,
-                      fontSize: 16,
+                      fontSize: 18,
                       fontWeight: FontWeight.w900,
                     ),
+                    textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 12),
-                  Text('🏆 صافي الجائزة للمركز الأول: $winnerPrize نقطة', style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  Text(
+                    isBattleStarted ? '🎉 مبروك! تم إضافة جائزة بقيمة $winnerPrize نقطة إلى رصيدك.' : 'صافي الجائزة للمركز الأول: $winnerPrize نقطة',
+                    style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
                 ],
               ),
             ),
