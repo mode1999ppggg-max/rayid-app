@@ -6,10 +6,18 @@ void main() {
   runApp(const RayidApp());
 }
 
+// نموذج بيانات مالي يدعم الدينار العراقي والدولار
 class AppDataModel extends ChangeNotifier {
   double balanceUSD = 45.50;
   double get balanceIQD => balanceUSD * 1320;
   int points = 1240;
+  
+  // بيانات الملف الشخصي للمستخدم
+  String userName = 'لاعب_570575';
+  String userEmail = 'player570@rayid.pay';
+  String userPhone = '+964 770 000 0000';
+  File? profileImage;
+
   List<dynamic> activities = [
     {'title': 'إكمال مشاهدة إعلان مكافأة مؤهل', 'amount': '+50 نقطة (0.50 دولار / 660 د.ع)', 'time': 'منذ ساعة', 'isPositive': true},
     {'title': 'سحب أرباح عبر زين كاش', 'amount': '-19,800 د.ع (15.00 دولار)', 'time': 'أمس', 'isPositive': false},
@@ -18,6 +26,14 @@ class AppDataModel extends ChangeNotifier {
   void updateBalance(double newBalanceUSD, int newPoints) {
     balanceUSD = newBalanceUSD;
     points = newPoints;
+    notifyListeners();
+  }
+
+  void updateProfile({String? name, String? email, String? phone, File? image}) {
+    if (name != null) userName = name;
+    if (email != null) userEmail = email;
+    if (phone != null) userPhone = phone;
+    if (image != null) profileImage = image;
     notifyListeners();
   }
 
@@ -62,6 +78,7 @@ class RayidApp extends StatelessWidget {
   }
 }
 
+// ================= شاشة تسجيل دخول المطور =================
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -149,6 +166,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
+// ================= مركز التنقل السفلي التفاعلي =================
 class MainNavigationHub extends StatefulWidget {
   final int initialIndex;
   const MainNavigationHub({super.key, this.initialIndex = 0});
@@ -204,6 +222,7 @@ class MainNavigationHubState extends State<MainNavigationHub> {
   }
 }
 
+// ================= 1. الصفحة الرئيسية التفاعلية =================
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -222,17 +241,18 @@ class HomeScreen extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        const CircleAvatar(
+                        CircleAvatar(
                           radius: 22,
-                          backgroundColor: Color(0xff1E1E1E),
-                          child: Icon(Icons.person, color: Color(0xff00E676)),
+                          backgroundColor: const Color(0xff1E1E1E),
+                          backgroundImage: appData.profileImage != null ? FileImage(appData.profileImage!) : null,
+                          child: appData.profileImage == null ? const Icon(Icons.person, color: Color(0xff00E676)) : null,
                         ),
                         const SizedBox(width: 12),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            Text('مرحباً بك (المطور)،', style: TextStyle(color: Colors.grey, fontSize: 11)),
-                            Text('لاعب_570575 [Admin]', style: TextStyle(color: Color(0xff00E676), fontWeight: FontWeight.bold, fontSize: 14)),
+                          children: [
+                            const Text('مرحباً بك،', style: TextStyle(color: Colors.grey, fontSize: 11)),
+                            Text(appData.userName, style: const TextStyle(color: Color(0xff00E676), fontWeight: FontWeight.bold, fontSize: 14)),
                           ],
                         ),
                       ],
@@ -328,7 +348,7 @@ class HomeScreen extends StatelessWidget {
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xff1E1E1E),
         title: const Text('الإشعارات والتنبيهات', style: TextStyle(color: Colors.white)),
-        content: const Text('• تم تحديث نظام تتبع الإعلانات وإظهار العملة بالدينار والدولار.\n• تم إضافة 8 إعلانات مؤهلة جديدة للمستخدمين اليوم.', style: TextStyle(color: Colors.grey)),
+        content: const Text('• تم تحديث بوابات السحب لتشمل الماستر كارد.\n• تم إضافة 8 إعلانات مؤهلة جديدة للمستخدمين اليوم.', style: TextStyle(color: Colors.grey)),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('إغلاق', style: TextStyle(color: Color(0xff00E676))))
         ],
@@ -459,6 +479,7 @@ class AdsRewardsScreen extends StatelessWidget {
   }
 }
 
+// ================= 3. المحفظة وطرق السحب (مع الماستر كارد التفاعلي) =================
 class WalletScreen extends StatelessWidget {
   const WalletScreen({super.key});
 
@@ -490,8 +511,9 @@ class WalletScreen extends StatelessWidget {
               const SizedBox(height: 24),
               const Text('طرق السحب المتاحة في العراق', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
-              _buildWithdrawTile(context, 'AsiaCell Cash (آسياسيل)'),
-              _buildWithdrawTile(context, 'ZainCash (زين كاش)'),
+              _buildWithdrawTile(context, 'AsiaCell Cash (آسياسيل)', Icons.phone_android, Colors.redAccent),
+              _buildWithdrawTile(context, 'ZainCash (زين كاش)', Icons.phone_iphone, Colors.amber),
+              _buildWithdrawTile(context, 'Mastercard (ماستر كارد)', Icons.credit_card, Colors.blueAccent),
             ],
           ),
         );
@@ -499,23 +521,93 @@ class WalletScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildWithdrawTile(BuildContext context, String title) {
+  Widget _buildWithdrawTile(BuildContext context, String title, IconData icon, Color iconColor) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(color: const Color(0xff1E1E1E), borderRadius: BorderRadius.circular(18)),
       child: ListTile(
-        leading: const Icon(Icons.payment, color: Color(0xff00E676)),
+        leading: Icon(icon, color: iconColor, size: 28),
         title: Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+        subtitle: const Text('سحب فوري آمن وموثوق', style: TextStyle(color: Colors.grey, fontSize: 11)),
         trailing: const Icon(Icons.arrow_forward_ios, color: Color(0xff00E676), size: 16),
         onTap: () {
-          if (appData.balanceUSD > 0) {
-            appData.addActivity('طلب سحب أرباح عبر $title', '-${appData.balanceIQD.toStringAsFixed(0)} د.ع', false);
-            appData.updateBalance(0.0, appData.points);
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إرسال طلب السحب بنجاح إلى محفظتك العراقية!'), backgroundColor: Colors.green));
+          if (title.contains('Mastercard')) {
+            _showMastercardDialog(context);
           } else {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('عذراً، الرصيد غير كافٍ.'), backgroundColor: Colors.red));
+            if (appData.balanceUSD > 0) {
+              appData.addActivity('طلب سحب أرباح عبر $title', '-${appData.balanceIQD.toStringAsFixed(0)} د.ع', false);
+              appData.updateBalance(0.0, appData.points);
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إرسال طلب السحب بنجاح!'), backgroundColor: Colors.green));
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('عذراً، الرصيد غير كافٍ.'), backgroundColor: Colors.red));
+            }
           }
         },
+      ),
+    );
+  }
+
+  // نافذة إدخال بيانات الماستر كارد التفاعلية
+  void _showMastercardDialog(BuildContext context) {
+    final cardController = TextEditingController();
+    final nameController = TextEditingController();
+    final amountController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xff1E1E1E),
+        title: const Text('السحب عبر الماستر كارد', style: TextStyle(color: Color(0xff00E676))),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: cardController,
+              keyboardType: TextInputType.number,
+              maxLength: 16,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(labelText: 'رقم البطاقة (16 رقماً)', labelStyle: TextStyle(color: Colors.grey)),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: nameController,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(labelText: 'اسم صاحب البطاقة الثلاثي', labelStyle: TextStyle(color: Colors.grey)),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: amountController,
+              keyboardType: TextInputType.number,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(labelText: 'المبلغ المراد سحبه (د.ع)', labelStyle: TextStyle(color: Colors.grey)),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('إلغاء', style: TextStyle(color: Colors.grey))),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black),
+            onPressed: () {
+              if (cardController.text.length != 16) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('رقم البطاقة يجب أن يكون 16 رقماً!'), backgroundColor: Colors.red));
+                return;
+              }
+              double? reqAmount = double.tryParse(amountController.text);
+              if (reqAmount == null || reqAmount <= 0 || reqAmount > appData.balanceIQD) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('المبلغ المدخل غير صالح أو يتجاوز الرصيد المتاح!'), backgroundColor: Colors.red));
+                return;
+              }
+              
+              double deductedUSD = reqAmount / 1320;
+              appData.updateBalance(appData.balanceUSD - deductedUSD, appData.points);
+              appData.addActivity('سحب عبر Mastercard (${cardController.text.substring(12)})', '-${reqAmount.toStringAsFixed(0)} د.ع', false);
+              
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تنفيذ سحب الماستر كارد بنجاح!'), backgroundColor: Colors.green));
+            },
+            child: const Text('تأكيد السحب', style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        ],
       ),
     );
   }
@@ -587,6 +679,7 @@ class ChatScreen extends StatelessWidget {
   }
 }
 
+// ================= 4. صفحة الإعدادات المتقدمة (مع إدارة الحساب ولوحة تحكم المطور المحمية) =================
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -595,6 +688,177 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  // controllers لإدارة الحساب
+  late final TextEditingController _nameController;
+  late final TextEditingController _emailController;
+  late final TextEditingController _phoneController;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: appData.userName);
+    _emailController = TextEditingController(text: appData.userEmail);
+    _phoneController = TextEditingController(text: appData.userPhone);
+  }
+
+  Future<void> _pickProfileImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      appData.updateProfile(image: File(pickedFile.path));
+      setState(() {});
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تحديث الصورة الشخصية بنجاح!'), backgroundColor: Colors.green));
+      }
+    }
+  }
+
+  void _saveProfileChanges() {
+    appData.updateProfile(
+      name: _nameController.text,
+      email: _emailController.text,
+      phone: _phoneController.text,
+    );
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم حفظ بيانات الحساب الشخصي بنجاح!'), backgroundColor: Colors.green));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('الإعدادات والحساب'), backgroundColor: const Color(0xff121212), automaticallyImplyLeading: false),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          // إدارة الحساب الشخصي
+          Center(
+            child: Stack(
+              children: [
+                CircleAvatar(
+                  radius: 40,
+                  backgroundColor: const Color(0xff1E1E1E),
+                  backgroundImage: appData.profileImage != null ? FileImage(appData.profileImage!) : null,
+                  child: appData.profileImage == null ? const Icon(Icons.person, size: 40, color: Color(0xff00E676)) : null,
+                ),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: CircleAvatar(
+                    radius: 14,
+                    backgroundColor: const Color(0xff00E676),
+                    child: IconButton(
+                      icon: const Icon(Icons.camera_alt, size: 12, color: Colors.black),
+                      onPressed: _pickProfileImage,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Text('إدارة الحساب الشخصي', style: TextStyle(color: Color(0xff00E676), fontWeight: FontWeight.bold, fontSize: 15)),
+          const SizedBox(height: 10),
+          TextField(
+            controller: _nameController,
+            style: const TextStyle(color: Colors.white),
+            decoration: const InputDecoration(labelText: 'الاسم الكامل', filled: true, fillColor: Color(0xff1E1E1E)),
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: _emailController,
+            style: const TextStyle(color: Colors.white),
+            decoration: const InputDecoration(labelText: 'البريد الإلكتروني', filled: true, fillColor: Color(0xff1E1E1E)),
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: _phoneController,
+            style: const TextStyle(color: Colors.white),
+            decoration: const InputDecoration(labelText: 'رقم الهاتف', filled: true, fillColor: Color(0xff1E1E1E)),
+          ),
+          const SizedBox(height: 12),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black),
+            onPressed: _saveProfileChanges,
+            child: const Text('حفظ التعديلات الشخصية', style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+          const SizedBox(height: 24),
+
+          // الدعم والقانونية
+          const Text('الدعم والقانونية', style: TextStyle(color: Color(0xff00E676), fontWeight: FontWeight.bold, fontSize: 15)),
+          const SizedBox(height: 8),
+          ListTile(
+            tileColor: const Color(0xff1E1E1E),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            leading: const Icon(Icons.help_outline, color: Color(0xff00E676)),
+            title: const Text('مركز المساعدة والدعم', style: TextStyle(color: Colors.white)),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  backgroundColor: const Color(0xff1E1E1E),
+                  title: const Text('مركز المساعدة', style: TextStyle(color: Colors.white)),
+                  content: const Text('للحصول على المساعدة أو الاستفسارات، يمكنك التواصل مع فريق الدعم الفني عبر البريد: support@rayid.pay', style: TextStyle(color: Colors.grey)),
+                  actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('حسناً', style: TextStyle(color: Color(0xff00E676))))],
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 8),
+          ListTile(
+            tileColor: const Color(0xff1E1E1E),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            leading: const Icon(Icons.privacy_tip_outlined, color: Color(0xff00E676)),
+            title: const Text('سياسة الخصوصية', style: TextStyle(color: Colors.white)),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  backgroundColor: const Color(0xff1E1E1E),
+                  title: const Text('سياسة الخصوصية', style: TextStyle(color: Colors.white)),
+                  content: const Text('تطبيق RAYID PAY يلتزم بحماية بياناتك الشخصية وتأمين معاملات السحب الرقمية بكل شفافية.', style: TextStyle(color: Colors.grey)),
+                  actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('حسناً', style: TextStyle(color: Color(0xff00E676))))],
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 30),
+
+          // لوحة تحكم المطور (مخفية ومحمية في الأسفل)
+          ExpansionTile(
+            collapsedBackgroundColor: const Color(0xff1E1E1E),
+            backgroundColor: const Color(0xff1E1E1E),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            leading: const Icon(Icons.admin_panel_settings, color: Colors.amber),
+            title: const Text('لوحة تحكم المطور (مخفية)', style: TextStyle(color: Colors.amber, fontWeight: FontWeight.bold)),
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: DeveloperPanelWidget(),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red.withOpacity(0.2), foregroundColor: Colors.redAccent),
+            onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen())),
+            child: const Text('تسجيل خروج المطور'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class DeveloperPanelWidget extends StatefulWidget {
+  const DeveloperPanelWidget({super.key});
+
+  @override
+  State<DeveloperPanelWidget> createState() => _DeveloperPanelWidgetState();
+}
+
+class _DeveloperPanelWidgetState extends State<DeveloperPanelWidget> {
   final _balanceController = TextEditingController(text: appData.balanceUSD.toString());
   final _pointsController = TextEditingController(text: appData.points.toString());
 
@@ -609,40 +873,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('إعدادات ولوحة تحكم المطور'), backgroundColor: const Color(0xff121212), automaticallyImplyLeading: false),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          const Text('لوحة تحكم المدير (Developer Admin Panel)', style: TextStyle(color: Color(0xff00E676), fontWeight: FontWeight.bold, fontSize: 16)),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _balanceController,
-            keyboardType: TextInputType.number,
-            style: const TextStyle(color: Colors.white),
-            decoration: const InputDecoration(labelText: 'تعديل الرصيد بالدولار الامريكي', filled: true, fillColor: Color(0xff1E1E1E)),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _pointsController,
-            keyboardType: TextInputType.number,
-            style: const TextStyle(color: Colors.white),
-            decoration: const InputDecoration(labelText: 'تعديل النقاط', filled: true, fillColor: Color(0xff1E1E1E)),
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black),
-            onPressed: _saveDeveloperData,
-            child: const Text('حفظ وتحديث النظام حياً', style: TextStyle(fontWeight: FontWeight.bold)),
-          ),
-          const SizedBox(height: 30),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red.withOpacity(0.2), foregroundColor: Colors.redAccent),
-            onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen())),
-            child: const Text('تسجيل خروج المطور'),
-          ),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        TextField(
+          controller: _balanceController,
+          keyboardType: TextInputType.number,
+          style: const TextStyle(color: Colors.white),
+          decoration: const InputDecoration(labelText: 'تعديل الرصيد (دولار أمريكي)', filled: true, fillColor: Color(0xff121212)),
+        ),
+        const SizedBox(height: 10),
+        TextField(
+          controller: _pointsController,
+          keyboardType: TextInputType.number,
+          style: const TextStyle(color: Colors.white),
+          decoration: const InputDecoration(labelText: 'تعديل النقاط', filled: true, fillColor: Color(0xff121212)),
+        ),
+        const SizedBox(height: 12),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black),
+          onPressed: _saveDeveloperData,
+          child: const Text('تحديث النظام حياً', style: TextStyle(fontWeight: FontWeight.bold)),
+        ),
+      ],
     );
   }
 }
