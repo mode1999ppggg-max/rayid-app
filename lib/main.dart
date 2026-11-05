@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'dart:async';
 import 'dart:math';
+import 'games/ludo/ludo_screen.dart';
 
 void main() {
   runZonedGuarded(() async {
@@ -931,7 +932,12 @@ class GamesScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _gameCard(context, AppStrings.get(lang, 'gameLudo'), Icons.casino, Colors.greenAccent, 50, () {}),
+          _gameCard(context, AppStrings.get(lang, 'gameLudo'), Icons.casino, Colors.greenAccent, 50, () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const LudoScreen()),
+            );
+          }),
           _gameCard(context, AppStrings.get(lang, 'gameChess'), Icons.extension, Colors.blueAccent, 30, () {}),
           _gameCard(context, AppStrings.get(lang, 'gameDomino'), Icons.apps, Colors.amberAccent, 20, () {}),
           _gameCard(context, AppStrings.get(lang, 'gameBackgammon'), Icons.grid_view, Colors.purpleAccent, 20, () {}),
@@ -1268,7 +1274,6 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
       ),
       body: Column(
         children: [
-          // شريط معلومات اللعبة العلوي المطابق لتصميم الصورة الثانية تماماً
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -1327,7 +1332,6 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
                       ),
                     ),
 
-                    // المنصات السيبرانية النيونية المتوهجة بالكامل (Neon Platforms)
                     ...platforms.map((plat) => Positioned(
                       left: (plat['x'] as double) - (playerX > 300 ? playerX - 300 : 0),
                       top: plat['y'] as double,
@@ -1346,7 +1350,6 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
                       ),
                     )),
 
-                    // البلورات المتوهجة (Crystals)
                     ...crystals.where((c) => c['collected'] == false).map((c) => Positioned(
                       left: (c['x'] as double) - (playerX > 300 ? playerX - 300 : 0),
                       top: c['y'] as double,
@@ -1363,7 +1366,6 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
                       ),
                     )),
 
-                    // العقبات النارية المتوهجة (Hazards)
                     ...hazards.map((h) => Positioned(
                       left: (h['x'] as double) - (playerX > 300 ? playerX - 300 : 0),
                       top: h['y'] as double,
@@ -1379,7 +1381,6 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
                       ),
                     )),
 
-                    // الشخصية البارزة والمتوهجة مطابقة لنمط السايبربانك (Cyber Character)
                     Positioned(
                       left: playerX > 300 ? 300.0 : playerX,
                       top: playerY,
@@ -1485,7 +1486,6 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
             ),
           ),
 
-          // أزرار التحكم السفلية المنسقة المتوهجة
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             color: const Color(0xff080C0B),
