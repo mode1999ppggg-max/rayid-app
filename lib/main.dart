@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'dart:async';
 import 'dart:math';
@@ -686,7 +685,7 @@ class HomeScreen extends StatelessWidget {
                         Text(act['amount'].toString(), style: TextStyle(color: act['isPositive'] == true ? const Color(0xff00E676) : Colors.redAccent, fontWeight: FontWeight.w900, fontSize: 13)),
                       ],
                     ),
-                  )).toList(),
+                  )),
                 ],
               ),
             ),
@@ -972,7 +971,6 @@ class GamesScreen extends StatelessWidget {
   }
 }
 
-// ساحة أركيد النيون (Platformer Hub)
 class RobloxArenaScreen extends StatelessWidget {
   const RobloxArenaScreen({super.key});
 
@@ -1055,7 +1053,6 @@ class RobloxArenaScreen extends StatelessWidget {
   }
 }
 
-// ================= لعبة المنصات الأركيدية (Platformer Game Screen) =================
 class Roblox3DPlatformerGameScreen extends StatefulWidget {
   final int stageLevel;
   final String stageName;
@@ -1400,7 +1397,6 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
   }
 }
 
-// رسام خلفية النيون السيبرانية
 class CyberGridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
@@ -1420,7 +1416,6 @@ class CyberGridPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-// ================= الشاشات المتبقية (الدردشة، الدعم، الإعدادات، الملف الشخصي) =================
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
 
@@ -1484,7 +1479,7 @@ class ChatScreen extends StatelessWidget {
                     },
                   ),
                 );
-              }).toList(),
+              }),
             ],
           ),
         );
@@ -1585,95 +1580,6 @@ class _GroupChatRoomScreenState extends State<GroupChatRoomScreen> {
           ),
         );
       },
-    );
-  }
-}
-
-class SupportScreen extends StatefulWidget {
-  const SupportScreen({super.key});
-
-  @override
-  State<SupportScreen> createState() => _SupportScreenState();
-}
-
-class _SupportScreenState extends State<SupportScreen> {
-  final TextEditingController _msgController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    String lang = userModel.currentLanguage;
-    return Scaffold(
-      appBar: AppBar(title: Text(AppStrings.get(lang, 'liveSupport')), backgroundColor: const Color(0xff0A0E0D)),
-      body: AnimatedBuilder(
-        animation: userModel,
-        builder: (context, child) {
-          return Column(
-            children: [
-              Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: userModel.supportMessages.length,
-                  itemBuilder: (context, index) {
-                    final msg = userModel.supportMessages[index];
-                    bool isUser = msg['sender'] == 'user';
-                    return Align(
-                      alignment: isUser ? Alignment.centerLeft : Alignment.centerRight,
-                      child: Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        padding: const EdgeInsets.all(12),
-                        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
-                        decoration: BoxDecoration(
-                          color: isUser ? const Color(0xff00E676).withOpacity(0.2) : const Color(0xff121816),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(msg['text']!, style: const TextStyle(color: Colors.white, fontSize: 13)),
-                            const SizedBox(height: 4),
-                            Text(msg['time']!, style: const TextStyle(color: Colors.grey, fontSize: 9)),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(12),
-                color: const Color(0xff080C0B),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _msgController,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: InputDecoration(
-                          hintText: AppStrings.get(lang, 'typeIssue'),
-                          filled: true,
-                          fillColor: const Color(0xff121816),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    CircleAvatar(
-                      backgroundColor: const Color(0xff00E676),
-                      child: IconButton(
-                        icon: const Icon(Icons.send, color: Colors.black, size: 18),
-                        onPressed: () {
-                          userModel.sendSupportMessage(_msgController.text);
-                          _msgController.clear();
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          );
-        },
-      ),
     );
   }
 }
