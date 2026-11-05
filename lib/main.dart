@@ -163,6 +163,7 @@ class UserAppModel extends ChangeNotifier {
 
   late String referralCode;
   int referralCount = 3;
+  int highestGameScore = 0;
 
   UserAppModel() {
     referralCode = 'RAYID-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
@@ -256,6 +257,9 @@ class UserAppModel extends ChangeNotifier {
 
   void verifyAndClaimGameRewards(int actualGameScore, String gameTitle) {
     if (actualGameScore <= 0) return;
+    if (actualGameScore > highestGameScore) {
+      highestGameScore = actualGameScore;
+    }
     int earnedEntertainmentPoints = (actualGameScore / 5).floor();
     if (earnedEntertainmentPoints < 1) earnedEntertainmentPoints = 1;
 
@@ -996,20 +1000,27 @@ class RobloxArenaScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: Colors.redAccent.withOpacity(0.4), width: 1.5),
             ),
-            child: const Column(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                const Row(
                   children: [
                     Icon(Icons.sports_esports, color: Colors.redAccent, size: 28),
                     SizedBox(width: 10),
                     Text('NEON ARCADE ARENA', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w900)),
                   ],
                 ),
-                SizedBox(height: 10),
-                Text(
+                const SizedBox(height: 10),
+                const Text(
                   'لعبة منصات أركيدية بأسلوب نيون مميز! تحكم بالشخصية عبر أزرار اللمس، اقفز بين المنصات السيبرانية، اجمع البلورات، وحقق أعلى نتيجة.',
                   style: TextStyle(color: Colors.grey, fontSize: 12, height: 1.5),
+                ),
+                const SizedBox(height: 14),
+                AnimatedBuilder(
+                  animation: userModel,
+                  builder: (context, child) {
+                    return Text('🏆 أعلى نتيجة حققتها: ${userModel.highestGameScore} نقطة', style: const TextStyle(color: Colors.amberAccent, fontWeight: FontWeight.bold, fontSize: 12));
+                  },
                 ),
               ],
             ),
@@ -1081,14 +1092,15 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
   int coinsCollected = 0;
   int health = 3;
   bool isPlaying = true;
+  bool isPaused = false;
   bool hasWon = false;
   
   Timer? gameLoopTimer;
   int hitCooldown = 0;
 
-  late List<dynamic> platforms;
-  late List<dynamic> crystals;
-  late List<dynamic> hazards;
+  late List> platforms;
+  late List> crystals;
+  late List> hazards;
 
   @override
   void initState() {
@@ -1098,84 +1110,87 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
   }
 
   void _initLevel() {
-    double difficultyMultiplier = widget.stageLevel * 0.5;
+    double difficultyMultiplier = widget.stageLevel * 0.6;
     
     platforms = [
-      {'x': 0.0, 'y': 400.0, 'w': 160.0, 'h': 25.0},
-      {'x': 190.0, 'y': 330.0, 'w': 130.0, 'h': 25.0},
-      {'x': 340.0, 'y': 260.0, 'w': 140.0, 'h': 25.0},
-      {'x': 500.0, 'y': 190.0, 'w': 130.0, 'h': 25.0},
-      {'x': 650.0, 'y': 120.0, 'w': 180.0, 'h': 25.0},
+      {'x': 0.0, 'y': 400.0, 'w': 180.0, 'h': 25.0},
+      {'x': 210.0, 'y': 320.0, 'w': 140.0, 'h': 25.0},
+      {'x': 380.0, 'y': 250.0, 'w': 150.0, 'h': 25.0},
+      {'x': 560.0, 'y': 180.0, 'w': 140.0, 'h': 25.0},
+      {'x': 730.0, 'y': 110.0, 'w': 200.0, 'h': 25.0},
     ];
 
     crystals = [
-      {'x': 220.0, 'y': 280.0, 'collected': false},
-      {'x': 380.0, 'y': 210.0, 'collected': false},
-      {'x': 540.0, 'y': 140.0, 'collected': false},
-      {'x': 700.0, 'y': 70.0, 'collected': false},
+      {'x': 240.0, 'y': 270.0, 'collected': false},
+      {'x': 420.0, 'y': 200.0, 'collected': false},
+      {'x': 600.0, 'y': 130.0, 'collected': false},
+      {'x': 780.0, 'y': 60.0, 'collected': false},
     ];
 
     hazards = [
-      {'x': 230.0, 'y': 310.0, 'dir': 1.0, 'speed': 2.0 * difficultyMultiplier},
-      {'x': 520.0, 'y': 170.0, 'dir': -1.0, 'speed': 2.5 * difficultyMultiplier},
+      {'x': 250.0, 'y': 295.0, 'dir': 1.0, 'speed': 2.0 * difficultyMultiplier},
+      {'x': 580.0, 'y': 155.0, 'dir': -1.0, 'speed': 2.5 * difficultyMultiplier},
     ];
   }
 
   void _startGameLoop() {
+    gameLoopTimer?.cancel();
     gameLoopTimer = Timer.periodic(const Duration(milliseconds: 25), (timer) {
-      if (!isPlaying) return;
+      if (!isPlaying || isPaused) return;
 
       setState(() {
         if (hitCooldown > 0) hitCooldown--;
 
-        velocityY += 0.8;
+        velocityY += 0.85;
         playerY += velocityY;
 
         for (var haz in hazards) {
           haz['x'] += (haz['dir'] as double) * (haz['speed'] as double);
-          if ((haz['x'] as double) < 160 || (haz['x'] as double) > 600) {
+          if ((haz['x'] as double) < 200 || (haz['x'] as double) > 650) {
             haz['dir'] = -(haz['dir'] as double);
           }
         }
 
+        bool onPlatform = false;
         for (var plat in platforms) {
           if (playerX + 30 >= (plat['x'] as double) && 
               playerX <= (plat['x'] as double) + (plat['w'] as double) &&
               playerY + 40 >= (plat['y'] as double) && 
-              playerY + 40 <= (plat['y'] as double) + (plat['h'] as double) + 10 && 
+              playerY + 40 <= (plat['y'] as double) + (plat['h'] as double) + 12 && 
               velocityY >= 0) {
             playerY = (plat['y'] as double) - 40.0;
             velocityY = 0.0;
             isJumping = false;
+            onPlatform = true;
             break;
           }
         }
 
         if (playerY > 550) {
-          _loseLife('سقطت في الهاوية!');
+          _loseLife('سقطت في الهاوية السيبرانية!');
         }
 
         for (var crystal in crystals) {
           if (crystal['collected'] == false) {
             double dist = sqrt(pow(playerX - (crystal['x'] as double), 2) + pow(playerY - (crystal['y'] as double), 2));
-            if (dist < 35) {
+            if (dist < 40) {
               crystal['collected'] = true;
               coinsCollected++;
-              score += 25;
+              score += 35;
             }
           }
         }
 
         for (var haz in hazards) {
           double distHaz = sqrt(pow(playerX - (haz['x'] as double), 2) + pow(playerY - (haz['y'] as double), 2));
-          if (distHaz < 30 && hitCooldown == 0) {
+          if (distHaz < 32 && hitCooldown == 0) {
             _loseLife('اصطدمت بعائق نيون جارح!');
-            hitCooldown = 40;
+            hitCooldown = 45;
             break;
           }
         }
 
-        if (playerX >= 680 && playerX <= 800 && playerY <= 130) {
+        if (playerX >= 750 && playerX <= 900 && playerY <= 120) {
           hasWon = true;
           isPlaying = false;
           gameLoopTimer?.cancel();
@@ -1206,6 +1221,7 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
       coinsCollected = 0;
       health = 3;
       isPlaying = true;
+      isPaused = false;
       hasWon = false;
       hitCooldown = 0;
       _initLevel();
@@ -1214,17 +1230,17 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
   }
 
   void _movePlayer(double deltaX) {
-    if (!isPlaying) return;
+    if (!isPlaying || isPaused) return;
     setState(() {
       playerX += deltaX;
-      playerX = playerX.clamp(0.0, 750.0);
+      playerX = playerX.clamp(0.0, 900.0);
     });
   }
 
   void _jumpPlayer() {
-    if (!isJumping && isPlaying) {
+    if (!isJumping && isPlaying && !isPaused) {
       setState(() {
-        velocityY = -13.5;
+        velocityY = -14.5;
         isJumping = true;
       });
     }
@@ -1240,9 +1256,19 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.stageName, style: const TextStyle(fontSize: 13)),
+        title: Text(widget.stageName, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
         backgroundColor: const Color(0xff0A0E0D),
         automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            icon: Icon(isPaused ? Icons.play_arrow : Icons.pause, color: const Color(0xff00E5FF)),
+            onPressed: () {
+              setState(() {
+                isPaused = !isPaused;
+              });
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -1251,9 +1277,9 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Text('⭐ Score: $score', style: const TextStyle(color: Color(0xff00E676), fontSize: 14, fontWeight: FontWeight.bold)),
-                Text('💎 Crystals: $coinsCollected', style: const TextStyle(color: Color(0xff00E5FF), fontSize: 14, fontWeight: FontWeight.bold)),
-                Text('❤️ Health: $health', style: const TextStyle(color: Colors.redAccent, fontSize: 14, fontWeight: FontWeight.bold)),
+                Text('⭐ Score: $score', style: const TextStyle(color: Color(0xff00E676), fontSize: 13, fontWeight: FontWeight.bold)),
+                Text('💎 Crystals: $coinsCollected', style: const TextStyle(color: Color(0xff00E5FF), fontSize: 13, fontWeight: FontWeight.bold)),
+                Text('❤️ Health: $health', style: const TextStyle(color: Colors.redAccent, fontSize: 13, fontWeight: FontWeight.bold)),
               ],
             ),
           ),
@@ -1285,21 +1311,22 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(colors: [Color(0xff00E676), Color(0xff00E5FF)]),
                           borderRadius: BorderRadius.circular(8),
+                          boxShadow: [BoxShadow(color: const Color(0xff00E676).withOpacity(0.3), blurRadius: 8)],
                         ),
                       ),
-                    )).toList(),
+                    )),
 
                     ...crystals.where((c) => c['collected'] == false).map((c) => Positioned(
                       left: (c['x'] as double) - (playerX > 300 ? playerX - 300 : 0),
                       top: c['y'] as double,
                       child: const Icon(Icons.diamond, color: Color(0xff00E5FF), size: 26),
-                    )).toList(),
+                    )),
 
                     ...hazards.map((h) => Positioned(
                       left: (h['x'] as double) - (playerX > 300 ? playerX - 300 : 0),
                       top: h['y'] as double,
                       child: const Icon(Icons.local_fire_department, color: Colors.redAccent, size: 28),
-                    )).toList(),
+                    )),
 
                     Positioned(
                       left: playerX > 300 ? 300.0 : playerX,
@@ -1311,6 +1338,7 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
                           color: hitCooldown > 0 ? Colors.orange : const Color(0xff00E676),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(color: Colors.white, width: 1.5),
+                          boxShadow: [BoxShadow(color: const Color(0xff00E676).withOpacity(0.6), blurRadius: 10)],
                         ),
                         child: const Center(
                           child: Icon(Icons.person, color: Colors.black, size: 20),
@@ -1318,7 +1346,31 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
                       ),
                     ),
 
-                    if (!isPlaying)
+                    if (isPaused)
+                      Center(
+                        child: Container(
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: const Color(0xff121816).withOpacity(0.95),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: const Color(0xff00E5FF), width: 2),
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Text('اللعبة متوقفة مؤقتاً', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                              const SizedBox(height: 20),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black),
+                                onPressed: () => setState(() => isPaused = false),
+                                child: const Text('استئناف اللعب', style: TextStyle(fontWeight: FontWeight.bold)),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                    if (!isPlaying && !isPaused)
                       Center(
                         child: Container(
                           padding: const EdgeInsets.all(24),
@@ -1350,7 +1402,7 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
                                     onPressed: () {
                                       if (hasWon) {
                                         userModel.verifyAndClaimGameRewards(score, widget.stageName);
-                                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إيداع نقاط الترفيه في حسابك!'), backgroundColor: Colors.green));
+                                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إيداع نقاط الترفيه في حسابك بنجاح!'), backgroundColor: Colors.green));
                                         Navigator.pop(context);
                                       } else {
                                         _restartGame();
@@ -1380,13 +1432,13 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
                   children: [
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff121816), foregroundColor: const Color(0xff00E676), minimumSize: const Size(60, 50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: Color(0xff00E676)))),
-                      onPressed: () => _movePlayer(-15.0),
+                      onPressed: () => _movePlayer(-18.0),
                       child: const Icon(Icons.arrow_back, size: 24),
                     ),
                     const SizedBox(width: 12),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff121816), foregroundColor: const Color(0xff00E676), minimumSize: const Size(60, 50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: Color(0xff00E676)))),
-                      onPressed: () => _movePlayer(15.0),
+                      onPressed: () => _movePlayer(18.0),
                       child: const Icon(Icons.arrow_forward, size: 24),
                     ),
                   ],
@@ -1699,6 +1751,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   @override
+}
+
+  @override
   Widget build(BuildContext context) {
     String lang = userModel.currentLanguage;
     return Scaffold(
@@ -1707,6 +1762,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           TextField(controller: _nameController, style: const TextStyle(color: Colors.white), decoration: InputDecoration(labelText: AppStrings.get(lang, 'fullName'), filled: true, fillColor: const Color(0xff121816))),
+          const SizedBox(height: 14),
+          Thumbnail(url: ...), // placeholder comment for clarity
           const SizedBox(height: 14),
           TextField(controller: _usernameController, style: const TextStyle(color: Colors.white), decoration: InputDecoration(labelText: AppStrings.get(lang, 'username'), filled: true, fillColor: const Color(0xff121816))),
           const SizedBox(height: 14),
