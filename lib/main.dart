@@ -1098,9 +1098,9 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
   Timer? gameLoopTimer;
   int hitCooldown = 0;
 
-  late List> platforms;
-  late List> crystals;
-  late List> hazards;
+  List platforms = [];
+  List crystals = [];
+  List hazards = [];
 
   @override
   void initState() {
