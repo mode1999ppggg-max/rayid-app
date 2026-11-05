@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'dart:async';
 import 'dart:math';
 
 void main() {
-  // التقاط أي خطأ حرج يحدث أثناء الإقلاع لمنع الانهيار المفاجئ
-  runZonedGuarded(() async {
-    WidgetsFlutterBinding.ensureInitialized();
-    runApp(const RayidApp());
-  }, (error, stackTrace) {
-    debugPrint('CRASH ERROR: $error');
-  });
+  // إضافة سطر التهيئة الأساسي لمنع الانهيار والإغلاق الفجائي عند بدء التشغيل
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const RayidApp());
 }
 
 // ================= قاموس اللغات الشامل (Localization Map) =================
@@ -160,7 +157,7 @@ class UserAppModel extends ChangeNotifier {
   double get balanceIQD => balanceUSD * 1320;
   
   int points = 1240; 
-  final int minPointsForRedeem = 3000;
+  final int minPointsForRedeem = 3000; // حد الاستبدال الثابت 3000 نقطة
 
   String referralCode = 'RAYID-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
   int referralCount = 3;
@@ -690,7 +687,7 @@ class HomeScreen extends StatelessWidget {
                         Text(act['amount'].toString(), style: TextStyle(color: act['isPositive'] == true ? const Color(0xff00E676) : Colors.redAccent, fontWeight: FontWeight.w900, fontSize: 13)),
                       ],
                     ),
-                  )),
+                  )).toList(),
                 ],
               ),
             ),
@@ -976,6 +973,7 @@ class GamesScreen extends StatelessWidget {
   }
 }
 
+// ساحة أركيد النيون (Platformer Hub)
 class RobloxArenaScreen extends StatelessWidget {
   const RobloxArenaScreen({super.key});
 
@@ -1058,6 +1056,7 @@ class RobloxArenaScreen extends StatelessWidget {
   }
 }
 
+// ================= لعبة المنصات الأركيدية (Platformer Game Screen) =================
 class Roblox3DPlatformerGameScreen extends StatefulWidget {
   final int stageLevel;
   final String stageName;
@@ -1069,11 +1068,13 @@ class Roblox3DPlatformerGameScreen extends StatefulWidget {
 }
 
 class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScreen> {
+  // حالة اللاعب الفيزيائية
   double playerX = 50.0;
   double playerY = 300.0;
   double velocityY = 0.0;
   bool isJumping = false;
   
+  // النتائج والبلورات
   int score = 0;
   int coinsCollected = 0;
   int health = 3;
@@ -1081,8 +1082,9 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
   bool hasWon = false;
   
   Timer? gameLoopTimer;
-  int hitCooldown = 0;
+  int hitCooldown = 0; // لحماية اللاعب من تكرار الضرر اللحظي
 
+  // استخدام List<dynamic> لتجاوز مشاكل الأقواس الحادة في الأنظمة المنقولة عبر الشات
   late List<dynamic> platforms;
   late List<dynamic> crystals;
   late List<dynamic> hazards;
@@ -1102,7 +1104,7 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
       {'x': 190.0, 'y': 330.0, 'w': 130.0, 'h': 25.0},
       {'x': 340.0, 'y': 260.0, 'w': 140.0, 'h': 25.0},
       {'x': 500.0, 'y': 190.0, 'w': 130.0, 'h': 25.0},
-      {'x': 650.0, 'y': 120.0, 'w': 180.0, 'h': 25.0},
+      {'x': 650.0, 'y': 120.0, 'w': 180.0, 'h': 25.0}, // منصة الهدف
     ];
 
     crystals = [
@@ -1125,9 +1127,11 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
       setState(() {
         if (hitCooldown > 0) hitCooldown--;
 
+        // الجاذبية والحركة العمودية
         velocityY += 0.8;
         playerY += velocityY;
 
+        // حركة العقبات
         for (var haz in hazards) {
           haz['x'] += (haz['dir'] as double) * (haz['speed'] as double);
           if ((haz['x'] as double) < 160 || (haz['x'] as double) > 600) {
@@ -1135,6 +1139,7 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
           }
         }
 
+        // فحص الهبوط على المنصات
         for (var plat in platforms) {
           if (playerX + 30 >= (plat['x'] as double) && 
               playerX <= (plat['x'] as double) + (plat['w'] as double) &&
@@ -1148,10 +1153,12 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
           }
         }
 
+        // السقوط في الهاوية
         if (playerY > 550) {
           _loseLife('سقطت في الهاوية!');
         }
 
+        // جمع البلورات
         for (var crystal in crystals) {
           if (crystal['collected'] == false) {
             double dist = sqrt(pow(playerX - (crystal['x'] as double), 2) + pow(playerY - (crystal['y'] as double), 2));
@@ -1163,15 +1170,17 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
           }
         }
 
+        // اصطدام العقبات (مع تفعيل وقت حماية لمنع الخسارة الفورية المتكررة)
         for (var haz in hazards) {
           double distHaz = sqrt(pow(playerX - (haz['x'] as double), 2) + pow(playerY - (haz['y'] as double), 2));
           if (distHaz < 30 && hitCooldown == 0) {
             _loseLife('اصطدمت بعائق نيون جارح!');
-            hitCooldown = 40;
+            hitCooldown = 40; // إطار حماية مؤقت
             break;
           }
         }
 
+        // الفوز والوصول لخط النهاية
         if (playerX >= 680 && playerX <= 800 && playerY <= 130) {
           hasWon = true;
           isPlaying = false;
@@ -1350,7 +1359,7 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
                                         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إيداع نقاط الترفيه في حسابك!'), backgroundColor: Colors.green));
                                         Navigator.pop(context);
                                       } else {
-                                        _restartGame();
+                                        _restartGame(); // إعادة المحاولة من البداية فعلياً
                                       }
                                     },
                                     child: Text(hasWon ? 'استلام المكافأة' : 'إعادة المحاولة', style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -1402,6 +1411,7 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
   }
 }
 
+// رسام خلفية النيون السيبرانية
 class CyberGridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
@@ -1421,6 +1431,7 @@ class CyberGridPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
+// ================= الشاشات المتبقية (الدردشة، الدعم، الإعدادات، الملف الشخصي) =================
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
 
@@ -1484,7 +1495,7 @@ class ChatScreen extends StatelessWidget {
                     },
                   ),
                 );
-              }),
+              }).toList(),
             ],
           ),
         );
@@ -1585,6 +1596,95 @@ class _GroupChatRoomScreenState extends State<GroupChatRoomScreen> {
           ),
         );
       },
+    );
+  }
+}
+
+class SupportScreen extends StatefulWidget {
+  const SupportScreen({super.key});
+
+  @override
+  State<SupportScreen> createState() => _SupportScreenState();
+}
+
+class _SupportScreenState extends State<SupportScreen> {
+  final TextEditingController _msgController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    String lang = userModel.currentLanguage;
+    return Scaffold(
+      appBar: AppBar(title: Text(AppStrings.get(lang, 'liveSupport')), backgroundColor: const Color(0xff0A0E0D)),
+      body: AnimatedBuilder(
+        animation: userModel,
+        builder: (context, child) {
+          return Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: userModel.supportMessages.length,
+                  itemBuilder: (context, index) {
+                    final msg = userModel.supportMessages[index];
+                    bool isUser = msg['sender'] == 'user';
+                    return Align(
+                      alignment: isUser ? Alignment.centerLeft : Alignment.centerRight,
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.all(12),
+                        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
+                        decoration: BoxDecoration(
+                          color: isUser ? const Color(0xff00E676).withOpacity(0.2) : const Color(0xff121816),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(msg['text']!, style: const TextStyle(color: Colors.white, fontSize: 13)),
+                            const SizedBox(height: 4),
+                            Text(msg['time']!, style: const TextStyle(color: Colors.grey, fontSize: 9)),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(12),
+                color: const Color(0xff080C0B),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _msgController,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          hintText: AppStrings.get(lang, 'typeIssue'),
+                          filled: true,
+                          fillColor: const Color(0xff121816),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    CircleAvatar(
+                      backgroundColor: const Color(0xff00E676),
+                      child: IconButton(
+                        icon: const Icon(Icons.send, color: Colors.black, size: 18),
+                        onPressed: () {
+                          userModel.sendSupportMessage(_msgController.text);
+                          _msgController.clear();
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }
@@ -1703,7 +1803,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          TextField(controller: _nameController, style: const TextStyle(color: Colors.white), decoration: InputDecoration(labelText: AppStrings.get(lang, 'fullName'), filled: true, fillColor: const Color(0xff121816))),
+          TextField(controller: _nameController, style: const TextStyle(color: Colors.white), denotes: false, decoration: InputDecoration(labelText: AppStrings.get(lang, 'fullName'), filled: true, fillColor: const Color(0xff121816))),
           const SizedBox(height: 14),
           TextField(controller: _usernameController, style: const TextStyle(color: Colors.white), decoration: InputDecoration(labelText: AppStrings.get(lang, 'username'), filled: true, fillColor: const Color(0xff121816))),
           const SizedBox(height: 14),
