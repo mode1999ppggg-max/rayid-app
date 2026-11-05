@@ -1,10 +1,12 @@
- import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'dart:async';
 import 'dart:math';
 
 void main() {
+  // إضافة سطر التهيئة الأساسي لمنع الانهيار والإغلاق الفجائي عند بدء التشغيل
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const RayidApp());
 }
 
@@ -1801,7 +1803,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          TextField(controller: _nameController, style: const TextStyle(color: Colors.white), decoration: InputDecoration(labelText: AppStrings.get(lang, 'fullName'), filled: true, fillColor: const Color(0xff121816))),
+          TextField(controller: _nameController, style: const TextStyle(color: Colors.white), denotes: false, decoration: InputDecoration(labelText: AppStrings.get(lang, 'fullName'), filled: true, fillColor: const Color(0xff121816))),
           const SizedBox(height: 14),
           TextField(controller: _usernameController, style: const TextStyle(color: Colors.white), decoration: InputDecoration(labelText: AppStrings.get(lang, 'username'), filled: true, fillColor: const Color(0xff121816))),
           const SizedBox(height: 14),
