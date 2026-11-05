@@ -1286,9 +1286,10 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
-                color: const Color(0xff080C0B),
+                color: const Color(0xff060908),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xff00E676).withOpacity(0.4), width: 1.5),
+                border: Border.all(color: const Color(0xff00E5FF).withOpacity(0.6), width: 2),
+                boxShadow: [BoxShadow(color: const Color(0xff00E5FF).withOpacity(0.2), blurRadius: 15, spreadRadius: 2)],
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
@@ -1308,8 +1309,12 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
                         height: plat['h'] as double,
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(colors: [Color(0xff00E676), Color(0xff00E5FF)]),
-                          borderRadius: BorderRadius.circular(8),
-                          boxShadow: [BoxShadow(color: const Color(0xff00E676).withOpacity(0.3), blurRadius: 8)],
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(color: const Color(0xff00E676).withOpacity(0.6), blurRadius: 12, spreadRadius: 1),
+                            BoxShadow(color: const Color(0xff00E5FF).withOpacity(0.4), blurRadius: 6),
+                          ],
+                          border: Border.all(color: Colors.white, width: 1),
                         ),
                       ),
                     )),
@@ -1317,29 +1322,49 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
                     ...crystals.where((c) => c['collected'] == false).map((c) => Positioned(
                       left: (c['x'] as double) - (playerX > 300 ? playerX - 300 : 0),
                       top: c['y'] as double,
-                      child: const Icon(Icons.diamond, color: Color(0xff00E5FF), size: 26),
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          boxShadow: [BoxShadow(color: const Color(0xff00E5FF).withOpacity(0.8), blurRadius: 10, spreadRadius: 2)],
+                        ),
+                        child: const Icon(Icons.diamond, color: Color(0xff00E5FF), size: 28),
+                      ),
                     )),
 
                     ...hazards.map((h) => Positioned(
                       left: (h['x'] as double) - (playerX > 300 ? playerX - 300 : 0),
                       top: h['y'] as double,
-                      child: const Icon(Icons.local_fire_department, color: Colors.redAccent, size: 28),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          boxShadow: [BoxShadow(color: Colors.redAccent.withOpacity(0.9), blurRadius: 12, spreadRadius: 3)],
+                        ),
+                        child: const Icon(Icons.local_fire_department, color: Colors.redAccent, size: 30),
+                      ),
                     )),
 
                     Positioned(
                       left: playerX > 300 ? 300.0 : playerX,
                       top: playerY,
                       child: Container(
-                        width: 32,
-                        height: 40,
+                        width: 36,
+                        height: 44,
                         decoration: BoxDecoration(
-                          color: hitCooldown > 0 ? Colors.orange : const Color(0xff00E676),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.white, width: 1.5),
-                          boxShadow: [BoxShadow(color: const Color(0xff00E676).withOpacity(0.6), blurRadius: 10)],
+                          gradient: const LinearGradient(colors: [Color(0xff00E5FF), Color(0xff00E676)]),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.white, width: 2),
+                          boxShadow: [
+                            BoxShadow(color: const Color(0xff00E5FF).withOpacity(0.8), blurRadius: 16, spreadRadius: 2),
+                            BoxShadow(color: const Color(0xff00E676).withOpacity(0.6), blurRadius: 8),
+                          ],
                         ),
-                        child: const Center(
-                          child: Icon(Icons.person, color: Colors.black, size: 20),
+                        child: Center(
+                          child: Icon(
+                            hitCooldown > 0 ? Icons.flash_on : Icons.android,
+                            color: Colors.black,
+                            size: 24,
+                          ),
                         ),
                       ),
                     ),
@@ -1459,8 +1484,8 @@ class CyberGridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xff00E5FF).withOpacity(0.08)
-      ..strokeWidth = 1.0;
+      ..color = const Color(0xff00E5FF).withOpacity(0.12)
+      ..strokeWidth = 1.2;
 
     for (double i = 0; i < size.width; i += 30) {
       canvas.drawLine(Offset(i, 0), Offset(i, size.height), paint);
@@ -1756,6 +1781,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       Navigator.pop(context);
     }
   }
+
+  @override
+}
 
   @override
   Widget build(BuildContext context) {
