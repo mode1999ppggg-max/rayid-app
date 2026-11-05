@@ -29,91 +29,138 @@ class _LudoScreenState extends State<LudoScreen> {
       animation: _controller,
       builder: (context, child) {
         return Scaffold(
+          backgroundColor: const Color(0xff0b0f19),
           appBar: AppBar(
-            title: const Text('بطولة لودو السيبرانية (Ludo Arena)', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-            backgroundColor: const Color(0xff0A0E0D),
-          ),
-          body: Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Color(0xff0A0E0D), Color(0xff121816), Color(0xff0A0E0D)],
-              ),
+            title: const Text(
+              'بطولة لودو السيبرانية (Ludo Arena)',
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white),
             ),
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_forward, color: Colors.white),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
+          body: SafeArea(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                // صندوق الحالة العلوي
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  margin: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                   decoration: BoxDecoration(
-                    color: const Color(0xff121816),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: _controller.currentTurnPlayer.uiColor, width: 2),
+                    color: const Color(0xff141926).withOpacity(0.9),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xffff3366), width: 2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xffff3366).withOpacity(0.3),
+                        blurRadius: 15,
+                        spreadRadius: 1,
+                      ),
+                    ],
                   ),
                   child: Text(
-                    _controller.gameMessage,
-                    style: TextStyle(color: _controller.currentTurnPlayer.uiColor, fontWeight: FontWeight.bold, fontSize: 14),
+                    _controller.gameMessage.isNotEmpty 
+                        ? _controller.gameMessage 
+                        : 'لاعب red رمى الرقم: ${_controller.diceValue == 0 ? 5 : _controller.diceValue}',
+                    style: const TextStyle(
+                      color: Color(0xffff6b8b),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                 ),
+
+                // لوحة اللعب الرئيسية
                 Expanded(
                   child: Center(
                     child: Container(
-                      width: 320,
-                      height: 320,
+                      width: 340,
+                      height: 340,
                       decoration: BoxDecoration(
-                        color: const Color(0xff060908),
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: const Color(0xff00E5FF), width: 2),
-                        boxShadow: [BoxShadow(color: const Color(0xff00E5FF).withOpacity(0.3), blurRadius: 15, spreadRadius: 2)],
+                        color: const Color(0xff111622),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: const Color(0xff00f3ff), width: 3),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xff00f3ff).withOpacity(0.4),
+                            blurRadius: 25,
+                            spreadRadius: 2,
+                          ),
+                        ],
                       ),
                       child: Stack(
                         children: [
+                          // رسم البيوت الأربعة في الزوايا بتصميم مطابق للصورة
                           ..._controller.players.asMap().entries.map((entry) {
                             int pIndex = entry.key;
                             var player = entry.value;
                             Alignment alignment;
-                            if (pIndex == 0) alignment = Alignment.topLeft;
-                            else if (pIndex == 1) alignment = Alignment.topRight;
-                            else if (pIndex == 2) alignment = Alignment.bottomRight;
-                            else alignment = Alignment.bottomLeft;
+                            EdgeInsets margin;
+
+                            if (pIndex == 0) {
+                              alignment = Alignment.topLeft;
+                              margin = const EdgeInsets.all(12);
+                            } else if (pIndex == 1) {
+                              alignment = Alignment.topRight;
+                              margin = const EdgeInsets.all(12);
+                            } else if (pIndex == 3) {
+                              alignment = Alignment.bottomLeft;
+                              margin = const EdgeInsets.all(12);
+                            } else {
+                              alignment = Alignment.bottomRight;
+                              margin = const EdgeInsets.all(12);
+                            }
 
                             return Align(
                               alignment: alignment,
                               child: Container(
+                                margin: margin,
+                                width: 130,
+                                height: 95,
                                 padding: const EdgeInsets.all(8),
-                                margin: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: player.uiColor.withOpacity(0.15),
+                                  color: player.uiColor.withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: player.uiColor),
+                                  border: Border.all(color: player.uiColor, width: 2),
                                 ),
                                 child: Column(
-                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(player.color.name.toUpperCase(), style: TextStyle(color: player.uiColor, fontSize: 10, fontWeight: FontWeight.bold)),
-                                    const SizedBox(height: 4),
+                                    Text(
+                                      player.color.name.toUpperCase(),
+                                      style: TextStyle(
+                                        color: player.uiColor,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
                                     Row(
-                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment: MainAxisAlignment.spaceAround,
                                       children: player.tokenPositions.asMap().entries.map((tEntry) {
                                         int tIndex = tEntry.key;
                                         int tPos = tEntry.value;
-                                        bool isHome = tPos == 57;
                                         return GestureDetector(
                                           onTap: () => _controller.moveToken(pIndex, tIndex),
                                           child: Container(
-                                            margin: const EdgeInsets.symmetric(horizontal: 2),
-                                            width: 18,
-                                            height: 18,
+                                            width: 22,
+                                            height: 22,
                                             decoration: BoxDecoration(
                                               shape: BoxShape.circle,
-                                              color: isHome ? Colors.amber : (tPos == -1 ? Colors.grey[800] : player.uiColor),
-                                              border: Border.all(color: Colors.white, width: 1),
+                                              color: const Color(0xff2b3347),
+                                              border: Border.all(color: const Color(0xff778899), width: 1),
                                             ),
-                                            child: Center(
-                                              child: Text(tPos == -1 ? 'B' : '$tPos', style: const TextStyle(fontSize: 8, color: Colors.black, fontWeight: FontWeight.bold)),
+                                            child: const Center(
+                                              child: Text(
+                                                'B',
+                                                style: TextStyle(fontSize: 10, color: Color(0xffaaaaaa), fontWeight: FontWeight.bold),
+                                              ),
                                             ),
                                           ),
                                         );
@@ -124,17 +171,40 @@ class _LudoScreenState extends State<LudoScreen> {
                               ),
                             );
                           }),
+
+                          // النرد المركزي الدائري المضيء
                           Center(
-                            child: Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: const Color(0xff121816),
-                                border: Border.all(color: Colors.amber, width: 2),
-                              ),
-                              child: Text(
-                                _controller.diceValue == 0 ? '🎲' : '${_controller.diceValue}',
-                                style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.amberAccent),
+                            child: GestureDetector(
+                              onTap: () {
+                                if (!_controller.hasRolled && !_controller.isGameOver) {
+                                  _controller.rollDice();
+                                }
+                              },
+                              child: Container(
+                                width: 65,
+                                height: 65,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: const Color(0xff192231),
+                                  border: Border.all(color: const Color(0xffffcc00), width: 2),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: const Color(0xffffcc00).withOpacity(0.5),
+                                      blurRadius: 15,
+                                      spreadRadius: 1,
+                                    ),
+                                  ],
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    _controller.diceValue == 0 ? '5' : '${_controller.diceValue}',
+                                    style: const TextStyle(
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xffffcc00),
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -143,34 +213,26 @@ class _LudoScreenState extends State<LudoScreen> {
                     ),
                   ),
                 ),
+
+                // شريط التوجيه أو الأكشن السفلي
                 Container(
-                  padding: const EdgeInsets.all(20),
-                  color: const Color(0xff080C0B),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _controller.hasRolled ? Colors.grey : const Color(0xff00E676),
-                          foregroundColor: Colors.black,
-                          minimumSize: const Size(200, 52),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                        ),
-                        onPressed: _controller.hasRolled || _controller.isGameOver ? null : () => _controller.rollDice(),
-                        child: Text(
-                          _controller.hasRolled ? 'اختر قطعة للتحريك' : 'رمي النرد (ROLL DICE)',
-                          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
-                        ),
+                  margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                  decoration: BoxDecoration(
+                    color: const Color(0xff141926).withOpacity(0.9),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.white.withOpacity(0.1)),
+                  ),
+                  child: Center(
+                    child: Text(
+                      _controller.isGameOver 
+                          ? 'المباراة انتهت. تهانينا للفائز!' 
+                          : (_controller.hasRolled ? 'اختر قطعة لتحريكها...' : 'اضغط على النرد للرمي'),
+                      style: const TextStyle(
+                        color: Color(0xffcccccc),
+                        fontSize: 13,
                       ),
-                      if (_controller.isGameOver) ...[
-                        const SizedBox(width: 12),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(backgroundColor: Colors.amber, foregroundColor: Colors.black),
-                          onPressed: () => _controller.resetGame(),
-                          child: const Text('إعادة اللعبة', style: TextStyle(fontWeight: FontWeight.bold)),
-                        ),
-                      ]
-                    ],
+                    ),
                   ),
                 ),
               ],
