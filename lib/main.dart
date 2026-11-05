@@ -1268,7 +1268,7 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
       ),
       body: Column(
         children: [
-          // شريط معلومات اللعبة العلوي المطابق للتصميم السيبراني
+          // شريط معلومات اللعبة العلوي المطابق لتصميم الصورة الثانية تماماً
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -1327,7 +1327,7 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
                       ),
                     ),
 
-                    // المنصات السيبرانية النيونية المتوهجة بالكامل
+                    // المنصات السيبرانية النيونية المتوهجة بالكامل (Neon Platforms)
                     ...platforms.map((plat) => Positioned(
                       left: (plat['x'] as double) - (playerX > 300 ? playerX - 300 : 0),
                       top: plat['y'] as double,
@@ -1346,7 +1346,7 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
                       ),
                     )),
 
-                    // البلورات المتوهجة
+                    // البلورات المتوهجة (Crystals)
                     ...crystals.where((c) => c['collected'] == false).map((c) => Positioned(
                       left: (c['x'] as double) - (playerX > 300 ? playerX - 300 : 0),
                       top: c['y'] as double,
@@ -1363,7 +1363,7 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
                       ),
                     )),
 
-                    // العقبات النارية المتوهجة
+                    // العقبات النارية المتوهجة (Hazards)
                     ...hazards.map((h) => Positioned(
                       left: (h['x'] as double) - (playerX > 300 ? playerX - 300 : 0),
                       top: h['y'] as double,
@@ -1379,7 +1379,7 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
                       ),
                     )),
 
-                    // الشخصية البارزة والمتوهجة بوضوح التام (Cyber Character)
+                    // الشخصية البارزة والمتوهجة مطابقة لنمط السايبربانك (Cyber Character)
                     Positioned(
                       left: playerX > 300 ? 300.0 : playerX,
                       top: playerY,
@@ -1485,7 +1485,7 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
             ),
           ),
 
-          // أزرار التحكم السفلية المنسقة والمتوهجة (JUMP & MOVE)
+          // أزرار التحكم السفلية المنسقة المتوهجة
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             color: const Color(0xff080C0B),
