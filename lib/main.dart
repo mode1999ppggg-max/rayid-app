@@ -1783,9 +1783,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   @override
-}
-
-  @override
   Widget build(BuildContext context) {
     String lang = userModel.currentLanguage;
     return Scaffold(
