@@ -935,7 +935,8 @@ class GamesScreen extends StatelessWidget {
           _gameCard(context, AppStrings.get(lang, 'gameLudo'), Icons.casino, Colors.greenAccent, 50, () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const LudoScreen()),
+            MaterialPageRoute(builder: (context) => const LudoGameScreen()),
+
             );
           }),
           _gameCard(context, AppStrings.get(lang, 'gameChess'), Icons.extension, Colors.blueAccent, 30, () {}),
