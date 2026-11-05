@@ -1,5 +1,5 @@
 // ==============================================================================
-// ملف اللعبة المتكامل والمطور هندسياً: lib/games/ludo_game.dart
+// ملف اللعبة المتكامل والمطور هندسياً: lib/games/ludo/ludo_screen.dart
 // مشروع RAYID PAY – CYBERPUNK LUDO ARENA
 // ==============================================================================
 
@@ -17,15 +17,10 @@ class LudoPlayer {
   final LudoColor color;
   final Color uiColor;
   final String name;
-  final int baseStartIndex; // نقطة البداية العالمية على المسار المشترك (0 إلى 51)
-  final int baseIndexForCoords; // مؤشر مرجعي لتحديد موقع القاعدة على اللوحة (0:أحمر، 1:أخضر، 2:أزرق، 3:أصفر)
-  final int entryBeforeHome; // خانة الدخول الدقيقة المحددة لكل لون (الأحمر: 50، الأخضر: 11، الأزرق: 24، الأصفر: 37)
+  final int baseStartIndex; 
+  final int baseIndexForCoords; 
+  final int entryBeforeHome; 
 
-  // مواقع القطع الأربعة:
-  // -1: داخل القاعدة.
-  // 0 إلى 51: المسار العام المشترك.
-  // 52 إلى 57: المسار النهائي الخاص (Home Stretch - 6 خانات).
-  // 58: البيت النهائي (الهدف المكتمل).
   List<int> tokenPositions = [-1, -1, -1, -1];
 
   LudoPlayer({
@@ -46,7 +41,7 @@ class LudoPlayer {
 // ------------------------------------------------------------------------------
 
 class LudoGameController extends ChangeNotifier {
-  int totalPlayersCount; // عدد اللاعبين (2، 3، أو 4)
+  int totalPlayersCount;
   late List<LudoPlayer> players;
 
   int currentTurnIndex = 0;
@@ -54,17 +49,15 @@ class LudoGameController extends ChangeNotifier {
   bool hasRolled = false;
   bool isGameOver = false;
   bool isRolling = false;
-  bool isAnimatingMove = false; // لمنع النقر المتكرر أثناء الحركة التدريجية
+  bool isAnimatingMove = false;
   bool _isDisposed = false;
   String gameMessage = "مرحباً بك في RAYID PAY LUDO ARENA! دور اللاعب الأحمر.";
 
-  // معرّف الجلسة لمنع أي مهام أو مؤقتات أو حركات قديمة من تعديل الحالة الجديدة
   int gameSessionId = 0;
 
   Timer? _turnTimer;
   Timer? _diceTimer;
 
-  // المربعات الآمنة على المسار العام المشترك (0 إلى 51)
   final Set<int> safePositions = {0, 8, 13, 21, 26, 34, 39, 47};
 
   LudoGameController({this.totalPlayersCount = 4}) {
@@ -80,11 +73,11 @@ class LudoGameController extends ChangeNotifier {
     ];
 
     if (totalPlayersCount == 2) {
-      players = [allPlayers[0], allPlayers[2]]; // أحمر وأزرق
+      players = [allPlayers[0], allPlayers[2]];
     } else if (totalPlayersCount == 3) {
-      players = [allPlayers[0], allPlayers[1], allPlayers[2]]; // أحمر، أخضر، أزرق
+      players = [allPlayers[0], allPlayers[1], allPlayers[2]];
     } else {
-      players = allPlayers; // الأربعة لاعبين
+      players = allPlayers;
     }
   }
 
@@ -116,7 +109,6 @@ class LudoGameController extends ChangeNotifier {
     }
   }
 
-  // رمي النرد مع حماية كاملة للجلسة وتجنب النقر المتكرر
   void rollDice() {
     if (hasRolled || isGameOver || isRolling || isAnimatingMove || _isDisposed) return;
 
@@ -145,31 +137,26 @@ class LudoGameController extends ChangeNotifier {
     });
   }
 
-  // المحرك الموحد الحقيقي والوحيد لحساب خطوة واحدة للأمام لكل لاعب
   int _calculateSingleStep(int currentPos, LudoPlayer player) {
-    if (currentPos == -1) return player.baseStartIndex; // الخروج من القاعدة لنقطة البداية مباشرة
-    if (currentPos == 58) return 58; // وصل للهدف النهائي مسبقاً
+    if (currentPos == -1) return player.baseStartIndex;
+    if (currentPos == 58) return 58;
 
-    // إذا كان الحجر في المسار العام المشترك (0 إلى 51)
     if (currentPos < 52) {
       if (currentPos == player.entryBeforeHome) {
-        return 52; // الانتقال الدقيق لأول خانة في المسار النهائي (52)
+        return 52;
       }
       return (currentPos + 1) % 52;
-    } 
-    // إذا كان الحجر داخل المسار النهائي (52 إلى 57)
-    else if (currentPos >= 52 && currentPos < 58) {
+    } else if (currentPos >= 52 && currentPos < 58) {
       return currentPos + 1;
     }
 
     return currentPos;
   }
 
-  // توحيد حساب الخروج والحركة تماماً بين simulateMovement و isValidMove و moveToken
   int simulateMovement(int currentPos, int steps, LudoPlayer player) {
     if (currentPos == -1) {
       if (steps == 6) {
-        return player.baseStartIndex; // الخروج برمية 6 ينقل مباشرة لنقطة البداية دون استهلاك خطوات إضافية
+        return player.baseStartIndex;
       }
       return -1;
     }
@@ -194,7 +181,6 @@ class LudoGameController extends ChangeNotifier {
     return pos;
   }
 
-  // التحقق من قانونية الحركة بناءً على المحرك الموحد
   bool isValidMove(int playerIndex, int tokenIndex, int steps) {
     if (playerIndex < 0 || playerIndex >= players.length || isGameOver) return false;
     LudoPlayer player = players[playerIndex];
@@ -206,7 +192,7 @@ class LudoGameController extends ChangeNotifier {
       if (steps != 6) return false;
       int startPos = player.baseStartIndex;
       for (int p in player.tokenPositions) {
-        if (p == startPos) return false; // نقطة البداية مشغولة بحجر لنفس اللاعب
+        if (p == startPos) return false;
       }
       return true;
     }
@@ -248,14 +234,13 @@ class LudoGameController extends ChangeNotifier {
     return isValidMove(playerIndex, tokenIndex, diceValue);
   }
 
-  // تنفيذ الحركة مع التحقق المسبق عبر simulateMovement وحماية مسارات إلغاء الحركة عند تغيّر gameSessionId
   Future<void> moveToken(int playerIndex, int tokenIndex) async {
     if (!isTokenMovable(playerIndex, tokenIndex)) return;
 
     LudoPlayer player = players[playerIndex];
     int currentPos = player.tokenPositions[tokenIndex];
     int simulatedTarget = simulateMovement(currentPos, diceValue, player);
-    if (simulatedTarget == -1) return; // رفض الحركة إذا لم تكن قانونية تماماً
+    if (simulatedTarget == -1) return;
 
     isAnimatingMove = true;
     notifyListeners();
@@ -266,7 +251,6 @@ class LudoGameController extends ChangeNotifier {
       int startPos = player.baseStartIndex;
       bool captured = _captureCheck(startPos, playerIndex);
       
-      // التأكد أن الجلسة لم تتغير أثناء التأخير
       if (gameSessionId != currentSession || _isDisposed) {
         isAnimatingMove = false;
         return;
@@ -285,7 +269,6 @@ class LudoGameController extends ChangeNotifier {
       return;
     }
 
-    // التنفيذ التدريجي خطوة بخطوة مع التوقف الفوري عند بلوغ 58
     int steps = diceValue;
     for (int s = 0; s < steps; s++) {
       if (gameSessionId != currentSession || _isDisposed) {
@@ -317,7 +300,6 @@ class LudoGameController extends ChangeNotifier {
       return;
     }
 
-    // فحص الفوز الموحد وإيقاف اللعبة تماماً عند وصول الأحجار الأربعة للهدف 58
     if (player.hasWon) {
       isGameOver = true;
       gameMessage = "تهانينا! فاز اللاعب ${player.name} بالبطولة الكبرى!";
@@ -331,7 +313,6 @@ class LudoGameController extends ChangeNotifier {
     _finalizeMove(extraTurn: extraTurn, currentSession: currentSession);
   }
 
-  // قواعد أكل الخصم مع حماية المربعات الآمنة وحماية المسارات النهائية (من 52 إلى 58) تماماً
   bool _captureCheck(int targetPos, int moverPlayerIndex) {
     if (targetPos >= 52 || safePositions.contains(targetPos)) return false;
 
@@ -341,7 +322,7 @@ class LudoGameController extends ChangeNotifier {
       for (int t = 0; t < players[p].tokenPositions.length; t++) {
         int enemyPos = players[p].tokenPositions[t];
         if (enemyPos == targetPos && enemyPos < 52) {
-          players[p].tokenPositions[t] = -1; // إرجاع حجر الخصم للقاعدة
+          players[p].tokenPositions[t] = -1;
           didCapture = true;
           gameMessage = "تم أكل حجر اللاعب ${players[p].name} وإرجاعه للقاعدة!";
         }
@@ -371,9 +352,9 @@ class LudoGameController extends ChangeNotifier {
   }
 
   void resetGame() {
-    gameSessionId++; // زيادة معرّف الجلسة لإبطال وتجاهل أي حركات أو مؤقتات جارية من الجلسة القديمة فوراً
+    gameSessionId++;
     _cancelAllTimers();
-    isAnimatingMove = false; // تصفير آمن ومباشر لحالة الحركة للجلسة الجديدة
+    isAnimatingMove = false;
     _initPlayers();
     currentTurnIndex = 0;
     diceValue = 0;
@@ -390,19 +371,19 @@ class LudoGameController extends ChangeNotifier {
 // ------------------------------------------------------------------------------
 
 final List<Point<int>> sharedTrackCoords = [
-  const Point(1, 6), const Point(2, 6), const Point(3, 6), const Point(4, 6), const Point(5, 6), // 0-4
-  const Point(6, 5), const Point(6, 4), const Point(6, 3), const Point(6, 2), const Point(6, 1), const Point(6, 0), // 5-10
-  const Point(7, 0), // 11
-  const Point(8, 0), const Point(8, 1), const Point(8, 2), const Point(8, 3), const Point(8, 4), const Point(8, 5), // 12-17
-  const Point(9, 6), const Point(10, 6), const Point(11, 6), const Point(12, 6), const Point(13, 6), const Point(14, 6), // 18-23
-  const Point(14, 7), // 24
-  const Point(14, 8), const Point(13, 8), const Point(12, 8), const Point(11, 8), const Point(10, 8), const Point(9, 8), // 25-30
-  const Point(8, 9), const Point(8, 10), const Point(8, 11), const Point(8, 12), const Point(8, 13), const Point(8, 14), // 31-36
-  const Point(7, 14), // 37
-  const Point(6, 14), const Point(6, 13), const Point(6, 12), const Point(6, 11), const Point(6, 10), const Point(6, 9), // 38-43
-  const Point(5, 8), const Point(4, 8), const Point(3, 8), const Point(2, 8), const Point(1, 8), const Point(0, 8), // 44-49
-  const Point(0, 7), // 50
-  const Point(0, 6), // 51
+  const Point(1, 6), const Point(2, 6), const Point(3, 6), const Point(4, 6), const Point(5, 6),
+  const Point(6, 5), const Point(6, 4), const Point(6, 3), const Point(6, 2), const Point(6, 1), const Point(6, 0),
+  const Point(7, 0),
+  const Point(8, 0), const Point(8, 1), const Point(8, 2), const Point(8, 3), const Point(8, 4), const Point(8, 5),
+  const Point(9, 6), const Point(10, 6), const Point(11, 6), const Point(12, 6), const Point(13, 6), const Point(14, 6),
+  const Point(14, 7),
+  const Point(14, 8), const Point(13, 8), const Point(12, 8), const Point(11, 8), const Point(10, 8), const Point(9, 8),
+  const Point(8, 9), const Point(8, 10), const Point(8, 11), const Point(8, 12), const Point(8, 13), const Point(8, 14),
+  const Point(7, 14),
+  const Point(6, 14), const Point(6, 13), const Point(6, 12), const Point(6, 11), const Point(6, 10), const Point(6, 9),
+  const Point(5, 8), const Point(4, 8), const Point(3, 8), const Point(2, 8), const Point(1, 8), const Point(0, 8),
+  const Point(0, 7),
+  const Point(0, 6),
 ];
 
 class LudoBoardPainter extends CustomPainter {
@@ -420,7 +401,6 @@ class LudoBoardPainter extends CustomPainter {
     paint.color = const Color(0xff0a0e17);
     canvas.drawRect(Rect.fromLTWH(0, 0, w, h), paint);
 
-    // القاعدة الحمراء
     paint.color = const Color(0xffff3366).withOpacity(0.18);
     canvas.drawRect(Rect.fromLTWH(0, 0, cellSize * 6, cellSize * 6), paint);
     paint.style = PaintingStyle.stroke;
@@ -428,7 +408,6 @@ class LudoBoardPainter extends CustomPainter {
     paint.color = const Color(0xffff3366);
     canvas.drawRect(Rect.fromLTWH(0, 0, cellSize * 6, cellSize * 6), paint);
 
-    // القاعدة الخضراء
     paint.style = PaintingStyle.fill;
     paint.color = const Color(0xff00ff66).withOpacity(0.18);
     canvas.drawRect(Rect.fromLTWH(cellSize * 9, 0, cellSize * 6, cellSize * 6), paint);
@@ -436,7 +415,6 @@ class LudoBoardPainter extends CustomPainter {
     paint.color = const Color(0xff00ff66);
     canvas.drawRect(Rect.fromLTWH(cellSize * 9, 0, cellSize * 6, cellSize * 6), paint);
 
-    // القاعدة الصفراء
     paint.style = PaintingStyle.fill;
     paint.color = const Color(0xffffcc00).withOpacity(0.18);
     canvas.drawRect(Rect.fromLTWH(cellSize * 9, cellSize * 9, cellSize * 6, cellSize * 6), paint);
@@ -444,7 +422,6 @@ class LudoBoardPainter extends CustomPainter {
     paint.color = const Color(0xffffcc00);
     canvas.drawRect(Rect.fromLTWH(cellSize * 9, cellSize * 9, cellSize * 6, cellSize * 6), paint);
 
-    // القاعدة الزرقاء
     paint.style = PaintingStyle.fill;
     paint.color = const Color(0xff00f3ff).withOpacity(0.18);
     canvas.drawRect(Rect.fromLTWH(0, cellSize * 9, cellSize * 6, cellSize * 6), paint);
@@ -452,7 +429,6 @@ class LudoBoardPainter extends CustomPainter {
     paint.color = const Color(0xff00f3ff);
     canvas.drawRect(Rect.fromLTWH(0, cellSize * 9, cellSize * 6, cellSize * 6), paint);
 
-    // المسار المشترك 52 خانة
     paint.style = PaintingStyle.fill;
     for (int i = 0; i < sharedTrackCoords.length; i++) {
       var pt = sharedTrackCoords[i];
@@ -472,7 +448,6 @@ class LudoBoardPainter extends CustomPainter {
       canvas.drawRect(Rect.fromLTWH(pt.x * cellSize + 1, pt.y * cellSize + 1, cellSize - 2, cellSize - 2), paint);
     }
 
-    // المسارات النهائية (Home Stretches) لكل لون
     for (int step = 0; step < 6; step++) {
       paint.color = const Color(0xffff3366).withOpacity(0.6);
       canvas.drawRect(Rect.fromLTWH((1 + step) * cellSize + 1, 7 * cellSize + 1, cellSize - 2, cellSize - 2), paint);
@@ -490,7 +465,6 @@ class LudoBoardPainter extends CustomPainter {
       canvas.drawRect(Rect.fromLTWH(7 * cellSize + 1, (13 - step) * cellSize + 1, cellSize - 2, cellSize - 2), paint);
     }
 
-    // مركز الهدف النهائي
     paint.color = const Color(0xff1a263f);
     canvas.drawRect(Rect.fromLTWH(cellSize * 6, cellSize * 6, cellSize * 3, cellSize * 3), paint);
     paint.style = PaintingStyle.stroke;
@@ -672,7 +646,6 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
                       ],
                     ),
                   ),
-
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 12),
                     padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
@@ -694,7 +667,6 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
                       }).toList(),
                     ),
                   ),
-
                   Expanded(
                     child: Center(
                       child: AspectRatio(
@@ -731,7 +703,6 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
                                           size: Size(boardSize, boardSize),
                                           painter: LudoBoardPainter(players: _controller.players),
                                         ),
-
                                         for (int pIndex = 0; pIndex < _controller.players.length; pIndex++) ...{
                                           for (int tIndex = 0; tIndex < _controller.players[pIndex].tokenPositions.length; tIndex++) ...{
                                             () {
@@ -780,7 +751,6 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
                                             }()
                                           }
                                         },
-
                                         Center(
                                           child: GestureDetector(
                                             onTap: () => _controller.rollDice(),
@@ -832,7 +802,6 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
                       ],
                     ),
                   ),
-
                   Container(
                     padding: const EdgeInsets.all(12),
                     margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -846,7 +815,7 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
                       children: [
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: _controller.hasRolled ? Colors.grey.shade800 : const Color(0xff00e676),
+                            backgroundColor: _controller.hasRolled || _controller.isGameOver || _controller.isAnimatingMove ? Colors.grey.shade800 : const Color(0xff00e676),
                             foregroundColor: Colors.black,
                             padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
