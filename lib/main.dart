@@ -1113,23 +1113,21 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
     double difficultyMultiplier = widget.stageLevel * 0.6;
     
     platforms = [
-      {'x': 0.0, 'y': 400.0, 'w': 180.0, 'h': 25.0},
-      {'x': 210.0, 'y': 320.0, 'w': 140.0, 'h': 25.0},
-      {'x': 380.0, 'y': 250.0, 'w': 150.0, 'h': 25.0},
-      {'x': 560.0, 'y': 180.0, 'w': 140.0, 'h': 25.0},
-      {'x': 730.0, 'y': 110.0, 'w': 200.0, 'h': 25.0},
+      {'x': 0.0, 'y': 420.0, 'w': 220.0, 'h': 28.0},
+      {'x': 250.0, 'y': 330.0, 'w': 180.0, 'h': 28.0},
+      {'x': 460.0, 'y': 240.0, 'w': 190.0, 'h': 28.0},
+      {'x': 680.0, 'y': 150.0, 'w': 220.0, 'h': 28.0},
     ];
 
     crystals = [
-      {'x': 240.0, 'y': 270.0, 'collected': false},
-      {'x': 420.0, 'y': 200.0, 'collected': false},
-      {'x': 600.0, 'y': 130.0, 'collected': false},
-      {'x': 780.0, 'y': 60.0, 'collected': false},
+      {'x': 310.0, 'y': 280.0, 'collected': false},
+      {'x': 530.0, 'y': 190.0, 'collected': false},
+      {'x': 750.0, 'y': 100.0, 'collected': false},
     ];
 
     hazards = [
-      {'x': 250.0, 'y': 295.0, 'dir': 1.0, 'speed': 2.0 * difficultyMultiplier},
-      {'x': 580.0, 'y': 155.0, 'dir': -1.0, 'speed': 2.5 * difficultyMultiplier},
+      {'x': 290.0, 'y': 305.0, 'dir': 1.0, 'speed': 2.2 * difficultyMultiplier},
+      {'x': 510.0, 'y': 215.0, 'dir': -1.0, 'speed': 2.8 * difficultyMultiplier},
     ];
   }
 
@@ -1146,49 +1144,49 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
 
         for (var haz in hazards) {
           haz['x'] = (haz['x'] as double) + ((haz['dir'] as double) * (haz['speed'] as double));
-          if ((haz['x'] as double) < 200 || (haz['x'] as double) > 650) {
+          if ((haz['x'] as double) < 220 || (haz['x'] as double) > 650) {
             haz['dir'] = -(haz['dir'] as double);
           }
         }
 
         for (var plat in platforms) {
-          if (playerX + 30 >= (plat['x'] as double) && 
+          if (playerX + 38 >= (plat['x'] as double) && 
               playerX <= (plat['x'] as double) + (plat['w'] as double) &&
-              playerY + 40 >= (plat['y'] as double) && 
-              playerY + 40 <= (plat['y'] as double) + (plat['h'] as double) + 12 && 
+              playerY + 48 >= (plat['y'] as double) && 
+              playerY + 48 <= (plat['y'] as double) + (plat['h'] as double) + 12 && 
               velocityY >= 0) {
-            playerY = (plat['y'] as double) - 40.0;
+            playerY = (plat['y'] as double) - 48.0;
             velocityY = 0.0;
             isJumping = false;
             break;
           }
         }
 
-        if (playerY > 550) {
+        if (playerY > 580) {
           _loseLife('سقطت في الهاوية السيبرانية!');
         }
 
         for (var crystal in crystals) {
           if (crystal['collected'] == false) {
             double dist = sqrt(pow(playerX - (crystal['x'] as double), 2) + pow(playerY - (crystal['y'] as double), 2));
-            if (dist < 40) {
+            if (dist < 45) {
               crystal['collected'] = true;
               coinsCollected++;
-              score += 35;
+              score += 50;
             }
           }
         }
 
         for (var haz in hazards) {
           double distHaz = sqrt(pow(playerX - (haz['x'] as double), 2) + pow(playerY - (haz['y'] as double), 2));
-          if (distHaz < 32 && hitCooldown == 0) {
+          if (distHaz < 35 && hitCooldown == 0) {
             _loseLife('اصطدمت بعائق نيون جارح!');
             hitCooldown = 45;
             break;
           }
         }
 
-        if (playerX >= 750 && playerX <= 900 && playerY <= 120) {
+        if (playerX >= 720 && playerX <= 880 && playerY <= 140) {
           hasWon = true;
           isPlaying = false;
           gameLoopTimer?.cancel();
@@ -1238,7 +1236,7 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
   void _jumpPlayer() {
     if (!isJumping && isPlaying && !isPaused) {
       setState(() {
-        velocityY = -14.5;
+        velocityY = -15.0;
         isJumping = true;
       });
     }
@@ -1270,14 +1268,39 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          // شريط معلومات اللعبة العلوي المطابق للتصميم السيبراني
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(colors: [Color(0xff121816), Color(0xff1A1025)]),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xff00E5FF).withOpacity(0.5), width: 1.5),
+            ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('⭐ Score: $score', style: const TextStyle(color: Color(0xff00E676), fontSize: 13, fontWeight: FontWeight.bold)),
-                Text('💎 Crystals: $coinsCollected', style: const TextStyle(color: Color(0xff00E5FF), fontSize: 13, fontWeight: FontWeight.bold)),
-                Text('❤️ Health: $health', style: const TextStyle(color: Colors.redAccent, fontSize: 13, fontWeight: FontWeight.bold)),
+                Row(
+                  children: [
+                    const Icon(Icons.flash_on, color: Color(0xff00E676), size: 18),
+                    const SizedBox(width: 4),
+                    Text('SCORE: $score', style: const TextStyle(color: Color(0xff00E676), fontSize: 13, fontWeight: FontWeight.w900, letterSpacing: 1)),
+                  ],
+                ),
+                Row(
+                  children: [
+                    const Icon(Icons.diamond, color: Color(0xff00E5FF), size: 18),
+                    const SizedBox(width: 4),
+                    Text('$coinsCollected', style: const TextStyle(color: Color(0xff00E5FF), fontSize: 13, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+                Row(
+                  children: [
+                    const Icon(Icons.favorite, color: Colors.redAccent, size: 18),
+                    const SizedBox(width: 4),
+                    Text('HEALTH: $health', style: const TextStyle(color: Colors.redAccent, fontSize: 13, fontWeight: FontWeight.bold)),
+                  ],
+                ),
               ],
             ),
           ),
@@ -1286,10 +1309,13 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
-                color: const Color(0xff060908),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xff00E5FF).withOpacity(0.6), width: 2),
-                boxShadow: [BoxShadow(color: const Color(0xff00E5FF).withOpacity(0.2), blurRadius: 15, spreadRadius: 2)],
+                color: const Color(0xff050709),
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(color: const Color(0xff00E5FF), width: 2),
+                boxShadow: [
+                  BoxShadow(color: const Color(0xff00E5FF).withOpacity(0.3), blurRadius: 18, spreadRadius: 3),
+                  BoxShadow(color: const Color(0xff00E676).withOpacity(0.2), blurRadius: 10),
+                ],
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
@@ -1301,6 +1327,7 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
                       ),
                     ),
 
+                    // المنصات السيبرانية النيونية المتوهجة بالكامل
                     ...platforms.map((plat) => Positioned(
                       left: (plat['x'] as double) - (playerX > 300 ? playerX - 300 : 0),
                       top: plat['y'] as double,
@@ -1308,62 +1335,75 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
                         width: plat['w'] as double,
                         height: plat['h'] as double,
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(colors: [Color(0xff00E676), Color(0xff00E5FF)]),
-                          borderRadius: BorderRadius.circular(10),
+                          gradient: const LinearGradient(colors: [Color(0xff00E676), Color(0xff00E5FF), Color(0xffFF007F)]),
+                          borderRadius: BorderRadius.circular(14),
                           boxShadow: [
-                            BoxShadow(color: const Color(0xff00E676).withOpacity(0.6), blurRadius: 12, spreadRadius: 1),
-                            BoxShadow(color: const Color(0xff00E5FF).withOpacity(0.4), blurRadius: 6),
+                            BoxShadow(color: const Color(0xff00E676).withOpacity(0.8), blurRadius: 16, spreadRadius: 2),
+                            BoxShadow(color: const Color(0xff00E5FF).withOpacity(0.6), blurRadius: 8),
                           ],
-                          border: Border.all(color: Colors.white, width: 1),
+                          border: Border.all(color: Colors.white, width: 1.5),
                         ),
                       ),
                     )),
 
+                    // البلورات المتوهجة
                     ...crystals.where((c) => c['collected'] == false).map((c) => Positioned(
                       left: (c['x'] as double) - (playerX > 300 ? playerX - 300 : 0),
                       top: c['y'] as double,
                       child: Container(
-                        padding: const EdgeInsets.all(2),
+                        padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          boxShadow: [BoxShadow(color: const Color(0xff00E5FF).withOpacity(0.8), blurRadius: 10, spreadRadius: 2)],
+                          boxShadow: [
+                            BoxShadow(color: const Color(0xff00E5FF).withOpacity(0.9), blurRadius: 14, spreadRadius: 3),
+                            BoxShadow(color: Colors.white.withOpacity(0.5), blurRadius: 6),
+                          ],
                         ),
-                        child: const Icon(Icons.diamond, color: Color(0xff00E5FF), size: 28),
+                        child: const Icon(Icons.diamond, color: Color(0xff00E5FF), size: 32),
                       ),
                     )),
 
+                    // العقبات النارية المتوهجة
                     ...hazards.map((h) => Positioned(
                       left: (h['x'] as double) - (playerX > 300 ? playerX - 300 : 0),
                       top: h['y'] as double,
                       child: Container(
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          boxShadow: [BoxShadow(color: Colors.redAccent.withOpacity(0.9), blurRadius: 12, spreadRadius: 3)],
+                          boxShadow: [
+                            BoxShadow(color: Colors.redAccent.withOpacity(0.95), blurRadius: 16, spreadRadius: 4),
+                            BoxShadow(color: Colors.amber.withOpacity(0.6), blurRadius: 8),
+                          ],
                         ),
-                        child: const Icon(Icons.local_fire_department, color: Colors.redAccent, size: 30),
+                        child: const Icon(Icons.local_fire_department, color: Colors.redAccent, size: 34),
                       ),
                     )),
 
+                    // الشخصية البارزة والمتوهجة بوضوح التام (Cyber Character)
                     Positioned(
                       left: playerX > 300 ? 300.0 : playerX,
                       top: playerY,
                       child: Container(
-                        width: 36,
-                        height: 44,
+                        width: 42,
+                        height: 52,
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(colors: [Color(0xff00E5FF), Color(0xff00E676)]),
-                          borderRadius: BorderRadius.circular(12),
+                          gradient: const LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [Color(0xffFF007F), Color(0xff00E5FF), Color(0xff00E676)],
+                          ),
+                          borderRadius: BorderRadius.circular(16),
                           border: Border.all(color: Colors.white, width: 2),
                           boxShadow: [
-                            BoxShadow(color: const Color(0xff00E5FF).withOpacity(0.8), blurRadius: 16, spreadRadius: 2),
-                            BoxShadow(color: const Color(0xff00E676).withOpacity(0.6), blurRadius: 8),
+                            BoxShadow(color: const Color(0xffFF007F).withOpacity(0.9), blurRadius: 20, spreadRadius: 3),
+                            BoxShadow(color: const Color(0xff00E5FF).withOpacity(0.8), blurRadius: 10),
                           ],
                         ),
                         child: Center(
                           child: Icon(
                             hitCooldown > 0 ? Icons.flash_on : Icons.android,
-                            color: Colors.black,
-                            size: 24,
+                            color: Colors.white,
+                            size: 28,
                           ),
                         ),
                       ),
@@ -1445,31 +1485,49 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
             ),
           ),
 
+          // أزرار التحكم السفلية المنسقة والمتوهجة (JUMP & MOVE)
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             color: const Color(0xff080C0B),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
                   children: [
                     ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff121816), foregroundColor: const Color(0xff00E676), minimumSize: const Size(60, 50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: Color(0xff00E676)))),
-                      onPressed: () => _movePlayer(-18.0),
-                      child: const Icon(Icons.arrow_back, size: 24),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xff121816),
+                        foregroundColor: const Color(0xff00E5FF),
+                        minimumSize: const Size(60, 52),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14), side: const BorderSide(color: Color(0xff00E5FF), width: 1.5)),
+                      ),
+                      onPressed: () => _movePlayer(-20.0),
+                      child: const Icon(Icons.arrow_back, size: 26),
                     ),
                     const SizedBox(width: 12),
                     ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff121816), foregroundColor: const Color(0xff00E676), minimumSize: const Size(60, 50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: Color(0xff00E676)))),
-                      onPressed: () => _movePlayer(18.0),
-                      child: const Icon(Icons.arrow_forward, size: 24),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xff121816),
+                        foregroundColor: const Color(0xff00E5FF),
+                        minimumSize: const Size(60, 52),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14), side: const BorderSide(color: Color(0xff00E5FF), width: 1.5)),
+                      ),
+                      onPressed: () => _movePlayer(20.0),
+                      child: const Icon(Icons.arrow_forward, size: 26),
                     ),
                   ],
                 ),
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black, minimumSize: const Size(120, 50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xff00E676),
+                    foregroundColor: Colors.black,
+                    minimumSize: const Size(130, 52),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    elevation: 8,
+                    shadowColor: const Color(0xff00E676),
+                  ),
                   onPressed: _jumpPlayer,
-                  child: const Text('قفز (JUMP)', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14)),
+                  child: const Text('JUMP! 🚀', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, letterSpacing: 1)),
                 ),
               ],
             ),
@@ -1484,13 +1542,13 @@ class CyberGridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xff00E5FF).withOpacity(0.12)
+      ..color = const Color(0xff00E5FF).withOpacity(0.15)
       ..strokeWidth = 1.2;
 
-    for (double i = 0; i < size.width; i += 30) {
+    for (double i = 0; i < size.width; i += 32) {
       canvas.drawLine(Offset(i, 0), Offset(i, size.height), paint);
     }
-    for (double j = 0; j < size.height; j += 30) {
+    for (double j = 0; j < size.height; j += 32) {
       canvas.drawLine(Offset(0, j), Offset(size.width, j), paint);
     }
   }
