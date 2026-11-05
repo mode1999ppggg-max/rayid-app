@@ -1735,6 +1735,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _phoneController = TextEditingController(text: userModel.userPhone);
   }
 
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _usernameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    super.dispose();
+  }
+
   void _saveProfile() async {
     await userModel.updateProfile(
       name: _nameController.text,
