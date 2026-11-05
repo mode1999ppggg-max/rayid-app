@@ -4,8 +4,13 @@ import 'dart:async';
 import 'dart:math';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  runApp(const RayidApp());
+  // التقاط أي خطأ حرج يحدث أثناء الإقلاع لمنع الانهيار المفاجئ
+  runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    runApp(const RayidApp());
+  }, (error, stackTrace) {
+    debugPrint('CRASH ERROR: $error');
+  });
 }
 
 // ================= قاموس اللغات الشامل (Localization Map) =================
