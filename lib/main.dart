@@ -1145,13 +1145,12 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
         playerY += velocityY;
 
         for (var haz in hazards) {
-          haz['x'] += (haz['dir'] as double) * (haz['speed'] as double);
+          haz['x'] = (haz['x'] as double) + ((haz['dir'] as double) * (haz['speed'] as double));
           if ((haz['x'] as double) < 200 || (haz['x'] as double) > 650) {
             haz['dir'] = -(haz['dir'] as double);
           }
         }
 
-        bool onPlatform = false;
         for (var plat in platforms) {
           if (playerX + 30 >= (plat['x'] as double) && 
               playerX <= (plat['x'] as double) + (plat['w'] as double) &&
@@ -1161,7 +1160,6 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
             playerY = (plat['y'] as double) - 40.0;
             velocityY = 0.0;
             isJumping = false;
-            onPlatform = true;
             break;
           }
         }
@@ -1751,9 +1749,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   @override
-}
-
-  @override
   Widget build(BuildContext context) {
     String lang = userModel.currentLanguage;
     return Scaffold(
@@ -1762,8 +1757,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           TextField(controller: _nameController, style: const TextStyle(color: Colors.white), decoration: InputDecoration(labelText: AppStrings.get(lang, 'fullName'), filled: true, fillColor: const Color(0xff121816))),
-          const SizedBox(height: 14),
-          Thumbnail(url: ...), // placeholder comment for clarity
           const SizedBox(height: 14),
           TextField(controller: _usernameController, style: const TextStyle(color: Colors.white), decoration: InputDecoration(labelText: AppStrings.get(lang, 'username'), filled: true, fillColor: const Color(0xff121816))),
           const SizedBox(height: 14),
