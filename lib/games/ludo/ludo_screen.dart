@@ -824,8 +824,20 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
                           child: const Text(
                             'رمي النرد (ROLL)',
                             style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
-                                                ElevatedButton(
-                                                  ElevatedButton(
+                                                                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _controller.hasRolled || _controller.isGameOver || _controller.isAnimatingMove ? Colors.grey.shade800 : const Color(0xff00e676),
+                            foregroundColor: Colors.black,
+                            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          onPressed: _controller.hasRolled || _controller.isGameOver || _controller.isAnimatingMove ? null : () => _controller.rollDice(),
+                          child: const Text(
+                            'رمي النرد (ROLL)',
+                            style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
+                          ),
+                        ),
+                        ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xffff3366),
                             foregroundColor: Colors.white,
@@ -833,7 +845,7 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           ),
                           onPressed: () => _controller.resetGame(),
-                                                    child: Text(
+                          child: Text(
                             'لعبة جديدة',
                             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
                           ),
