@@ -34,15 +34,14 @@ class LudoLobbyScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               const Center(
-                child: Text('CYBERPUNK LUDO', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 2)),
+                child: Text('CYBERPUNK LUDO ARENA', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 2)),
               ),
               const SizedBox(height: 6),
               const Center(
-                child: Text('تحدَ الخصوم واكسب نقاط في رايد باي', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                child: Text('تحدَ الخصوم برقعة نيون سيبرانية واكسب نقاط في رايد باي', style: TextStyle(color: Colors.grey, fontSize: 12), textAlign: TextAlign.center),
               ),
               const SizedBox(height: 40),
 
-              // زر لعب ضد البوت
               _buildLobbyButton(
                 context,
                 title: 'لعب ضد البوت (AI)',
@@ -57,7 +56,6 @@ class LudoLobbyScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // زر لعب ثنائي مع صديق
               _buildLobbyButton(
                 context,
                 title: 'لعب ثنائي (مع صديق)',
@@ -72,10 +70,9 @@ class LudoLobbyScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // زر القوانين والجوايز
               _buildLobbyButton(
                 context,
-                title: 'قوانين والجوايز',
+                title: 'قوانين وجوائز اللعبة',
                 icon: Icons.card_giftcard,
                 borderColor: Colors.amber,
                 onTap: () {
@@ -90,17 +87,17 @@ class LudoLobbyScreen extends StatelessWidget {
   }
 
   Widget _buildLobbyButton(BuildContext context, {required String title, required IconData icon, required Color borderColor, required VoidCallback onTap}) {
-    return ElevatedButton.styleFrom(
-      backgroundColor: const Color(0xff121816),
-      foregroundColor: Colors.white,
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
-        side: BorderSide(color: borderColor, width: 2),
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xff121816),
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+          side: BorderSide(color: borderColor, width: 2),
+        ),
+        elevation: 6,
       ),
-      elevation: 6,
-    ).let((style) => ElevatedButton(
-      style: style,
       onPressed: onTap,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -110,7 +107,7 @@ class LudoLobbyScreen extends StatelessWidget {
           Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
         ],
       ),
-    ));
+    );
   }
 
   void _showRulesDialog(BuildContext context) {
@@ -118,11 +115,11 @@ class LudoLobbyScreen extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xff121816),
-        title: const Text('قوانين وجوائز لودو السيبرانية', style: TextStyle(color: Color(0xff00E676), fontWeight: FontWeight.bold)),
+        title: const Text('قوانين لودو السيبرانية', style: TextStyle(color: Color(0xff00E676), fontWeight: FontWeight.bold)),
         content: const Text(
-          '1. ارمِ النرد وحرك قطعك عبر مسار النيون السيبراني.\n'
-          '2. كل خطوة صحيحة تمنحك نقاط تفاعلية مضافة لمحفظتك.\n'
-          '3. الفائز يحصل على مكافأة كبرى تضاف لرصيد نقاط الترفيه في رايد باي.',
+          '1. رقعة نيون مستقبلية بأربعة أرباع سيبرانية (أخضر، أصفر، أحمر، أزرق).\n'
+          '2. ارمِ النرد وتحرك عبر مسارات الطاقة.\n'
+          '3. الفائز يربح نقاط ترفيهية مضاعفة تضاف فوراً لمحفظة رايد باي.',
           style: TextStyle(color: Colors.grey, fontSize: 13, height: 1.5),
         ),
         actions: [
@@ -137,26 +134,22 @@ class LudoLobbyScreen extends StatelessWidget {
   }
 }
 
-extension on ButtonStyle {
-  Widget let(Widget Function(ButtonStyle) child) => child(this);
-}
-
-// ================= شاشة اللعبة التفاعلية (Ludo Game Board) =================
+// ================= شاشة اللعبة السيبرانية المتكاملة =================
 class LudoGameScreen extends StatefulWidget {
   final bool isVsAI;
   const LudoGameScreen({super.key, required this.isVsAI});
 
-  @override
+  @defaultState
   State<LudoGameScreen> createState() => _LudoGameScreenState();
 }
 
 class _LudoGameScreenState extends State<LudoGameScreen> {
   int diceValue = 6;
   bool isRolling = false;
-  int playerPos = 0; // موقع اللاعب (من 0 إلى 50)
-  int aiPos = 0;     // موقع الخصم/البوت
+  int playerPos = 0; 
+  int aiPos = 0;     
   bool isPlayerTurn = true;
-  String gameStatus = 'دور اللاعب الأخضر (ارْمِ النرد!)';
+  String gameStatus = 'دور اللاعب الأخضر (ارْمِ النرد السيبراني)';
 
   void rollDice() {
     if (isRolling) return;
@@ -171,12 +164,12 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
 
         if (isPlayerTurn) {
           playerPos += diceValue;
-          if (playerPos >= 50) {
-            playerPos = 50;
-            gameStatus = 'تهانينا! اللاعب الأخضر فاز بالمعركة السيبرانية!';
+          if (playerPos >= 40) {
+            playerPos = 40;
+            gameStatus = 'فوز ساحق للسيبران الأخضر!';
           } else {
             isPlayerTurn = false;
-            gameStatus = widget.isVsAI ? 'دور البوت السيبراني...' : 'دور اللاعب الثاني...';
+            gameStatus = widget.isVsAI ? 'جاري تفكير البوت السيبراني...' : 'دور اللاعب الثاني (الأزرق)...';
             if (widget.isVsAI) {
               _triggerAITurn();
             }
@@ -192,9 +185,9 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
         int aiRoll = Random().nextInt(6) + 1;
         diceValue = aiRoll;
         aiPos += aiRoll;
-        if (aiPos >= 50) {
-          aiPos = 50;
-          gameStatus = 'فاز البوت السيبراني! حظاً أوفر في المرة القادمة.';
+        if (aiPos >= 40) {
+          aiPos = 40;
+          gameStatus = 'فاز البوت السيبراني بالمعركة!';
         } else {
           isPlayerTurn = true;
           gameStatus = 'دورك الآن يا رائد!';
@@ -208,83 +201,184 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
     return Scaffold(
       backgroundColor: const Color(0xff0A0E0D),
       appBar: AppBar(
-        title: Text(widget.isVsAI ? 'ساحة التحدي ضد الذكاء الاصطناعي' : 'ساحة التحدي الثنائي', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(widget.isVsAI ? 'VS AI CYBER ARENA' : 'DUAL CYBER ARENA', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xff00E5FF))),
+            const Text('رقم الغرفة: 236273', style: TextStyle(fontSize: 10, color: Colors.grey)),
+          ],
+        ),
         backgroundColor: const Color(0xff080C0B),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            // لوحة الحالة
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: const Color(0xff121816),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xff00E5FF).withOpacity(0.4)),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('🟢 أخضر: $playerPos', style: const TextStyle(color: Color(0xff00E676), fontWeight: FontWeight.bold, fontSize: 14)),
-                  Text(gameStatus, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-                  Text('🔵 خصم: $aiPos', style: const TextStyle(color: Color(0xff00E5FF), fontWeight: FontWeight.bold, fontSize: 14)),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // لوحة الرقعة السيبرانية المصغرة
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xff050709),
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: const Color(0xff00E676), width: 2),
-                  boxShadow: [BoxShadow(color: const Color(0xff00E676).withOpacity(0.2), blurRadius: 15)],
-                ),
-                child: Stack(
+      body: Column(
+        children: [
+          // شريط المعلومات العلوي مشابه للصورة
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            color: const Color(0xff121816),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
                   children: [
-                    Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                    const Icon(Icons.emoji_events, color: Colors.amber, size: 18),
+                    const SizedBox(width: 4),
+                    Text('الترتيب: 1', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(color: const Color(0xff0A0E0D), borderRadius: BorderRadius.circular(10)),
+                  child: Text('🟢 أخضر: $playerPos | 🔵 خصم: $aiPos', style: const TextStyle(color: Color(0xff00E676), fontSize: 11, fontWeight: FontWeight.bold)),
+                ),
+              ],
+            ),
+          ),
+
+          // لوحة اللودو السيبرانية المربعة (مستوحاة من التصميم التقليدي بألوان نيون)
+          Expanded(
+            child: Center(
+              child: AspectRatio(
+                aspectRatio: 1.0,
+                child: Container(
+                  margin: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xff050709),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: const Color(0xff00E676), width: 3),
+                    boxShadow: [
+                      BoxShadow(color: const Color(0xff00E676).withOpacity(0.3), blurRadius: 20, spreadRadius: 2),
+                      BoxShadow(color: const Color(0xff00E5FF).withOpacity(0.2), blurRadius: 10),
+                    ],
+                  ),
+                  child: Stack(
+                    children: [
+                      // تقسيم الرقعة إلى 4 أرباع سيبرانية (أخضر، أصفر، أحمر، أزرق)
+                      Column(
                         children: [
-                          const Icon(Icons.blur_on, color: Color(0xff00E5FF), size: 48),
-                          const SizedBox(height: 10),
-                          Text(
-                            isRolling ? 'جاري رمي النرد...' : 'الرقم الظاهر: $diceValue',
-                            style: const TextStyle(color: Colors.amberAccent, fontSize: 18, fontWeight: FontWeight.bold),
+                          Expanded(
+                            child: Row(
+                              children: [
+                                _buildBaseQuadrant(Colors.greenAccent, 'أخضر', playerPos),
+                                _buildCenterPathColumn(),
+                                _buildBaseQuadrant(Colors.amber, 'أصفر', aiPos),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            height: 60,
+                            color: const Color(0xff0A0E0D),
+                            child: Center(
+                              child: Text(
+                                gameStatus,
+                                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Row(
+                              children: [
+                                _buildBaseQuadrant(Colors.redAccent, 'أحمر', 0),
+                                _buildCenterPathColumn(),
+                                _buildBaseQuadrant(Colors.blueAccent, 'أزرق', 0),
+                              ],
+                            ),
                           ),
                         ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+          ),
 
-            // منطقة النرد والتحكم
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+          // شريط التحكم السفلي (النرد وأزرار التفاعل)
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: const BoxDecoration(
+              color: Color(0xff080C0B),
+              border: Border(top: BorderSide(color: Color(0xff121816), width: 2)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
+                IconButton(
+                  icon: const Icon(Icons.mic_off, color: Colors.grey),
+                  onPressed: () {},
+                ),
+                IconButton(
+                  icon: const Icon(Icons.emoji_emotions, color: Color(0xff00E5FF)),
+                  onPressed: () {},
+                ),
+                IconButton(
+                  icon: const Icon(Icons.chat_bubble, color: Color(0xff00E676)),
+                  onPressed: () {},
+                ),
                 ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xff00E676),
                   foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  elevation: 8,
+                  elevation: 6,
                 ).let((style) => ElevatedButton(
                   style: style,
-                  onPressed: (isPlayerTurn && !isRolling && playerPos < 50 && aiPos < 50) ? rollDice : null,
-                  child: Text(isRolling ? '...' : '🎲 ارمِ النرد', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
+                  onPressed: (isPlayerTurn && !isRolling && playerPos < 40 && aiPos < 40) ? rollDice : null,
+                  child: Text(isRolling ? '...' : '🎲 ارمِ ($diceValue)', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14)),
                 )),
               ],
             ),
-            const SizedBox(height: 10),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBaseQuadrant(Color color, string name, int progress) {
+    return Expanded(
+      child: Container(
+        margin: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.15),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withOpacity(0.6), width: 1.5),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.casino, color: color, size: 28),
+              const SizedBox(height: 4),
+              Text(name, style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 4),
+              Text('تقدم: $progress', style: const TextStyle(color: Colors.white, fontSize: 10)),
+            ],
+          ),
         ),
       ),
     );
   }
+
+  Widget _buildCenterPathColumn() {
+    return Container(
+      width: 45,
+      color: const Color(0xff0A0E0D),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: List.generate(4, (index) => Container(
+          margin: const EdgeInsets.all(2),
+          height: 10,
+          decoration: BoxDecoration(
+            color: const Color(0xff00E5FF).withOpacity(0.3),
+            borderRadius: BorderRadius.circular(2),
+          ),
+        )),
+      ),
+    );
+  }
+}
+
+extension on ButtonStyle {
+  Widget let(Widget Function(ButtonStyle) child) => child(this);
 }
