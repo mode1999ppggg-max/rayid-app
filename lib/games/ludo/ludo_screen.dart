@@ -34,28 +34,19 @@ class LudoEngine {
   static const int targetWin = 58;
   static const int invalidMove = -2;
 
-            static const Map<PlayerColor, int> startOffsets = {
+  static const Map<PlayerColor, int> startOffsets = {
     PlayerColor.green: 0,
     PlayerColor.yellow: 41,
     PlayerColor.red: 27,
     PlayerColor.blue: 14,
   };
 
-
-
-
-
-    static const Set<int> safeAbsoluteSpots = {
+  static const Set<int> safeAbsoluteSpots = {
     0, 8,   // درع الانطلاق للأخضر (0) + الدرع الإضافي (8)
     14, 22, // درع الانطلاق للأزرق (14) + الدرع الإضافي (22)
     27, 35, // درع الانطلاق للأحمر (27) + الدرع الإضافي (35)
     41, 49  // درع الانطلاق للأصفر (41) + الدرع الإضافي (49)
   };
-
-  
-
-  
-  
 
   static int getAbsolutePosition(int localPosition, PlayerColor color) {
     if (localPosition < 0 || localPosition >= totalPathCells) {
@@ -177,7 +168,7 @@ class LudoEngine {
 // ============================================================================
 
 class LudoBoardGeometry {
-    static final List<Offset> track = _createTrack();
+  static final List<Offset> track = _createTrack();
 
   static List<Offset> _createTrack() {
     final List<Offset> p = [
@@ -211,7 +202,6 @@ class LudoBoardGeometry {
     PlayerColor.red: 26,    
     PlayerColor.yellow: 39, 
   };
-
 
   static Offset homePosition(PlayerColor color, int step, double cell) {
     switch (color) {
@@ -340,6 +330,7 @@ class LudoGameScreen extends StatefulWidget {
   State<LudoGameScreen> createState() => _LudoGameScreenState();
 }
 
+class _LudoGameScreenState extends State<LudoGameScreen> with SingleTickerProviderStateMixin {
   final Random _random = Random();
   final List<PlayerColor> turnOrder = [
     PlayerColor.green,
@@ -363,7 +354,7 @@ class LudoGameScreen extends StatefulWidget {
 
   PlayerColor get currentTurnColor => turnOrder[currentTurnIndex];
 
-  late Animation<double> _diceAnimation;
+  late Map<PlayerColor, List<TokenModel>> allTokens;
 
   final Map<PlayerColor, String> playerNames = {
     PlayerColor.green: 'الأخضر',
@@ -379,7 +370,6 @@ class LudoGameScreen extends StatefulWidget {
     PlayerColor.blue: const Color(0xff00E5FF),
   };
 
-  PlayerColor get currentTurnColor => turnOrder[currentTurnIndex];
   String _statusMessage = 'دور اللاعب الأخضر - ارمِ النرد السيبراني';
 
   @override
@@ -507,11 +497,12 @@ class LudoGameScreen extends StatefulWidget {
   }
 
   void _animateToken(PlayerColor color, int tokenId, List<int> steps, int index, int totalRoll) {
-      
     if (!mounted || isGameOver) return;
 
     // Ludo audio integration
-    LudoAudio.playCyberSound();
+    if (soundEnabled) {
+      LudoAudio.playCyberSound();
+    }
 
     if (index >= steps.length) {
       _finishMove(color, tokenId, totalRoll);
@@ -523,15 +514,6 @@ class LudoGameScreen extends StatefulWidget {
     });
 
     _timer = Timer(const Duration(milliseconds: 250), () {
-      if (mounted) _animateToken(color, tokenId, steps, index + 1, totalRoll);
-    });
-  }
-
-    setState(() {
-      allTokens[color]![tokenId].position = steps[index];
-    });
-
-    _timer = Timer(const Duration(milliseconds: 140), () {
       if (mounted) _animateToken(color, tokenId, steps, index + 1, totalRoll);
     });
   }
@@ -712,7 +694,7 @@ class LudoGameScreen extends StatefulWidget {
                     decoration: BoxDecoration(
                       color: const Color(0xff0D121D),
                       borderRadius: BorderRadius.circular(22),
-                      border: Border.all(color: const Color(0xffFF007F), width: 2.5), // إطار نيون وردي مطابق للصورة
+                      border: Border.all(color: const Color(0xffFF007F), width: 2.5),
                       boxShadow: [
                         BoxShadow(
                           color: const Color(0xffFF007F).withOpacity(0.4),
@@ -798,7 +780,6 @@ class LudoGameScreen extends StatefulWidget {
     );
   }
 
-  // رسم الأحجار بتصميم سيبراني مجسم وبراق مع تفاعل باللمس
   List<Widget> _buildTokens(double boardSize, double cell) {
     final widgets = <Widget>[];
     for (final color in PlayerColor.values) {
@@ -850,7 +831,6 @@ class LudoGameScreen extends StatefulWidget {
     return widgets;
   }
 
-  // شريط التحكم السفلي مع نرد بمربع بارز وواضح وأزرار تفاعلية
   Widget _buildBottomControls(Color activeColor) {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 18),
@@ -879,7 +859,6 @@ class LudoGameScreen extends StatefulWidget {
           const SizedBox(height: 12),
           Row(
             children: [
-              // مربع النرد الواضح والبارز
               Container(
                 width: 58,
                 height: 58,
@@ -936,23 +915,19 @@ class CyberBoardPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final cell = size.width / 15;
 
-    // خلفية معدنية داكنة مطابقة لصورة السايبربانك
     canvas.drawRect(Offset.zero & size, Paint()..color = const Color(0xff0B1019));
 
-    // خطوط الشبكة الإلكترونية الخافتة
     final gridPaint = Paint()..color = const Color(0xff00E5FF).withOpacity(0.06)..strokeWidth = 0.6;
     for (int i = 0; i <= 15; i++) {
       canvas.drawLine(Offset(i * cell, 0), Offset(i * cell, size.height), gridPaint);
       canvas.drawLine(Offset(0, i * cell), Offset(size.width, i * cell), gridPaint);
     }
 
-    // القواعد الأربع بتصميم معدني ونيون (أخضر، أصفر، أحمر، أزرق)
     _drawCyberBase(canvas, Rect.fromLTWH(0, 0, cell * 6, cell * 6), const Color(0xff00E676));
     _drawCyberBase(canvas, Rect.fromLTWH(cell * 9, 0, cell * 6, cell * 6), const Color(0xffFFD740));
     _drawCyberBase(canvas, Rect.fromLTWH(cell * 9, cell * 9, cell * 6, cell * 6), const Color(0xffFF5252));
     _drawCyberBase(canvas, Rect.fromLTWH(0, cell * 9, cell * 6, cell * 6), const Color(0xff00E5FF));
 
-    // مسار الخانات المشتركة الـ 52
     final trackPaint = Paint()..color = const Color(0xff131C2E)..style = PaintingStyle.fill;
     final borderPaint = Paint()..color = const Color(0xff00E5FF).withOpacity(0.8)..style = PaintingStyle.stroke..strokeWidth = 1.2;
 
@@ -962,20 +937,17 @@ class CyberBoardPainter extends CustomPainter {
       canvas.drawRRect(RRect.fromRectAndRadius(rect, const Radius.circular(4)), trackPaint);
       canvas.drawRRect(RRect.fromRectAndRadius(rect, const Radius.circular(4)), borderPaint);
 
-      // مربعات الأمان على شكل نجوم نيون لامعة (★)
       if (LudoEngine.safeAbsoluteSpots.contains(i)) {
         final starPaint = Paint()..color = const Color(0xff00E676).withOpacity(0.7);
         canvas.drawCircle(rect.center, cell * 0.18, starPaint);
       }
     }
 
-    // الممرات النهائية الأربعة المؤدية للцентر
     _drawHomeLane(canvas, cell, const Color(0xff00E676), true, 7.0, 1.0, 1);
     _drawHomeLane(canvas, cell, const Color(0xffFFD740), false, 13.0, 7.0, -1);
     _drawHomeLane(canvas, cell, const Color(0xffFF5252), true, 7.0, 13.0, -1);
     _drawHomeLane(canvas, cell, const Color(0xff00E5FF), false, 1.0, 7.0, 1);
 
-    // مركز اللعبة السيبراني المضيء والمتوهج
     final centerRect = Rect.fromLTWH(cell * 6, cell * 6, cell * 3, cell * 3);
     final centerPaint = Paint()
       ..shader = const LinearGradient(
