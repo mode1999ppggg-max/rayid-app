@@ -47,7 +47,7 @@ class LudoEngine {
   };
 
   
-  };
+  
 
   static int getAbsolutePosition(int localPosition, PlayerColor color) {
     if (localPosition < 0 || localPosition >= totalPathCells) {
