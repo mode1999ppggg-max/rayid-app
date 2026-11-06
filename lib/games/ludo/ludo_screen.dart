@@ -1,616 +1,418 @@
-import 'dart:math';
-import 'package:flutter/material.dart';
-
-// ==========================================
-// 1. MODELS (النماذج)
-// ==========================================
-
-enum TokenState { base, path, home }
-
-class TokenModel {
-  final String id;
-  final String playerId;
-  final Color color;
-  TokenState state;
-  int position; // -1: القاعدة، 0-51: المسار الرئيسي، 52-56: مسار النهاية، 57: الفوز
-  final int baseIndex;
-
-  TokenModel({
-    required this.id,
-    required this.playerId,
-    required this.color,
-    this.state = TokenState.base,
-    this.position = -1,
-    required this.baseIndex,
-  });
-
-  TokenModel copyWith({
-    TokenState? state,
-    int? position,
-  }) {
-    return TokenModel(
-      id: id,
-      playerId: playerId,
-      color: color,
-      state: state ?? this.state,
-      position: position ?? this.position,
-      baseIndex: baseIndex,
-    );
-  }
-}
-
-enum PlayerType { human, ai }
-
-class PlayerModel {
-  final String id;
-  final String name;
-  final Color color;
-  final PlayerType type;
-  final List<TokenModel> tokens;
-  bool isFinished;
-
-  PlayerModel({
-    required this.id,
-    required this.name,
-    required this.color,
-    required this.type,
-    required this.tokens,
-    this.isFinished = false,
-  });
-
-  PlayerModel copyWith({
-    List<TokenModel>? tokens,
-    bool? isFinished,
-  }) {
-    return PlayerModel(
-      id: id,
-      name: name,
-      color: color,
-      type: type,
-      tokens: tokens ?? this.tokens,
-      isFinished: isFinished ?? this.isFinished,
-    );
-  }
-}
-
-// ==========================================
-// 2. LOGIC & VALIDATION (المنطق وقواعد اللعبة)
-// ==========================================
-
-class MoveValidator {
-  static const int maxHomeStretch = 57;
-
-  static bool canMove({
-    required TokenModel token,
-    required int diceValue,
-  }) {
-    if (token.state == TokenState.home) {
-      return false;
-    }
-
-    if (token.state == TokenState.base) {
-      return diceValue == 6; // الخروج يحتاج حصراً إلى رمية 6
-    }
-
-    if (token.state == TokenState.path) {
-      int nextPos = token.position + diceValue;
-      if (nextPos > maxHomeStretch) {
-        return false; // يمنع تجاوز نقطة النهاية
-      }
-      return true;
-    }
-
-    return false;
-  }
-}
-
-// ==========================================
-// 3. CONTROLLERS (المتحكمات)
-// ==========================================
-
-class DiceController extends ChangeNotifier {
-  int _currentValue = 6;
-  bool _isRolling = false;
-
-  int get currentValue => _currentValue;
-  bool get isRolling => _isRolling;
-
-  Future<int> rollDice() async {
-    if (_isRolling) return _currentValue;
-    _isRolling = true;
-    notifyListeners();
-
-    for (int i = 0; i < 6; i++) {
-      _currentValue = Random().nextInt(6) + 1;
-      notifyListeners();
-      await Future.delayed(const Duration(milliseconds: 70));
-    }
-
-    _isRolling = false;
-    notifyListeners();
-    return _currentValue;
-  }
-}
-
-enum GameState { rolling, moving, waitingForMove, gameOver }
-
-class GameController extends ChangeNotifier {
-  final DiceController diceController = DiceController();
-  
-  late List<PlayerModel> players;
-  int currentTurnIndex = 0;
-  GameState gameState = GameState.rolling;
-  String? winnerName;
-  String statusMessage = 'اختر رمي النرد لبدء الجولة';
-
-  GameController({int playerModes = 4}) {
-    _initializeGame(playerModes);
-  }
-
-  void _initializeGame(int count) {
-    final colors = [Colors.redAccent, Colors.greenAccent, Colors.amberAccent, Colors.cyanAccent];
-    final names = ['الأحمر', 'الأخضر', 'الأصفر', 'الأزرق'];
-
-    players = List.generate(count, (index) {
-      List<TokenModel> tokens = List.generate(4, (tIndex) {
-        return TokenModel(
-          id: 'p${index}_t$tIndex',
-          playerId: 'player_$index',
-          color: colors[index],
-          baseIndex: tIndex,
-        );
-      });
-
-      return PlayerModel(
-        id: 'player_$index',
-        name: names[index],
-        color: colors[index],
-        type: PlayerType.human,
-        tokens: tokens,
-      );
-    });
-
-    currentTurnIndex = 0;
-    gameState = GameState.rolling;
-    winnerName = null;
-    statusMessage = 'دور اللاعب ${players[currentTurnIndex].name} - يرجى رمي النرد';
-    notifyListeners();
-  }
-
-  PlayerModel get currentPlayer => players[currentTurnIndex];
-
-  Future<void> rollDiceAndPlay() async {
-    if (gameState != GameState.rolling) return;
-
-    statusMessage = 'جاري رمي النرد...';
-    notifyListeners();
-
-    int diceVal = await diceController.rollDice();
-
-    bool hasValidMoves = currentPlayer.tokens.any((token) => MoveValidator.canMove(token: token, diceValue: diceVal));
-
-    if (!hasValidMoves) {
-      statusMessage = 'النرد ($diceVal): لا توجد حركات متاحة! الانتقال للدور التالي.';
-      notifyListeners();
-      await Future.delayed(const Duration(milliseconds: 1000));
-      _nextTurn(extraTurn: false);
-    } else {
-      gameState = GameState.waitingForMove;
-      statusMessage = 'النرد ($diceVal): اختر حجراً للتحريك.';
-      notifyListeners();
-    }
-  }
-
-  void playToken(TokenModel token) {
-    if (gameState != GameState.waitingForMove) return;
-    int diceVal = diceController.currentValue;
-
-    if (!MoveValidator.canMove(token: token, diceValue: diceVal)) {
-      statusMessage = 'حركة غير قانونية لهذا الحجر!';
-      notifyListeners();
-      return;
-    }
-
-    List<PlayerModel> updatedPlayers = List.from(players);
-    PlayerModel activePlayer = updatedPlayers[currentTurnIndex];
-
-    List<TokenModel> updatedTokens = activePlayer.tokens.map((t) {
-      if (t.id == token.id) {
-        if (t.state == TokenState.base && diceVal == 6) {
-          return t.copyWith(state: TokenState.path, position: 0);
-        } else if (t.state == TokenState.path) {
-          int newPos = t.position + diceVal;
-          if (newPos >= 57) {
-            return t.copyWith(state: TokenState.home, position: 57);
-          }
-          return t.copyWith(position: newPos);
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYBER_LUDO // SYSTEM_MAIN</title>
+    <style>
+        :root {
+            --neon-pink: #ff007f;
+            --neon-aqua: #00ffcc;
+            --neon-yellow: #ffff00;
+            --neon-purple: #9900ff;
+            --bg-dark: #050512;
+            --panel-bg: rgba(10, 10, 35, 0.9);
         }
-      }
-      return t;
-    }).toList();
 
-    updatedPlayers[currentTurnIndex] = activePlayer.copyWith(tokens: updatedTokens);
-    players = updatedPlayers;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', Courier, monospace;
+        }
 
-    bool hasWon = updatedTokens.every((t) => t.state == TokenState.home);
-    if (hasWon) {
-      gameState = GameState.gameOver;
-      winnerName = activePlayer.name;
-      statusMessage = 'تهانينا! الفائز هو ${activePlayer.name}';
-      notifyListeners();
-      return;
-    }
+        body {
+            background-color: var(--bg-dark);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            background-image: linear-gradient(rgba(255, 0, 127, 0.05) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255, 0, 127, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
 
-    bool extraTurn = (diceVal == 6);
-    if (extraTurn) {
-      statusMessage = 'حصلت على رمية إضافية لاستحقاقك ظهور الرقم 6!';
-      notifyListeners();
-    } else {
-      _nextTurn(extraTurn: false);
-    }
-  }
+        /* شاشة الدخول */
+        #login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 5, 18, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            transition: all 0.5s ease;
+        }
 
-  void _nextTurn({required bool extraTurn}) {
-    if (extraTurn) {
-      gameState = GameState.rolling;
-    } else {
-      currentTurnIndex = (currentTurnIndex + 1) % players.length;
-      gameState = GameState.rolling;
-    }
-    statusMessage = 'دور اللاعب ${players[currentTurnIndex].name} - يرجى رمي النرد';
-    notifyListeners();
-  }
+        .glitch-title {
+            font-size: 3.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #fff;
+            text-shadow: 0 0 10px var(--neon-aqua), 0 0 20px var(--neon-pink);
+            margin-bottom: 2rem;
+            animation: pulse 2s infinite;
+        }
 
-  void restartGame() {
-    _initializeGame(players.length);
-  }
-}
+        .setup-panel {
+            background: var(--panel-bg);
+            border: 2px solid var(--neon-aqua);
+            padding: 2.5rem;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0, 255, 204, 0.2);
+            width: 400px;
+            text-align: center;
+        }
 
-// ==========================================
-// 4. UI SCREEN (واجهة اللعبة السايبرانية المتكاملة)
-// ==========================================
+        .setup-panel h2 {
+            color: var(--neon-pink);
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+        }
 
-class LudoScreen extends StatefulWidget {
-  const LudoScreen({Key? key}) : super(key: key);
+        .input-group {
+            margin-bottom: 1.5rem;
+            text-align: right;
+        }
 
-  @override
-  State<LudoScreen> createState() => _LudoScreenState();
-}
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--neon-aqua);
+            font-size: 0.9rem;
+        }
 
-class _LudoScreenState extends State<LudoScreen> {
-  late GameController _gameController;
+        .input-group select, .input-group input {
+            width: 100%;
+            padding: 0.8rem;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--neon-purple);
+            color: #fff;
+            border-radius: 5px;
+            outline: none;
+            font-size: 1rem;
+        }
 
-  @override
-  void initState() {
-    super.initState();
-    _gameController = GameController(playerModes: 4);
-    _gameController.addListener(_onGameStateChanged);
-  }
+        .input-group select:focus {
+            border-color: var(--neon-aqua);
+            box-shadow: 0 0 10px var(--neon-aqua);
+        }
 
-  void _onGameStateChanged() {
-    if (mounted) setState(() {});
-  }
+        .btn-cyber {
+            background: transparent;
+            color: var(--neon-pink);
+            border: 2px solid var(--neon-pink);
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            text-transform: uppercase;
+            box-shadow: 0 0 15px rgba(255, 0, 127, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
 
-  @override
-  void dispose() {
-    _gameController.removeListener(_onGameStateChanged);
-    _gameController.dispose();
-    super.dispose();
-  }
+        .btn-cyber:hover {
+            background: var(--neon-pink);
+            color: #000;
+            box-shadow: 0 0 30px var(--neon-pink);
+        }
 
-  @override
-  Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: const Color(0xFF0A0E21),
-        appBar: AppBar(
-          backgroundColor: const Color(0xFF1D1E33),
-          elevation: 4,
-          shadowColor: Colors.cyanAccent.withOpacity(0.3),
-          title: const Text(
-            'RAYID PAY – CYBERPUNK LUDO',
-            style: TextStyle(color: Colors.cyanAccent, fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-          centerTitle: true,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.cyanAccent),
-            onPressed: () => Navigator.pop(context),
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.refresh, color: Colors.cyanAccent),
-              onPressed: () => _gameController.restartGame(),
-            ),
-          ],
-        ),
-        body: Stack(
-          children: [
-            Column(
-              children: [
-                // شريط الحالة العلوي المتناسق مع تصميمك
-                _buildStatusBanner(),
-                // إحصائيات وصول الأحجار للاعبين الأربعة
-                _buildPlayersStatsBar(),
-                // لوحة اللعب الرئيسية السايبرانية
-                Expanded(
-                  child: Center(
-                    child: AspectRatio(
-                      aspectRatio: 1,
-                      child: Container(
-                        margin: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF111625),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.cyanAccent.withOpacity(0.5), width: 2),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.cyanAccent.withOpacity(0.2),
-                              blurRadius: 15,
-                              spreadRadius: 2,
-                            ),
-                          ],
-                        ),
-                        child: Stack(
-                          children: [
-                            _buildBoardLayout(),
-                            _buildTokensLayer(),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                // لوحة التحكم السفلية للأزرار والنرد
-                _buildControlPanel(),
-              ],
-            ),
-            if (_gameController.gameState == GameState.gameOver)
-              _buildWinOverlay(),
-          ],
-        ),
-      ),
-    );
-  }
+        /* واجهة اللعبة الرئيسية */
+        #main-game-interface {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            width: 100%;
+            max-width: 1200px;
+            padding: 20px;
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: center;
+            gap: 40px;
+            align-items: center;
+        }
 
-  Widget _buildStatusBanner() {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.all(12),
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1D1E33),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.pinkAccent.withOpacity(0.6), width: 1.5),
-        boxShadow: [
-          BoxShadow(color: Colors.pinkAccent.withOpacity(0.15), blurRadius: 8),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 12,
-            height: 12,
-            decoration: BoxDecoration(
-              color: _gameController.currentPlayer.color,
-              shape: BoxShape.circle,
-              boxShadow: [BoxShadow(color: _gameController.currentPlayer.color, blurRadius: 6)],
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              _gameController.statusMessage,
-              style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+        #game-board-wrapper {
+            position: relative;
+            border: 4px solid var(--neon-aqua);
+            box-shadow: 0 0 25px rgba(0, 255, 204, 0.4);
+            background: #06061a;
+            border-radius: 8px;
+        }
 
-  Widget _buildPlayersStatsBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      margin: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        color: const Color(0xFF151A30),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: _gameController.players.map((player) {
-          int arrivedCount = player.tokens.where((t) => t.state == TokenState.home).length;
-          return Column(
-            children: [
-              Text(
-                player.name,
-                style: TextStyle(color: player.color, fontSize: 12, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                '$arrivedCount/4 وصول',
-                style: const TextStyle(color: Colors.white70, fontSize: 11),
-              ),
-            ],
-          );
-        }).toList(),
-      ),
-    );
-  }
+        canvas {
+            display: block;
+            cursor: pointer;
+        }
 
-  Widget _buildBoardLayout() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return Stack(
-          children: [
-            // قواعد اللاعبين الأربعة بتصميم سايبرانك متقن
-            Positioned(top: 0, right: 0, width: constraints.maxWidth * 0.4, height: constraints.maxHeight * 0.4, child: _buildBaseContainer(Colors.redAccent)),
-            Positioned(top: 0, left: 0, width: constraints.maxWidth * 0.4, height: constraints.maxHeight * 0.4, child: _buildBaseContainer(Colors.greenAccent)),
-            Positioned(bottom: 0, left: 0, width: constraints.maxWidth * 0.4, height: constraints.maxHeight * 0.4, child: _buildBaseContainer(Colors.amberAccent)),
-            Positioned(bottom: 0, right: 0, width: constraints.maxWidth * 0.4, height: constraints.maxHeight * 0.4, child: _buildBaseContainer(Colors.cyanAccent)),
+        /* لوحة التحكم الجانبية */
+        .side-panel {
+            width: 350px;
+            background: var(--panel-bg);
+            border: 2px solid var(--neon-purple);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(153, 0, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .status-box {
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 5px;
+            background: rgba(0,0,0,0.3);
+        }
+
+        .status-title {
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        #current-turn-display {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--neon-aqua);
+            text-shadow: 0 0 10px var(--neon-aqua);
+        }
+
+        /* حاوية النرد النيون */
+        .dice-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px dashed var(--neon-pink);
+            border-radius: 5px;
+        }
+
+        .cyber-dice {
+            width: 70px;
+            height: 70px;
+            border: 3px solid var(--neon-pink);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 15px var(--neon-pink);
+            box-shadow: 0 0 15px rgba(255, 0, 127, 0.4);
+            transition: transform 0.1s ease;
+            background: #110516;
+            margin-bottom: 15px;
+        }
+
+        .rolling {
+            animation: dice-spin 0.5s linear infinite;
+        }
+
+        .logs-box {
+            height: 180px;
+            overflow-y: auto;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 10px;
+            font-size: 0.8rem;
+            background: #02020a;
+            color: #00ff66;
+            border-radius: 4px;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 3px;
+        }
+
+        @keyframes dice-spin {
+            0% { transform: rotate(0deg) scale(0.9); }
+            50% { transform: rotate(180deg) scale(1.1); }
+            100% { transform: rotate(360deg) scale(0.9); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; text-shadow: 0 0 15px var(--neon-aqua), 0 0 25px var(--neon-pink); }
+            50% { opacity: 0.8; text-shadow: 0 0 5px var(--neon-aqua), 0 0 10px var(--neon-pink); }
+        }
+
+        /* لتجاوب الشاشات الصغيرة */
+        @media (max-width: 1000px) {
+            #main-game-interface {
+                flex-direction: column-reverse;
+                align-items: center;
+            }
+            .side-panel { width: 100%; max-width: 600px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- الشاشة الأولى: تسجيل الدخول وإعداد النظام -->
+    <div id="login-screen">
+        <div class="glitch-title">CYBER_LUDO // v2077</div>
+        <div class="setup-panel">
+            <h2>تأمين الوصول // INITIALIZATION</h2>
             
-            // المركز (منطقة الفوز / النرد الأوسط)
-            Center(
-              child: Container(
-                width: constraints.maxWidth * 0.2,
-                height: constraints.maxHeight * 0.2,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [Colors.purpleAccent.withOpacity(0.8), Colors.transparent],
-                  ),
-                  border: Border.all(color: Colors.cyanAccent.withOpacity(0.6), width: 1.5),
-                ),
-                child: Center(
-                  child: Text(
-                    '${_gameController.diceController.currentValue}',
-                    style: const TextStyle(color: Colors.amberAccent, fontSize: 28, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
+            <div class="input-group">
+                <label>عدد بروتوكولات اللاعبين (Players)</label>
+                <select id="player-count">
+                    <option value="2">لاعبين اثنين (2P)</option>
+                    <option value="3">3 لاعبين (3P)</option>
+                    <option value="4" selected>4 لاعبين (4P)</option>
+                </select>
+            </div>
 
-  Widget _buildBaseContainer(Color color) {
-    return Container(
-      margin: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.5), width: 1.5),
-      ),
-    );
-  }
+            <div class="input-group">
+                <label>مستوى تدمير الخصوم (Combat Logic)</label>
+                <select id="game-mode">
+                    <option value="classic">كلاسيكي // CLASSIC NET</option>
+                    <option value="hardcore">تدمير عنيف // HARDCORE BRUTAL</option>
+                </select>
+            </div>
 
-  Widget _buildTokensLayer() {
-    return Stack(
-      children: _gameController.players.expand((player) {
-        return player.tokens.map((token) {
-          Alignment alignment = _getTokenAlignment(token);
-          return Align(
-            alignment: alignment,
-            child: GestureDetector(
-              onTap: () => _gameController.playToken(token),
-              child: Container(
-                width: 30,
-                height: 30,
-                decoration: BoxDecoration(
-                  color: token.color,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(color: token.color.withOpacity(0.8), blurRadius: 8, spreadRadius: 2),
-                  ],
-                  border: Border.all(color: Colors.white, width: 2),
-                ),
-                child: Center(
-                  child: Text(
-                    token.id.substring(token.id.length - 1),
-                    style: const TextStyle(color: Colors.black, fontSize: 11, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-            ),
-          );
-        });
-      }).toList(),
-    );
-  }
+            <button class="btn-cyber" onclick="bootSystem()">تشغيل اللعبة // BOOT_SYSTEM</button>
+        </div>
+    </div>
 
-  Alignment _getTokenAlignment(TokenModel token) {
-    int pIndex = int.parse(token.playerId.replaceAll('player_', ''));
-    if (token.state == TokenState.base) {
-      double offsetX = (pIndex == 1 || pIndex == 2) ? -0.7 : 0.7;
-      double offsetY = (pIndex == 2 || pIndex == 3) ? 0.7 : -0.7;
-      
-      // توزيع الأحجار الأربعة داخل القاعدة بانتظام
-      double dx = 0.0;
-      double dy = 0.0;
-      if (token.baseIndex == 0) { dx = -0.1; dy = -0.1; }
-      if (token.baseIndex == 1) { dx = 0.1; dy = -0.1; }
-      if (token.baseIndex == 2) { dx = -0.1; dy = 0.1; }
-      if (token.baseIndex == 3) { dx = 0.1; dy = 0.1; }
+    <!-- واجهة اللعبة الأساسية واللوحة -->
+    <div id="main-game-interface" style="display: none;">
+        
+        <!-- اللوحة الجانبية (التحكم والمعلومات) -->
+        <div class="side-panel">
+            <div class="status-box">
+                <div class="status-title">النظام النشط الحالي // CURRENT_NODE</div>
+                <div id="current-turn-display">جاري التحميل...</div>
+            </div>
 
-      return Alignment(offsetX + dx, offsetY + dy);
-    } else if (token.state == TokenState.home) {
-      return const Alignment(0.0, 0.0);
-    }
-    // مسار افتراضي تدريجي للحركة على اللوحة
-    return const Alignment(0.0, 0.0);
-  }
+            <div class="dice-container">
+                <div class="cyber-dice" id="visual-dice">-</div>
+                <button class="btn-cyber" id="roll-button" onclick="executeDiceRoll()">تفعيل النرد // INJECT_DICE</button>
+            </div>
 
-  Widget _buildControlPanel() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      color: const Color(0xFF1D1E33),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          // زر لعبة جديدة
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.pinkAccent,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            onPressed: () => _gameController.restartGame(),
-            child: const Text('لعبة جديدة', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-          ),
-          // زر رمي النرد الرئيسي
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.greenAccent,
-              foregroundColor: Colors.black,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            onPressed: _gameController.gameState == GameState.rolling 
-                ? () => _gameController.rollDiceAndPlay() 
-                : null,
-            icon: const Icon(Icons.casino),
-            label: const Text('رمي النرد (ROLL)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-          ),
-        ],
-      ),
-    );
-  }
+            <div class="status-box">
+                <div class="status-title">سجل العمليات // SYSTEM_LOGS</div>
+                <div class="logs-box" id="system-logs">
+                    <div class="log-entry">> تم تشغيل النواة المركزية بنجاح...</div>
+                </div>
+            </div>
+        </div>
 
-  Widget _buildWinOverlay() {
-    return Container(
-      color: Colors.black87,
-      child: Center(
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: const Color(0xFF1D1E33),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.amberAccent, width: 2),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.emoji_events, color: Colors.amberAccent, size: 64),
-              const SizedBox(height: 16),
-              Text(
-                'فاز المتباري: ${_gameController.winnerName ?? ""}',
-                style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.amberAccent, foregroundColor: Colors.black),
-                onPressed: () => _gameController.restartGame(),
-                child: const Text('لعب من جديد', style: TextStyle(fontWeight: FontWeight.bold)),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+        <!-- لوحة الرسم الرئيسية اللودو -->
+        <div id="game-board-wrapper">
+            <canvas id="cyberLudoCanvas" width="600" height="600"></canvas>
+        </div>
+
+    </div>
+
+    <script>
+        // إعدادات البيئة والرموز الستة للشبكة العالمية للودو
+
+let enemyPos = getTokenCurrentGridPos(p, enemyToken);
+if (enemyPos.x === targetPos.x && enemyPos.y === targetPos.y) {
+// حدوث عملية الأسر (Kill)
+enemyToken.state = "base";
+enemyToken.stepIndex = -1;
+pushLog(عنيف! ${PLAYER_NAMES[activePlayer]} دمر رقاقة الخصم ${PLAYER_NAMES[p]} وأعادها لنقطة الصفر.);
+}
+}
+});
+}
+}
+// رسم اللوحة الأساسية والمربعات بأسلوب الـ Canvas
+function renderCore() {
+ctx.fillStyle = THEME.bg;
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+// 1. رسم شبكة المربعات التفصيلية (15x15)
+ctx.strokeStyle = THEME.grid;
+ctx.lineWidth = 1;
+for (let i = 0; i < 15; i++) {
+for (let j = 0; j < 15; j++) {
+ctx.strokeRect(i * size, j * size, size, size);
+}
+}
+// 2. تلوين خلايا المسارات الخاصة لكل لاعب والمربعات الآمنة
+GLOBAL_SAFESPOTS.forEach(spot => {
+ctx.fillStyle = THEME.safe + "33";
+ctx.fillRect(spot.x * size, spot.y * size, size, size);
+ctx.strokeStyle = THEME.safe;
+ctx.strokeRect(spot.x * size + 2, spot.y * size + 2, size - 4, size - 4);
+});
+// 3. رسم القواعد الأربعة الضخمة للاعبين
+drawCyberBase(0, 0, 6, 6, THEME.p1, "PRTCL_PINK_01");
+drawCyberBase(9, 0, 6, 6, THEME.p2, "CORE_AQUA_02");
+drawCyberBase(9, 9, 6, 6, THEME.p3, "NODE_YEL_03");
+drawCyberBase(0, 9, 6, 6, THEME.p4, "CELL_PURP_04");
+// 4. رسم ممرات الصعود الداخلية نحو خط النهاية
+for(let i=1; i<=5; i++) {
+ctx.fillStyle = THEME.p1 + "22"; ctx.fillRect(7size, isize, size, size);
+ctx.fillStyle = THEME.p2 + "22"; ctx.fillRect(isize, 7size, size, size);
+ctx.fillStyle = THEME.p3 + "22"; ctx.fillRect(7*size, (14-i)*size, size, size);
+ctx.fillStyle = THEME.p4 + "22"; ctx.fillRect((14-i)size, 7size, size, size);
+}
+// 5. رسم قلب المعالجة المركزي (مثلثات الفوز بالمنتصف)
+ctx.fillStyle = "#111125";
+ctx.beginPath();
+ctx.moveTo(6size, 6size); ctx.lineTo(9size, 6size);
+ctx.lineTo(7.5size, 7.5size); ctx.closePath(); ctx.fill();
+// 6. رسم رقاقات اللعب الحالية لجميع المشاركين المتواجدين بالخريطة
+for (let p = 1; p <= 4; p++) {
+playerTokens[p].forEach(token => {
+if (token.state !== "done") {
+let pos = getTokenCurrentGridPos(p, token);
+drawCyberPiece(pos.x, pos.y, THEME['p' + p], token.id + 1);
+}
+});
+}
+}
+// تزيين القواعد الكبيرة بلمسات رقمية متوهجة ومؤشرات نصية سبرانية
+function drawCyberBase(x, y, w, h, color, label) {
+ctx.strokeStyle = color;
+ctx.lineWidth = 3;
+ctx.shadowBlur = 15;
+ctx.shadowColor = color;
+ctx.strokeRect(x * size + 6, y * size + 6, w * size - 12, h * size - 12);
+ctx.fillStyle = color + "11";
+ctx.fillRect(x * size + 6, y * size + 6, w * size - 12, h * size - 12);
+ctx.shadowBlur = 0;
+ctx.fillStyle = color;
+ctx.font = "10px 'Courier New'";
+ctx.fillText(// ${label}, x * size + 15, y * size + 25);
+}
+// رسم القطع بشكل معالج كمبيوتر دائري يتوسطه نواة مظلمة متوهجة نيون
+function drawCyberPiece(gx, gy, color, num) {
+let cx = gx * size + size / 2;
+let cy = gy * size + size / 2;
+ctx.shadowBlur = 12;
+ctx.shadowColor = color;
+ctx.fillStyle = color;
+ctx.beginPath();
+ctx.arc(cx, cy, size / 2.6, 0, Math.PI * 2);
+ctx.fill();
+ctx.shadowBlur = 0;
+ctx.fillStyle = "#02020a";
+ctx.beginPath();
+ctx.arc(cx, cy, size / 5, 0, Math.PI * 2);
+ctx.fill();
+// رقم القطعة لتمييزها للاعب أثناء اتخاذ القرار بالتحريك
+ctx.fillStyle = "#fff";
+ctx.font = "bold 10px Arial";
+ctx.textAlign = "center";
+ctx.textBaseline = "middle";
+ctx.fillText(num, cx, cy);
 }
