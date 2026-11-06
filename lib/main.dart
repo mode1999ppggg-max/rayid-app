@@ -284,14 +284,14 @@ class UserAppModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ربط حقيقي مع Firebase Auth لإنشاء الحساب
+  // ربط حقيقي مع Firebase Auth لإنشاء الحساب (تصحيح nullptr إلى null)
   Future<bool> signUpUser(String name, String username, String email, String phone, String password) async {
     try {
       UserCredential credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email.trim(),
         password: password,
       );
-      if (credential.user != nullptr) {
+      if (credential.user != null) {
         userName = name;
         userUsername = username;
         userEmail = email;
@@ -306,14 +306,14 @@ class UserAppModel extends ChangeNotifier {
     return false;
   }
 
-  // ربط حقيقي مع Firebase Auth لتسجيل الدخول
+  // ربط حقيقي مع Firebase Auth لتسجيل الدخول (تصحيح nullptr إلى null)
   Future<bool> signInUser(String email, String password) async {
     try {
       UserCredential credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email.trim(),
         password: password,
       );
-      if (credential.user != nullptr) {
+      if (credential.user != null) {
         userEmail = email;
         isLoggedIn = true;
         notifyListeners();
