@@ -7,7 +7,19 @@ import 'games/ludo/ludo_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(); // تهيئة السحابة عند إقلاع تطبيق رايد باي
+  
+  // تهيئة فايربيز مع مهلة زمنية آمنة (ثانيتين) لكي لا يعلق التطبيق أبداً على شاشة الشعار
+  try {
+    await Firebase.initializeApp().timeout(
+      const Duration(seconds: 2),
+      onTimeout: () {
+        debugPrint('Firebase init timeout, bypassing to prevent app hang.');
+        throw TimeoutException('Init timeout');
+      },
+    );
+  } catch (e) {
+    debugPrint('Firebase init bypassed or failed: $e');
+  }
 
   runZonedGuarded(() async {
     runApp(const RayidApp());
