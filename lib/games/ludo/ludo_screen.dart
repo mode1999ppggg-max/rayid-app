@@ -347,6 +347,7 @@ class _LudoGameScreenState extends State<LudoGameScreen> with SingleTickerProvid
   late Map<PlayerColor, List<TokenModel>> allTokens;
   int currentTurnIndex = 0;
   int diceValue = 6;
+  PlayerColor get currentTurnColor => turnOrder[currentTurnIndex];
 
   bool isRolling = false;
   bool hasRolled = false;
