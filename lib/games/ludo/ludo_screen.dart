@@ -537,7 +537,7 @@ Offset getTokenPixelPosition(int pos, LudoPlayer player, int tokenIndex, double 
 }
 
 // ------------------------------------------------------------------------------
-// 4. واجهة المستخدم الرسومية الاحترافية المتوافقة مع Samsung A16
+// 4. واجهة المستخدم الرسومية الاحترافية المتوافقة مع Samsung A16 (مفصولة تماماً لضمان عدم تداخل الأقواس)
 // ------------------------------------------------------------------------------
 
 class LudoGameScreen extends StatefulWidget {
@@ -567,287 +567,300 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        return Directionality(
-          textDirection: TextDirection.rtl,
-          child: Scaffold(
-            backgroundColor: const Color(0xff060911),
-            appBar: AppBar(
-              backgroundColor: const Color(0xff0b101c),
-              elevation: 6,
-              shadowColor: const Color(0xff00f3ff).withOpacity(0.3),
-              title: const Text(
-                'RAYID PAY – CYBERPUNK LUDO ARENA',
-                style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: Colors.white),
-              ),
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_forward, color: Colors.white),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-              actions: [
-                PopupMenuButton<int>(
-                  icon: const Icon(Icons.group_rounded, color: Color(0xff00f3ff)),
-                  tooltip: 'اختر عدد اللاعبين',
-                  onSelected: (val) => _controller.setPlayersCount(val),
-                  itemBuilder: (context) => [
-                    const PopupMenuItem(value: 2, child: Text('لاعبان (2 Players)')),
-                    const PopupMenuItem(value: 3, child: Text('ثلاثة لاعبين (3 Players)')),
-                    const PopupMenuItem(value: 4, child: Text('أربعة لاعبين (4 Players)')),
-                  ],
-                ),
-                IconButton(
-                  icon: const Icon(Icons.refresh_rounded, color: Color(0xffffcc00)),
-                  tooltip: 'إعادة ضبط اللعبة',
-                  onPressed: () => _controller.resetGame(),
-                ),
+        return const LudoScreenBody();
+      },
+    );
+  }
+}
+
+class LudoScreenBody extends StatelessWidget {
+  const LudoScreenBody({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // استدعاء الكونترولر عبر الـ context أو الوصول المباشر
+    final parentState = context.findAncestorStateOfType<_LudoGameScreenState>();
+    final _controller = parentState!._controller;
+
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        backgroundColor: const Color(0xff060911),
+        appBar: AppBar(
+          backgroundColor: const Color(0xff0b101c),
+          elevation: 6,
+          shadowColor: const Color(0xff00f3ff).withOpacity(0.3),
+          title: const Text(
+            'RAYID PAY – CYBERPUNK LUDO ARENA',
+            style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_forward, color: Colors.white),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          actions: [
+            PopupMenuButton<int>(
+              icon: const Icon(Icons.group_rounded, color: Color(0xff00f3ff)),
+              tooltip: 'اختر عدد اللاعبين',
+              onSelected: (val) => _controller.setPlayersCount(val),
+              itemBuilder: (context) => [
+                const PopupMenuItem(value: 2, child: Text('لاعبان (2 Players)')),
+                const PopupMenuItem(value: 3, child: Text('ثلاثة لاعبين (3 Players)')),
+                const PopupMenuItem(value: 4, child: Text('أربعة لاعبين (4 Players)')),
               ],
             ),
-            body: SafeArea(
-              child: Column(
-                children: [
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xff0f1626),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: _controller.currentTurnPlayer.uiColor, width: 2),
-                      boxShadow: [
-                        BoxShadow(
-                          color: _controller.currentTurnPlayer.uiColor.withOpacity(0.35),
-                          blurRadius: 10,
-                          spreadRadius: 1,
-                        ),
-                      ],
+            IconButton(
+              icon: const Icon(Icons.refresh_rounded, color: Color(0xffffcc00)),
+              tooltip: 'إعادة ضبط اللعبة',
+              onPressed: () => _controller.resetGame(),
+            ),
+          ],
+        ),
+        body: SafeArea(
+          child: Column(
+            children: [
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: const Color(0xff0f1626),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: _controller.currentTurnPlayer.uiColor, width: 2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: _controller.currentTurnPlayer.uiColor.withOpacity(0.35),
+                      blurRadius: 10,
+                      spreadRadius: 1,
                     ),
-                    child: Row(
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: _controller.currentTurnPlayer.uiColor,
+                        boxShadow: [
+                          BoxShadow(color: _controller.currentTurnPlayer.uiColor, blurRadius: 6)
+                        ]
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _controller.gameMessage,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 12),
+                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+                decoration: BoxDecoration(
+                  color: const Color(0xff0d1320),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.white12),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: _controller.players.map((p) {
+                    return Column(
                       children: [
-                        Container(
-                          width: 12,
-                          height: 12,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: _controller.currentTurnPlayer.uiColor,
-                            boxShadow: [
-                              BoxShadow(color: _controller.currentTurnPlayer.uiColor, blurRadius: 6)
-                            ]
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            _controller.gameMessage,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
+                        Text(p.name, style: TextStyle(color: p.uiColor, fontSize: 11, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 2),
+                        Text('${p.finishedCount}/4 وصول', style: const TextStyle(color: Colors.white70, fontSize: 10)),
                       ],
-                    ),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 12),
-                    padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xff0d1320),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.white12),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: _controller.players.map((p) {
-                        return Column(
-                          children: [
-                            Text(p.name, style: TextStyle(color: p.uiColor, fontSize: 11, fontWeight: FontWeight.bold)),
-                            const SizedBox(height: 2),
-                            Text('${p.finishedCount}/4 وصول', style: const TextStyle(color: Colors.white70, fontSize: 10)),
-                          ],
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  Expanded(
-                    child: Center(
-                      child: AspectRatio(
-                        aspectRatio: 1,
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            double availableWidth = constraints.maxWidth;
-                            double availableHeight = constraints.maxHeight;
-                            double boardSize = availableWidth < availableHeight ? availableWidth : availableHeight;
-                            double cellSize = boardSize / 15;
+                    );
+                  }).toList(),
+                ),
+              ),
+              Expanded(
+                child: Center(
+                  child: AspectRatio(
+                    aspectRatio: 1,
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        double availableWidth = constraints.maxWidth;
+                        double availableHeight = constraints.maxHeight;
+                        double boardSize = availableWidth < availableHeight ? availableWidth : availableHeight;
+                        double cellSize = boardSize / 15;
 
-                            return Center(
-                              child: SizedBox(
-                                width: boardSize,
-                                height: boardSize,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xff0a0e17),
-                                    borderRadius: BorderRadius.circular(16),
-                                    border: Border.all(color: const Color(0xff00f3ff), width: 2),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: const Color(0xff00f3ff).withOpacity(0.35),
-                                        blurRadius: 15,
-                                        spreadRadius: 1,
-                                      ),
-                                    ],
+                        return Center(
+                          child: SizedBox(
+                            width: boardSize,
+                            height: boardSize,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: const Color(0xff0a0e17),
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: const Color(0xff00f3ff), width: 2),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(0xff00f3ff).withOpacity(0.35),
+                                    blurRadius: 15,
+                                    spreadRadius: 1,
                                   ),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(14),
-                                    child: Stack(
-                                      children: [
-                                        CustomPaint(
-                                          size: Size(boardSize, boardSize),
-                                          painter: LudoBoardPainter(players: _controller.players),
-                                        ),
-                                        for (int pIndex = 0; pIndex < _controller.players.length; pIndex++) ...{
-                                          for (int tIndex = 0; tIndex < _controller.players[pIndex].tokenPositions.length; tIndex++) ...{
-                                            () {
-                                              var player = _controller.players[pIndex];
-                                              int pos = player.tokenPositions[tIndex];
-                                              Offset pixelPos = getTokenPixelPosition(pos, player, tIndex, cellSize, _controller.players);
-                                              bool isMovable = _controller.isTokenMovable(pIndex, tIndex);
-                                              bool isHome = pos == 58;
+                                ],
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(14),
+                                child: Stack(
+                                  children: [
+                                    CustomPaint(
+                                      size: Size(boardSize, boardSize),
+                                      painter: LudoBoardPainter(players: _controller.players),
+                                    ),
+                                    for (int pIndex = 0; pIndex < _controller.players.length; pIndex++) ...{
+                                      for (int tIndex = 0; tIndex < _controller.players[pIndex].tokenPositions.length; tIndex++) ...{
+                                        () {
+                                          var player = _controller.players[pIndex];
+                                          int pos = player.tokenPositions[tIndex];
+                                          Offset pixelPos = getTokenPixelPosition(pos, player, tIndex, cellSize, _controller.players);
+                                          bool isMovable = _controller.isTokenMovable(pIndex, tIndex);
+                                          bool isHome = pos == 58;
 
-                                              return Positioned(
-                                                left: pixelPos.dx - 11,
-                                                top: pixelPos.dy - 11,
-                                                child: GestureDetector(
-                                                  onTap: () => _controller.moveToken(pIndex, tIndex),
-                                                  child: AnimatedContainer(
-                                                    duration: const Duration(milliseconds: 300),
-                                                    curve: Curves.easeInOut,
-                                                    width: 22,
-                                                    height: 22,
-                                                    decoration: BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      color: isHome 
-                                                          ? Colors.amber 
-                                                          : (pos != -1 ? player.uiColor : const Color(0xff1b2233)),
-                                                      border: Border.all(
-                                                        color: isMovable ? Colors.yellowAccent : (pos != -1 ? Colors.white : const Color(0xff556688)), 
-                                                        width: isMovable ? 2.5 : 1.5,
-                                                      ),
-                                                      boxShadow: isMovable ? [
-                                                        const BoxShadow(color: Colors.yellowAccent, blurRadius: 8, spreadRadius: 1)
-                                                      ] : (pos != -1 ? [BoxShadow(color: player.uiColor.withOpacity(0.6), blurRadius: 6)] : []),
-                                                    ),
-                                                    child: Center(
-                                                      child: Text(
-                                                        isHome ? '★' : (pos != -1 ? '$pos' : 'B'),
-                                                        style: TextStyle(
-                                                          fontSize: 8,
-                                                          color: pos != -1 ? Colors.black : const Color(0xff8899aa),
-                                                          fontWeight: FontWeight.bold,
-                                                        ),
-                                                      ),
+                                          return Positioned(
+                                            left: pixelPos.dx - 11,
+                                            top: pixelPos.dy - 11,
+                                            child: GestureDetector(
+                                              onTap: () => _controller.moveToken(pIndex, tIndex),
+                                              child: AnimatedContainer(
+                                                duration: const Duration(milliseconds: 300),
+                                                curve: Curves.easeInOut,
+                                                width: 22,
+                                                height: 22,
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: isHome 
+                                                      ? Colors.amber 
+                                                      : (pos != -1 ? player.uiColor : const Color(0xff1b2233)),
+                                                  border: Border.all(
+                                                    color: isMovable ? Colors.yellowAccent : (pos != -1 ? Colors.white : const Color(0xff556688)), 
+                                                    width: isMovable ? 2.5 : 1.5,
+                                                  ),
+                                                  boxShadow: isMovable ? [
+                                                    const BoxShadow(color: Colors.yellowAccent, blurRadius: 8, spreadRadius: 1)
+                                                  ] : (pos != -1 ? [BoxShadow(color: player.uiColor.withOpacity(0.6), blurRadius: 6)] : []),
+                                                ),
+                                                child: Center(
+                                                  child: Text(
+                                                    isHome ? '★' : (pos != -1 ? '$pos' : 'B'),
+                                                    style: TextStyle(
+                                                      fontSize: 8,
+                                                      color: pos != -1 ? Colors.black : const Color(0xff8899aa),
+                                                      fontWeight: FontWeight.bold,
                                                     ),
                                                   ),
                                                 ),
-                                              );
-                                            }()
-                                          }
-                                        },
-                                        Center(
-                                          child: GestureDetector(
-                                            onTap: () => _controller.rollDice(),
-                                            child: Container(
-                                              width: 54,
-                                              height: 54,
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color: const Color(0xff111827),
-                                                border: Border.all(color: const Color(0xffffcc00), width: 2),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: const Color(0xffffcc00).withOpacity(0.55),
-                                                    blurRadius: 12,
-                                                    spreadRadius: 1,
-                                                  ),
-                                                ],
-                                              ),
-                                              child: Center(
-                                                child: _controller.isRolling
-                                                    ? const SizedBox(
-                                                        width: 20,
-                                                        height: 20,
-                                                        child: CircularProgressIndicator(
-                                                          color: Color(0xffffcc00),
-                                                          strokeWidth: 2,
-                                                        ),
-                                                      )
-                                                    : Text(
-                                                        _controller.diceValue == 0 ? '🎲' : '${_controller.diceValue}',
-                                                        style: const TextStyle(
-                                                          fontSize: 22,
-                                                          fontWeight: FontWeight.bold,
-                                                          color: Color(0xffffcc00),
-                                                        ),
-                                                      ),
                                               ),
                                             ),
+                                          );
+                                        }()
+                                      }
+                                    },
+                                    Center(
+                                      child: GestureDetector(
+                                        onTap: () => _controller.rollDice(),
+                                        child: Container(
+                                          width: 54,
+                                          height: 54,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: const Color(0xff111827),
+                                            border: Border.all(color: const Color(0xffffcc00), width: 2),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: const Color(0xffffcc00).withOpacity(0.55),
+                                                blurRadius: 12,
+                                                spreadRadius: 1,
+                                              ),
+                                            ],
+                                          ),
+                                          child: Center(
+                                            child: _controller.isRolling
+                                                ? const SizedBox(
+                                                    width: 20,
+                                                    height: 20,
+                                                    child: CircularProgressIndicator(
+                                                      color: Color(0xffffcc00),
+                                                      strokeWidth: 2,
+                                                    ),
+                                                  )
+                                                : Text(
+                                                    _controller.diceValue == 0 ? '🎲' : '${_controller.diceValue}',
+                                                    style: const TextStyle(
+                                                      fontSize: 22,
+                                                      fontWeight: FontWeight.bold,
+                                                      color: Color(0xffffcc00),
+                                                    ),
+                                                  ),
                                           ),
                                         ),
-                                      ],
+                                      ),
                                     ),
-                                  ),
+                                  ],
                                 ),
                               ),
-                            );
-                          },
-                        ),
-                      ],
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xff0f1626),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white12),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _controller.hasRolled || _controller.isGameOver || _controller.isAnimatingMove ? Colors.grey.shade800 : const Color(0xff00e676),
-                            foregroundColor: Colors.black,
-                            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          ),
-                          onPressed: _controller.hasRolled || _controller.isGameOver || _controller.isAnimatingMove ? null : () => _controller.rollDice(),
-                          child: Text(
-                            'رمي النرد (ROLL)',
-                            style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
-                          ),
-                        ),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xffff3366),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          ),
-                          onPressed: () => _controller.resetGame(),
-                          child: Text(
-                            'لعبة جديدة',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
+              Container(
+                padding: const EdgeInsets.all(12),
+                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                decoration: BoxDecoration(
+                  color: const Color(0xff0f1626),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.white12),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _controller.hasRolled || _controller.isGameOver || _controller.isAnimatingMove ? Colors.grey.shade800 : const Color(0xff00e676),
+                        foregroundColor: Colors.black,
+                        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      onPressed: _controller.hasRolled || _controller.isGameOver || _controller.isAnimatingMove ? null : () => _controller.rollDice(),
+                      child: const Text(
+                        'رمي النرد (ROLL)',
+                        style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
+                      ),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xffff3366),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      onPressed: () => _controller.resetGame(),
+                      child: const Text(
+                        'لعبة جديدة',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }
