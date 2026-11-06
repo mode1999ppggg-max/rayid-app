@@ -821,18 +821,7 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           ),
                           onPressed: _controller.hasRolled || _controller.isGameOver || _controller.isAnimatingMove ? null : () => _controller.rollDice(),
-                          child: const Text(
-                            'رمي النرد (ROLL)',
-                            style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
-                                                                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _controller.hasRolled || _controller.isGameOver || _controller.isAnimatingMove ? Colors.grey.shade800 : const Color(0xff00e676),
-                            foregroundColor: Colors.black,
-                            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          ),
-                          onPressed: _controller.hasRolled || _controller.isGameOver || _controller.isAnimatingMove ? null : () => _controller.rollDice(),
-                          child: const Text(
+                          child: Text(
                             'رمي النرد (ROLL)',
                             style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
                           ),
