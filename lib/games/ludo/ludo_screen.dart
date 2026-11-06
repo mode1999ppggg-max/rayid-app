@@ -150,7 +150,6 @@ class _LudoSplashLoadingScreenState extends State<LudoSplashLoadingScreen> with 
   }
 }
 
-// مساعد للأنيميشن
 class CurvedParentTween extends Animation<double> {
   final AnimationController parent;
   final Curve curve;
@@ -529,7 +528,7 @@ class LudoGameController extends ChangeNotifier {
 }
 
 // ------------------------------------------------------------------------------
-// 3. إحداثيات ورسام لوحة اللودو الحقيقية 15×15 باستخدام CustomPainter
+// 3. إحداثيات ورسام لوحة اللودو سايبربانك الاحترافية المطابقة للصورة الفنية
 // ------------------------------------------------------------------------------
 
 final List<Point<int>> sharedTrackCoords = [
@@ -560,79 +559,116 @@ class LudoBoardPainter extends CustomPainter {
     double h = size.height;
     double cellSize = w / 15;
 
-    paint.color = const Color(0xff0a0e17);
+    // 1. خلفية اللوحة السيبرانية الداكنة ذات الملمس المعدني
+    paint.color = const Color(0xff090d16);
     canvas.drawRect(Rect.fromLTWH(0, 0, w, h), paint);
 
-    paint.color = const Color(0xffff3366).withOpacity(0.18);
-    canvas.drawRect(Rect.fromLTWH(0, 0, cellSize * 6, cellSize * 6), paint);
-    paint.style = PaintingStyle.stroke;
-    paint.strokeWidth = 2;
-    paint.color = const Color(0xffff3366);
-    canvas.drawRect(Rect.fromLTWH(0, 0, cellSize * 6, cellSize * 6), paint);
+    // رسم خطوط الدوائر الإلكترونية (Circuit Traces) في الخلفية
+    final circuitPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0
+      ..color = const Color(0xff1e293b);
 
-    paint.style = PaintingStyle.fill;
-    paint.color = const Color(0xff00ff66).withOpacity(0.18);
-    canvas.drawRect(Rect.fromLTWH(cellSize * 9, 0, cellSize * 6, cellSize * 6), paint);
-    paint.style = PaintingStyle.stroke;
-    paint.color = const Color(0xff00ff66);
-    canvas.drawRect(Rect.fromLTWH(cellSize * 9, 0, cellSize * 6, cellSize * 6), paint);
+    for (double i = 0; i < w; i += cellSize * 2) {
+      canvas.drawLine(Offset(i, 0), Offset(i, h), circuitPaint);
+      canvas.drawLine(Offset(0, i), Offset(w, i), circuitPaint);
+    }
 
-    paint.style = PaintingStyle.fill;
-    paint.color = const Color(0xffffcc00).withOpacity(0.18);
-    canvas.drawRect(Rect.fromLTWH(cellSize * 9, cellSize * 9, cellSize * 6, cellSize * 6), paint);
-    paint.style = PaintingStyle.stroke;
-    paint.color = const Color(0xffffcc00);
-    canvas.drawRect(Rect.fromLTWH(cellSize * 9, cellSize * 9, cellSize * 6, cellSize * 6), paint);
+    // 2. القواعد الأربع بزوايا اللوحة بتصميم معدني نيون سايبربانك
+    // القاعدة الحمراء (أعلى اليمين)
+    _drawCyberBase(canvas, paint, cellSize * 9, 0, cellSize * 6, const Color(0xffff3366));
+    // القاعدة الخضراء (أعلى اليسار)
+    _drawCyberBase(canvas, paint, 0, 0, cellSize * 6, const Color(0xff00ff66));
+    // القاعدة الصفراء (أسفل اليمين)
+    _drawCyberBase(canvas, paint, cellSize * 9, cellSize * 9, cellSize * 6, const Color(0xffffcc00));
+    // القاعدة الزرقاء (أسفل اليسار)
+    _drawCyberBase(canvas, paint, 0, cellSize * 9, cellSize * 6, const Color(0xff00f3ff));
 
-    paint.style = PaintingStyle.fill;
-    paint.color = const Color(0xff00f3ff).withOpacity(0.18);
-    canvas.drawRect(Rect.fromLTWH(0, cellSize * 9, cellSize * 6, cellSize * 6), paint);
-    paint.style = PaintingStyle.stroke;
-    paint.color = const Color(0xff00f3ff);
-    canvas.drawRect(Rect.fromLTWH(0, cellSize * 9, cellSize * 6, cellSize * 6), paint);
-
-    paint.style = PaintingStyle.fill;
+    // 3. مسارات اللعب المشتركة (Shared Track Cells) بتأثير النيون
     for (int i = 0; i < sharedTrackCoords.length; i++) {
       var pt = sharedTrackCoords[i];
+      Color cellColor = const Color(0xff121b2b);
+      Color borderColor = const Color(0xff1e293b);
+
       if (i == 0) {
-        paint.color = const Color(0xffff3366);
+        cellColor = const Color(0xffff3366).withOpacity(0.4);
+        borderColor = const Color(0xffff3366);
       } else if (i == 13) {
-        paint.color = const Color(0xff00ff66);
+        cellColor = const Color(0xff00ff66).withOpacity(0.4);
+        borderColor = const Color(0xff00ff66);
       } else if (i == 26) {
-        paint.color = const Color(0xff00f3ff);
+        cellColor = const Color(0xff00f3ff).withOpacity(0.4);
+        borderColor = const Color(0xff00f3ff);
       } else if (i == 39) {
-        paint.color = const Color(0xffffcc00);
+        cellColor = const Color(0xffffcc00).withOpacity(0.4);
+        borderColor = const Color(0xffffcc00);
       } else if ({0, 8, 13, 21, 26, 34, 39, 47}.contains(i)) {
-        paint.color = const Color(0xff334466);
-      } else {
-        paint.color = const Color(0xff131c2e);
+        cellColor = const Color(0xff223348);
+        borderColor = const Color(0xff38bdf8);
       }
-      canvas.drawRect(Rect.fromLTWH(pt.x * cellSize + 1, pt.y * cellSize + 1, cellSize - 2, cellSize - 2), paint);
+
+      paint.style = PaintingStyle.fill;
+      paint.color = cellColor;
+      canvas.drawRect(Rect.fromLTWH(pt.x * cellSize + 1.5, pt.y * cellSize + 1.5, cellSize - 3, cellSize - 3), paint);
+
+      paint.style = PaintingStyle.stroke;
+      paint.strokeWidth = 1.2;
+      paint.color = borderColor;
+      canvas.drawRect(Rect.fromLTWH(pt.x * cellSize + 1.5, pt.y * cellSize + 1.5, cellSize - 3, cellSize - 3), paint);
     }
 
+    // 4. المسارات النهائية (Home Paths) لكل لاعب بتدرج ليزري متوهج
     for (int step = 0; step < 6; step++) {
-      paint.color = const Color(0xffff3366).withOpacity(0.6);
-      canvas.drawRect(Rect.fromLTWH((1 + step) * cellSize + 1, 7 * cellSize + 1, cellSize - 2, cellSize - 2), paint);
-    }
-    for (int step = 0; step < 6; step++) {
-      paint.color = const Color(0xff00ff66).withOpacity(0.6);
-      canvas.drawRect(Rect.fromLTWH(7 * cellSize + 1, (1 + step) * cellSize + 1, cellSize - 2, cellSize - 2), paint);
-    }
-    for (int step = 0; step < 6; step++) {
-      paint.color = const Color(0xff00f3ff).withOpacity(0.6);
-      canvas.drawRect(Rect.fromLTWH((13 - step) * cellSize + 1, 7 * cellSize + 1, cellSize - 2, cellSize - 2), paint);
-    }
-    for (int step = 0; step < 6; step++) {
-      paint.color = const Color(0xffffcc00).withOpacity(0.6);
-      canvas.drawRect(Rect.fromLTWH(7 * cellSize + 1, (13 - step) * cellSize + 1, cellSize - 2, cellSize - 2), paint);
+      // الأحمر
+      paint.style = PaintingStyle.fill;
+      paint.color = const Color(0xffff3366).withOpacity(0.7);
+      canvas.drawRect(Rect.fromLTWH((1 + step) * cellSize + 1.5, 7 * cellSize + 1.5, cellSize - 3, cellSize - 3), paint);
+      // الأخضر
+      paint.color = const Color(0xff00ff66).withOpacity(0.7);
+      canvas.drawRect(Rect.fromLTWH(7 * cellSize + 1.5, (1 + step) * cellSize + 1.5, cellSize - 3, cellSize - 3), paint);
+      // الأزرق
+      paint.color = const Color(0xff00f3ff).withOpacity(0.7);
+      canvas.drawRect(Rect.fromLTWH((13 - step) * cellSize + 1.5, 7 * cellSize + 1.5, cellSize - 3, cellSize - 3), paint);
+      // الأصفر
+      paint.color = const Color(0xffffcc00).withOpacity(0.7);
+      canvas.drawRect(Rect.fromLTWH(7 * cellSize + 1.5, (13 - step) * cellSize + 1.5, cellSize - 3, cellSize - 3), paint);
     }
 
-    paint.color = const Color(0xff1a263f);
+    // 5. منطقة المركز (Home Center Arena) بتصميم ليزر سايبربانك متقاطع
+    paint.style = PaintingStyle.fill;
+    paint.color = const Color(0xff060a12);
     canvas.drawRect(Rect.fromLTWH(cellSize * 6, cellSize * 6, cellSize * 3, cellSize * 3), paint);
+
+    final centerNeon = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.5
+      ..color = const Color(0xff00f3ff);
+
+    canvas.drawRect(Rect.fromLTWH(cellSize * 6, cellSize * 6, cellSize * 3, cellSize * 3), centerNeon);
+
+    // خطوط الليزر المتقاطعة في المركز
+    canvas.drawLine(Offset(cellSize * 6, cellSize * 6), Offset(cellSize * 9, cellSize * 9), centerNeon);
+    canvas.drawLine(Offset(cellSize * 9, cellSize * 6), Offset(cellSize * 6, cellSize * 9), centerNeon);
+  }
+
+  void _drawCyberBase(Canvas canvas, Paint paint, double x, double y, double size, Color color) {
+    // خلفية القاعدة المعدنية
+    paint.style = PaintingStyle.fill;
+    paint.color = color.withOpacity(0.12);
+    canvas.drawRect(Rect.fromLTWH(x, y, size, size), paint);
+
+    // إطار القاعدة نيون متوهج
     paint.style = PaintingStyle.stroke;
-    paint.strokeWidth = 2;
-    paint.color = const Color(0xffffcc00);
-    canvas.drawRect(Rect.fromLTWH(cellSize * 6, cellSize * 6, cellSize * 3, cellSize * 3), paint);
+    paint.strokeWidth = 2.5;
+    paint.color = color;
+    canvas.drawRect(Rect.fromLTWH(x, y, size, size), paint);
+
+    // زوايا تقنية داخل القاعدة
+    paint.strokeWidth = 1.5;
+    canvas.drawCircle(Offset(x + size * 0.25, y + size * 0.25), size * 0.12, paint);
+    canvas.drawCircle(Offset(x + size * 0.75, y + size * 0.25), size * 0.12, paint);
+    canvas.drawCircle(Offset(x + size * 0.25, y + size * 0.75), size * 0.12, paint);
+    canvas.drawCircle(Offset(x + size * 0.75, y + size * 0.75), size * 0.12, paint);
   }
 
   @override
@@ -860,14 +896,14 @@ class LudoScreenBody extends StatelessWidget {
                             height: boardSize,
                             child: Container(
                               decoration: BoxDecoration(
-                                color: const Color(0xff0a0e17),
+                                color: const Color(0xff060911),
                                 borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: const Color(0xff00f3ff), width: 2),
+                                border: Border.all(color: const Color(0xffff007f), width: 2.5),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: const Color(0xff00f3ff).withOpacity(0.35),
-                                    blurRadius: 15,
-                                    spreadRadius: 1,
+                                    color: const Color(0xffff007f).withOpacity(0.5),
+                                    blurRadius: 20,
+                                    spreadRadius: 2,
                                   ),
                                 ],
                               ),
