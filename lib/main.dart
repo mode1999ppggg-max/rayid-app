@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart'; // تم إضافة مكتبة فايربيس للربط بالسحابة
 import 'dart:io';
 import 'dart:async';
 import 'dart:math';
 import 'games/ludo/ludo_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(); // تهيئة السحابة عند إقلاع تطبيق رايد باي
+
   runZonedGuarded(() async {
-    WidgetsFlutterBinding.ensureInitialized();
     runApp(const RayidApp());
   }, (error, stackTrace) {
     debugPrint('FATAL RUNTIME ERROR: $error');
