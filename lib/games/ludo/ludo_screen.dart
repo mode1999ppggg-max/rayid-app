@@ -34,9 +34,9 @@ class _LudoSplashLoadingScreenState extends State<LudoSplashLoadingScreen> with 
     _fadeAnimation = CurvedParentTween(parent: _animController, curve: Curves.easeInOut);
     _animController.forward();
 
-    _loadTimer = Timer.periodic(const Duration(milliseconds: 35), (timer) {
+    _loadTimer = Timer.periodic(const Duration(milliseconds: 30), (timer) {
       setState(() {
-        _loadingProgress += 0.025;
+        _loadingProgress += 0.03;
         if (_loadingProgress >= 1.0) {
           _loadingProgress = 1.0;
           timer.cancel();
@@ -133,7 +133,7 @@ class _LudoSplashLoadingScreenState extends State<LudoSplashLoadingScreen> with 
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'جاري تحميل الأنظمة السيبرانية والذكاء... ${(_loadingProgress * 100).toInt()}%',
+                    'جاري مزامنة قواعد الأحجار وتصحيح الإحداثيات... ${(_loadingProgress * 100).toInt()}%',
                     style: const TextStyle(
                       color: Colors.white70,
                       fontSize: 12,
@@ -280,7 +280,7 @@ class LudoGameController extends ChangeNotifier {
     int currentSession = gameSessionId;
     int counter = 0;
     _diceTimer?.cancel();
-    _diceTimer = Timer.periodic(const Duration(milliseconds: 65), (timer) {
+    _diceTimer = Timer.periodic(const Duration(milliseconds: 60), (timer) {
       if (isGameOver || gameSessionId != currentSession || _isDisposed) {
         timer.cancel();
         return;
@@ -288,7 +288,7 @@ class LudoGameController extends ChangeNotifier {
       diceValue = Random().nextInt(6) + 1;
       counter++;
       notifyListeners();
-      if (counter > 14) {
+      if (counter > 12) {
         timer.cancel();
         if (gameSessionId != currentSession || _isDisposed) return;
         isRolling = false;
@@ -384,7 +384,7 @@ class LudoGameController extends ChangeNotifier {
         }
       });
     } else {
-      gameMessage = "لاعب ${currentTurnPlayer.name} رمى ($diceValue). اختر حجراً مضيئاً لتحريكه.";
+      gameMessage = "لاعب ${currentTurnPlayer.name} رمى ($diceValue). اضغط على الحجر المضيء لتحريكه.";
       notifyListeners();
     }
   }
@@ -464,7 +464,7 @@ class LudoGameController extends ChangeNotifier {
 
     if (player.hasWon) {
       isGameOver = true;
-      gameMessage = "تهانينا الفائقة! فاز اللاعب ${player.name} بالبطولة الكبرى!";
+      gameMessage = "تهانينا! فاز اللاعب ${player.name} بالبطولة الكبرى!";
       isAnimatingMove = false;
       notifyListeners();
       return;
@@ -486,7 +486,7 @@ class LudoGameController extends ChangeNotifier {
         if (enemyPos == targetPos && enemyPos < 52) {
           players[p].tokenPositions[t] = -1;
           didCapture = true;
-          gameMessage = "تم القضاء على حجر اللاعب ${players[p].name} وإرجاعه للقاعدة!";
+          gameMessage = "تم القضاء على حجر اللاعب ${players[p].name} وإرجاعه لقاعدته!";
         }
       }
     }
@@ -497,7 +497,7 @@ class LudoGameController extends ChangeNotifier {
     if (gameSessionId != currentSession || _isDisposed || isGameOver) return;
     hasRolled = false;
     if (extraTurn) {
-      gameMessage += " (حصلت على رمية نرد إضافية استحقاقاً!)";
+      gameMessage += " (حصلت على رمية إضافية استحقاقاً!)";
       notifyListeners();
     } else {
       _nextTurn();
@@ -523,13 +523,13 @@ class LudoGameController extends ChangeNotifier {
     hasRolled = false;
     isGameOver = false;
     isRolling = false;
-    gameMessage = "بدأت مباراة سايبر جديدة. دور اللاعب ${players[0].name}.";
+    gameMessage = "بدأت مباراة جديدة. دور اللاعب ${players[0].name}.";
     notifyListeners();
   }
 }
 
 // ------------------------------------------------------------------------------
-// 3. إحداثيات ورسام لوحة اللودو سايبربانك الاحترافية المطابقة تماماً
+// 3. إحداثيات ورسام لوحة اللودو سايبربانك الاحترافية مع فصل إحداثيات القواعد عن المسارات
 // ------------------------------------------------------------------------------
 
 final List<Point<int>> sharedTrackCoords = [
@@ -560,11 +560,11 @@ class LudoBoardPainter extends CustomPainter {
     double h = size.height;
     double cellSize = w / 15;
 
-    // خلفية اللوحة الداكنة
+    // خلفية اللوحة
     paint.color = const Color(0xff090d16);
     canvas.drawRect(Rect.fromLTWH(0, 0, w, h), paint);
 
-    // خطوط الشبكة الإلكترونية
+    // شبكة الدوائر الإلكترونية
     final circuitPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0
@@ -575,11 +575,11 @@ class LudoBoardPainter extends CustomPainter {
       canvas.drawLine(Offset(0, i), Offset(w, i), circuitPaint);
     }
 
-    // قواعد اللاعبين الأربعة بنقاط دائرية نيون
-    _drawCyberBaseWithCircles(canvas, paint, cellSize * 9, 0, cellSize * 6, const Color(0xffff3366)); // أحمر
-    _drawCyberBaseWithCircles(canvas, paint, 0, 0, cellSize * 6, const Color(0xff00ff66)); // أخضر
-    _drawCyberBaseWithCircles(canvas, paint, cellSize * 9, cellSize * 9, cellSize * 6, const Color(0xffffcc00)); // أصفر
-    _drawCyberBaseWithCircles(canvas, paint, 0, cellSize * 9, cellSize * 6, const Color(0xff00f3ff)); // أزرق
+    // قواعد اللاعبين الأربعة المحددة بدقة (الإحداثيات الحقيقية: أخضر أعلى-يسار، أحمر أعلى-يمين، أزرق أسفل-يسار، أصفر أسفل-يمين)
+    _drawCyberBaseWithCircles(canvas, paint, 0, 0, cellSize * 6, const Color(0xff00ff66));               // 1. الأخضر (Top-Left: x=0, y=0)
+    _drawCyberBaseWithCircles(canvas, paint, cellSize * 9, 0, cellSize * 6, const Color(0xffff3366));    // 2. الأحمر (Top-Right: x=9, y=0)
+    _drawCyberBaseWithCircles(canvas, paint, 0, cellSize * 9, cellSize * 6, const Color(0xff00f3ff));    // 3. الأزرق (Bottom-Left: x=0, y=9)
+    _drawCyberBaseWithCircles(canvas, paint, cellSize * 9, cellSize * 9, cellSize * 6, const Color(0xffffcc00)); // 4. الأصفر (Bottom-Right: x=9, y=9)
 
     // مسارات اللعب المشتركة
     for (int i = 0; i < sharedTrackCoords.length; i++) {
@@ -614,23 +614,27 @@ class LudoBoardPainter extends CustomPainter {
       canvas.drawRect(Rect.fromLTWH(pt.x * cellSize + 1, pt.y * cellSize + 1, cellSize - 2, cellSize - 2), paint);
     }
 
-    // المسارات النهائية (Home Paths)
+    // المسارات النهائية (Home Paths) مفصول حسابها واتجاهاتها بدقة لكل قاعدة
     for (int step = 0; step < 6; step++) {
+      // المسار النهائي للأحمر (يبدأ من اليسار ويتجه لليمين نحو المركز عند y=7)
       paint.style = PaintingStyle.fill;
       paint.color = const Color(0xffff3366).withOpacity(0.65);
       canvas.drawRect(Rect.fromLTWH((1 + step) * cellSize + 1, 7 * cellSize + 1, cellSize - 2, cellSize - 2), paint);
 
+      // المسار النهائي للأخضر (يبدأ من الأعلى ويتجه لأسفل عند x=7)
       paint.color = const Color(0xff00ff66).withOpacity(0.65);
       canvas.drawRect(Rect.fromLTWH(7 * cellSize + 1, (1 + step) * cellSize + 1, cellSize - 2, cellSize - 2), paint);
 
+      // المسار النهائي للأزرق (يبدأ من اليمين ويتجه لليسار نحو المركز عند y=7)
       paint.color = const Color(0xff00f3ff).withOpacity(0.65);
       canvas.drawRect(Rect.fromLTWH((13 - step) * cellSize + 1, 7 * cellSize + 1, cellSize - 2, cellSize - 2), paint);
 
+      // المسار النهائي للأصفر (يبدأ من الأسفل ويتجه لأعلى عند x=7)
       paint.color = const Color(0xffffcc00).withOpacity(0.65);
       canvas.drawRect(Rect.fromLTWH(7 * cellSize + 1, (13 - step) * cellSize + 1, cellSize - 2, cellSize - 2), paint);
     }
 
-    // المركز المضيء
+    // المركز
     paint.style = PaintingStyle.fill;
     paint.color = const Color(0xff0b101c);
     canvas.drawRect(Rect.fromLTWH(cellSize * 6, cellSize * 6, cellSize * 3, cellSize * 3), paint);
@@ -676,28 +680,35 @@ class LudoBoardPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
+// دالة ملاحية مطابقة تماماً لإحداثيات القواعد المرسومة (الأخضر: baseIndex=1, الأحمر: baseIndex=0, الأزرق: baseIndex=2, الأصفر: baseIndex=3)
 Offset getTokenPixelPosition(int pos, LudoPlayer player, int tokenIndex, double cellSize, List<LudoPlayer> allPlayers) {
   Point<double> gridPoint;
   int baseIdx = player.baseIndexForCoords;
 
   if (pos == -1) {
-    double baseX = (baseIdx == 0 || baseIdx == 2) ? 0.5 : 9.5;
-    double baseY = (baseIdx == 0 || baseIdx == 1) ? 0.5 : 9.5;
+    // تحديد إحداثيات القاعدة بدقة لكل لاعب بناءً على موقعها الفعلي في اللوحة
+    // baseIdx 0 -> الأحمر (Top-Right: x=9, y=0)
+    // baseIdx 1 -> الأخضر (Top-Left: x=0, y=0)
+    // baseIdx 2 -> الأزرق (Bottom-Left: x=0, y=9)
+    // baseIdx 3 -> الأصفر (Bottom-Right: x=9, y=9)
+    double baseX = (baseIdx == 0 || baseIdx == 3) ? 9.0 : 0.0;
+    double baseY = (baseIdx == 0 || baseIdx == 1) ? 0.0 : 9.0;
+    
     List<Point<double>> baseOffsets = [
-      const Point(1.0, 1.0),
-      const Point(3.0, 1.0),
-      const Point(1.0, 3.0),
-      const Point(3.0, 3.0),
+      const Point(1.25, 1.25),
+      const Point(3.75, 1.25),
+      const Point(1.25, 3.75),
+      const Point(3.75, 3.75),
     ];
     gridPoint = Point(baseX + baseOffsets[tokenIndex].x, baseY + baseOffsets[tokenIndex].y);
   } else if (pos == 58) {
     gridPoint = const Point(7.0, 7.0);
   } else if (pos >= 52 && pos <= 57) {
     int step = pos - 52;
-    if (baseIdx == 0) gridPoint = Point(1.0 + step, 7.0);
-    else if (baseIdx == 1) gridPoint = Point(7.0, 1.0 + step);
-    else if (baseIdx == 2) gridPoint = Point(13.0 - step, 7.0);
-    else gridPoint = Point(7.0, 13.0 - step);
+    if (baseIdx == 0) gridPoint = Point(1.0 + step, 7.0);       // الأحمر
+    else if (baseIdx == 1) gridPoint = Point(7.0, 1.0 + step);   // الأخضر
+    else if (baseIdx == 2) gridPoint = Point(13.0 - step, 7.0);  // الأزرق
+    else gridPoint = Point(7.0, 13.0 - step);                    // الأصفر
   } else {
     Point<int> pt = sharedTrackCoords[pos % 52];
     gridPoint = Point(pt.x.toDouble(), pt.y.toDouble());
