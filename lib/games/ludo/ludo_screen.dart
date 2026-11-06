@@ -33,7 +33,7 @@ class LudoLobbyScreen extends StatelessWidget {
               const SizedBox(height: 16),
               const Center(child: Text('RAYID CYBER LUDO', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 2))),
               const SizedBox(height: 6),
-              const Center(child: Text('محرك اللعبة السيبراني الهندسي المطوّر مع 52 خانة حقيقية ومصجحة', style: TextStyle(color: Colors.grey, fontSize: 13), textAlign: TextAlign.center)),
+              const Center(child: Text('محرك اللعبة السيبراني الهندسي المطور والنهائي مع تصحيح المتغيرات', style: TextStyle(color: Colors.grey, fontSize: 13), textAlign: TextAlign.center)),
               const SizedBox(height: 48),
               _buildLobbyButton(
                 context,
@@ -87,61 +87,52 @@ class LudoLobbyScreen extends StatelessWidget {
 // محرك قواعد اللعبة الهندسي المستقل والمصحح بالكامل
 class LudoEngine {
   static const int totalPathCells = 52;
-  static const int homeStretchStart = 52; // 52 إلى 57 تمثل الممر النهائي (6 خانات)
-  static const int targetWin = 58;         // المركز الآمن (الفوز)
+  static const int homeStretchStart = 52;
+  static const int homeStretchEnd = 57;
+  static const int targetWin = 58;
 
-  // إزاحات البداية المحلية لكل لاعب على المسار المشترك الـ 52
-  // أخضر يبدأ من 0، أصفر يبدأ من 13، أحمر يبدأ من 26، أزرق يبدأ من 39
   static const List<int> startOffsets = [0, 13, 26, 39];
-
-  // الخانات الآمنة المطلقة على المسار المشترك (بناءً على الفهرس المطلق)
   static const Set<int> safeAbsoluteSpots = {0, 8, 13, 21, 26, 34, 39, 47};
 
-  // التحويل من التقدم المحلي إلى الموقع المطلق على المسار المشترك (52 خانة)
   static int getAbsolutePosition(int localPos, int playerIndex) {
     if (localPos < 0 || localPos >= totalPathCells) return -1;
     return (localPos + startOffsets[playerIndex]) % totalPathCells;
   }
 
-  // حساب الموضع الجديد بدقة تامة متوافقة مع جميع الدوال
   static int calculateNewPosition(int currentPos, int roll, int playerIndex) {
     if (currentPos == -1) {
       return roll == 6 ? 0 : -1;
     }
     if (currentPos == targetWin) return targetWin;
 
-    // إذا كان الحجر يتحرك على المسار المشترك (0 إلى 51)
     if (currentPos >= 0 && currentPos < totalPathCells) {
       int nextPos = currentPos + roll;
-      // نقطة الدخول للممر النهائي لكل لاعب هي الموضع المحلي 51
       if (currentPos < 51 && nextPos >= 51) {
         int excess = nextPos - 51;
-        if (excess == 0) return homeStretchStart; // أول خانة في الممر النهائي
+        if (excess == 0) return homeStretchStart;
         if (excess > 0 && excess <= 6) {
           return homeStretchStart + excess - 1;
         }
-        return currentPos; // تجاوز الحد غير مسموح
+        return currentPos;
       }
       return nextPos % totalPathCells;
     }
 
-    // إذا كان الحجر داخل الممر النهائي (52 إلى 57)
     if (currentPos >= homeStretchStart && currentPos <= 57) {
-      int stretchIndex = currentPos - homeStretchStart; // من 0 إلى 5
+      int stretchIndex = currentPos - homeStretchStart;
       int newStretchIndex = stretchIndex + roll;
       if (newStretchIndex == 6) {
-        return targetWin; // الفوز الدقيق في المركز
+        return targetWin;
       } else if (newStretchIndex < 6) {
         return homeStretchStart + newStretchIndex;
       } else {
-        return currentPos; // منع تجاوز النهاية تماماً
+        return currentPos;
       }
     }
 
     return currentPos;
   }
 
-  // الحصول على الحركات القانونية المتاحة
   static List<int> getLegalMoves(List<int> playerPieces, int roll, int playerIndex) {
     List<int> legalIndices = [];
     for (int i = 0; i < 4; i++) {
@@ -158,7 +149,6 @@ class LudoEngine {
     return legalIndices;
   }
 
-  // مسار الخطوات خطوة بخطوة للأنيميشن الناعم
   static List<int> getStepByStepPath(int currentPos, int roll, int playerIndex) {
     List<int> path = [];
     int tempPos = currentPos;
@@ -176,7 +166,6 @@ class LudoEngine {
     return path;
   }
 
-  // فحص الالتقاط والإرجاع للقاعدة
   static void processCaptures(int activePlayer, int movedPieceIdx, List<List<int>> allPieces, int totalActivePlayers) {
     int activePos = allPieces[activePlayer][movedPieceIdx];
     if (activePos < 0 || activePos >= totalPathCells) return;
@@ -191,41 +180,35 @@ class LudoEngine {
         if (enemyPos >= 0 && enemyPos < totalPathCells) {
           int enemyAbsolute = getAbsolutePosition(enemyPos, p);
           if (activeAbsolute == enemyAbsolute) {
-            allPieces[p][i] = -1; // إرجاع حجر الخصم للقاعدة
+            allPieces[p][i] = -1;
           }
         }
       }
     }
   }
 
-  // تشغيل اختبارات الوحدة الشاملة للمحرك والتحقق من صحتها
   static String runEngineUnitTests() {
     StringBuffer log = StringBuffer();
     try {
-      // 1. اختبار خروج القاعدة برقم 6
       List<int> pieces = [-1, -1, -1, -1];
       List<int> legal = getLegalMoves(pieces, 6, 0);
       assert(legal.length == 4);
       log.writeln('اختبار خروج القاعدة (رمي 6): ناجح ✅');
 
-      // 2. اختبار عدم الخروج بدون رقم 6
       legal = getLegalMoves(pieces, 5, 0);
       assert(legal.isEmpty);
       log.writeln('اختبار منع الخروج بدون 6: ناجح ✅');
 
-      // 3. اختبار الموقع المطلق
       int absGreen = getAbsolutePosition(0, 0);
       int absYellow = getAbsolutePosition(0, 1);
       assert(absGreen == 0 && absYellow == 13);
       log.writeln('اختبار حساب الموقع المطلق للاعبين: ناجح ✅');
 
-      // 4. اختبار الوصول للمركز والفوز
-      int nearWin = 57; // خانة واحدة قبل الفوز
+      int nearWin = 57;
       int winPos = calculateNewPosition(nearWin, 1, 0);
       assert(winPos == targetWin);
       log.writeln('اختبار الوصول الدقيق للمركز والفوز: ناجح ✅');
 
-      // 5. اختبار منع تجاوز النهاية
       int overPos = calculateNewPosition(57, 3, 0);
       assert(overPos == 57);
       log.writeln('اختبار منع تجاوز النهاية: ناجح ✅');
@@ -255,10 +238,8 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
   bool isGameOver = false;
   Timer? _activeTimer;
 
-  // عدد اللاعبين النشطين (2 في وضع اللعب الثنائي أو ضد AI، أو 4)
   final int activePlayersCount = 2;
 
-  // مواضع الأحجار للأربعة لاعبين (نستخدم أول لاعبين في الوضع الثنائي)
   List<List<int>> playerPieces = [
     [-1, -1, -1, -1],
     [-1, -1, -1, -1],
@@ -266,13 +247,12 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
     [-1, -1, -1, -1],
   ];
 
-  int currentTurn = 0; // 0 للأخضر، 1 للأصفر (أو الثاني)
+  int currentTurn = 0;
   String gameStatus = 'دور اللاعب: أخضر (رائد) - ارمِ النرد!';
 
   final List<String> playerNames = ['أخضر', 'أصفر', 'أحمر', 'أزرق'];
   final List<Color> playerColors = [Colors.greenAccent, Colors.amberAccent, Colors.redAccent, Colors.blueAccent];
 
-  // إحداثيات المسار القياسي 15×15 المكون بالضبط من 52 خانة فريدة ومتصلة بدون تكرار
   final List<Offset> boardPathCoordinates = _generateStrict52Path();
 
   late AnimationController _diceAnimController;
@@ -284,7 +264,6 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
     _diceAnimController = AnimationController(vsync: this, duration: const Duration(milliseconds: 400));
     _diceScaleAnim = Tween<double>(begin: 1.0, end: 1.2).animate(CurvedAnimation(parent: _diceAnimController, curve: Curves.easeInOut));
     
-    // تشغيل وإثبات نتائج الاختبارات الحقيقية للمحرك في الكونسول
     debugPrint(LudoEngine.runEngineUnitTests());
   }
 
@@ -295,35 +274,25 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
     super.dispose();
   }
 
-  // مولد هندسي دقيق لـ 52 خانة فريدة ومتصلة تماماً دون أي إكمال اصطناعي أو تكرار
   static List<Offset> _generateStrict52Path() {
     List<Offset> path = [];
-    // 1. الذراع السفلي (صعوداً من الأسفل لوسط المربع الأيسر السفلي)
     for (int y = 13; y >= 9; y--) path.add(Offset(6.0, y.toDouble()));
-    // 2. الانعطاف نحو اليسار عبر الصف الثامن
     for (int x = 5; x >= 0; x--) path.add(Offset(x.toDouble(), 8.0));
-    path.add(const Offset(0.0, 7.0)); // ركن الممر الأيسر
+    path.add(const Offset(0.0, 7.0));
     path.add(const Offset(0.0, 6.0));
-    // 3. الذراع الأيسر (يميناً عبر الصف السادس)
     for (int x = 1; x <= 6; x++) path.add(Offset(x.toDouble(), 6.0));
-    // 4. الصعود نحو الأعلى عبر العمود السادس
     for (int y = 5; y >= 0; y--) path.add(Offset(6.0, y.toDouble()));
-    path.add(const Offset(7.0, 0.0)); // ركن الأعلى
+    path.add(const Offset(7.0, 0.0));
     path.add(const Offset(8.0, 0.0));
-    // 5. الذراع العلوي (نزولاً عبر العمود الثامن)
     for (int y = 1; y <= 5; y++) path.add(Offset(8.0, y.toDouble()));
-    // 6. الانعطاف نحو اليمين عبر الصف السادس العلوي
     for (int x = 9; x <= 14; x++) path.add(Offset(x.toDouble(), 6.0));
-    path.add(const Offset(14.0, 7.0)); // ركن الممر الأيمن
+    path.add(const Offset(14.0, 7.0));
     path.add(const Offset(14.0, 8.0));
-    // 7. الذراع الأيمن (يساراً عبر الصف الثامن)
     for (int x = 13; x >= 8; x--) path.add(Offset(x.toDouble(), 8.0));
-    // 8. النزول نحو الأسفل عبر العمود الثامن
     for (int y = 9; y <= 14; y++) path.add(Offset(8.0, y.toDouble()));
-    path.add(const Offset(7.0, 14.0)); // ركن الأسفل
+    path.add(const Offset(7.0, 14.0));
     path.add(const Offset(6.0, 14.0));
 
-    // التأكد من أن عدد الخانات يساوي بالضبط 52 خانة فريدة
     assert(path.length == 52);
     return path;
   }
@@ -436,7 +405,7 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
     if (isGameOver) return;
     do {
       currentTurn = (currentTurn + 1) % activePlayersCount;
-    } while (widget.isVsAI && currentTurn == 1); // في وضع ضد AI، الدور 1 للبوت
+    } while (widget.isVsAI && currentTurn == 1);
 
     gameStatus = 'دور اللاعب: ${playerNames[currentTurn]} - ارمِ النرد.';
     hasRolled = false;
@@ -448,7 +417,6 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
     }
   }
 
-  // خوارزمية الذكاء الاصطناعي المطورة والمحسنة بالأولويات الدقيقة
   void _executeAIMove(List<int> legalMoves) {
     _activeTimer?.cancel();
     _activeTimer = Timer(const Duration(milliseconds: 900), () {
@@ -456,7 +424,6 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
 
       int chosenMove = legalMoves.first;
 
-      // 1. أولوية الفوز إذا وصل للمركز
       for (int idx in legalMoves) {
         int pos = playerPieces[1][idx];
         int finalPos = LudoEngine.calculateNewPosition(pos, diceValue, 1);
@@ -466,7 +433,6 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
         }
       }
 
-      // 2. أولوية أكل الخصم إن أمكن
       if (chosenMove == legalMoves.first) {
         for (int idx in legalMoves) {
           int pos = playerPieces[1][idx];
@@ -494,7 +460,6 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
         }
       }
 
-      // 3. إخراج حجر من القاعدة إذا كانت الرمية 6
       if (diceValue == 6 && chosenMove == legalMoves.first) {
         for (int idx in legalMoves) {
           if (playerPieces[1][idx] == -1) {
@@ -709,10 +674,10 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
     return widgets;
   }
 
-  Offset _getBaseOffset(int player, int idx, double boardSize, double cell) {
+    Offset _getBaseOffset(int player, int idx, double boardSize, double cell) {
     double startX = 0, startY = 0;
-    if (player == 0) { startX = cell * 1; startY = cell * 1; } // أخضر
-    else if (player == 1) { startX = cell * 10; startY = cell * 1; } // أصفر
+    if (player == 0) { startX = cell * 1; startY = cell * 1; }
+    else if (player == 1) { startX = cell * 10; startY = cell * 1; }
 
     double dx = (idx % 2 == 0) ? startX + cell * 1.0 : startX + cell * 3.0;
     double dy = (idx < 2) ? startY + cell * 1.0 : startY + cell * 3.0;
@@ -753,7 +718,7 @@ class CyberBoardPainter extends CustomPainter {
     canvas.drawRect(Rect.fromLTWH(0, 0, cell * 6, cell * 6), paintGreen);
     canvas.drawRect(Rect.fromLTWH(cell * 9, 0, cell * 6, cell * 6), paintYellow);
     canvas.drawRect(Rect.fromLTWH(cell * 9, cell * 9, cell * 6, cell * 6), paintRed);
-    canvas.drawRect(Rect.fromLTWH(cell * 9, cell * 9, cell * 6, cell * 6), paintBlue);
+    canvas.drawRect(Rect.fromLTWH(0, cell * 9, cell * 6, cell * 6), paintBlue);
 
     final paintDot = Paint()
       ..color = const Color(0xff00E676)
