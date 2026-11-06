@@ -354,8 +354,7 @@ class _LudoGameScreenState extends State<LudoGameScreen> with SingleTickerProvid
   bool isGameOver = false;
   bool showTutorial = true;
   bool soundEnabled = true;
-     // Ludo audio integration
-LudoAudio.playCyberSound();
+  
 
   Timer? _timer;
   late AnimationController _diceController;
@@ -503,12 +502,25 @@ LudoAudio.playCyberSound();
   }
 
   void _animateToken(PlayerColor color, int tokenId, List<int> steps, int index, int totalRoll) {
+      
     if (!mounted || isGameOver) return;
+
+    // Ludo audio integration
+    LudoAudio.playCyberSound();
 
     if (index >= steps.length) {
       _finishMove(color, tokenId, totalRoll);
       return;
     }
+
+    setState(() {
+      allTokens[color]![tokenId].position = steps[index];
+    });
+
+    _timer = Timer(const Duration(milliseconds: 250), () {
+      if (mounted) _animateToken(color, tokenId, steps, index + 1, totalRoll);
+    });
+  }
 
     setState(() {
       allTokens[color]![tokenId].position = steps[index];
