@@ -165,25 +165,41 @@ static const Map<PlayerColor, int> startOffsets = {
 // ============================================================================
 
 class LudoBoardGeometry {
-  static final List<Offset> track = _createTrack();
+    static final List<Offset> track = _createTrack();
 
   static List<Offset> _createTrack() {
     final List<Offset> p = [
-      const Offset(6, 13), const Offset(6, 12), const Offset(6, 11), const Offset(6, 10), const Offset(6, 9),
-      const Offset(5, 9),  const Offset(4, 9),  const Offset(3, 9),  const Offset(2, 9),  const Offset(1, 9),  const Offset(0, 9),
-      const Offset(0, 8),  const Offset(0, 7),
-      const Offset(0, 6),  const Offset(1, 6),  const Offset(2, 6),  const Offset(3, 6),  const Offset(4, 6),  const Offset(5, 6),
-      const Offset(6, 5),  const Offset(6, 4),  const Offset(6, 3),  const Offset(6, 2),  const Offset(6, 1),  const Offset(6, 0),
-      const Offset(7, 0),  const Offset(8, 0),
-      const Offset(8, 1),  const Offset(8, 2),  const Offset(8, 3),  const Offset(8, 4),  const Offset(8, 5),
-      const Offset(9, 6),  const Offset(10, 6), const Offset(11, 6), const Offset(12, 6), const Offset(13, 6), const Offset(14, 6),
-      const Offset(14, 7), const Offset(14, 8),
-      const Offset(14, 9), const Offset(13, 9), const Offset(12, 9), const Offset(11, 9), const Offset(10, 9), const Offset(9, 9),
-      const Offset(8, 10), const Offset(8, 11), const Offset(8, 12), const Offset(8, 13), const Offset(8, 14),
-      const Offset(7, 14), const Offset(6, 14),
+      // 0 - 5: مسار انطلاق الأخضر والنزول لليمين
+      const Offset(6, 1), const Offset(6, 2), const Offset(6, 3), const Offset(6, 4), const Offset(6, 5), const Offset(5, 5),
+      // 6 - 12: الاتجاه نحو اليسار
+      const Offset(4, 5), const Offset(3, 5), const Offset(2, 5), const Offset(1, 5), const Offset(0, 5),
+      const Offset(0, 6), const Offset(0, 7),
+      // 13 - 18: الانعطاف نحو قاعدة الأزرق والنزول
+      const Offset(0, 8), const Offset(1, 8), const Offset(2, 8), const Offset(3, 8), const Offset(4, 8), const Offset(5, 8),
+      // 19 - 25: الاتجاه نحو الأسفل عند قاعدة الأزرق
+      const Offset(6, 9), const Offset(6, 10), const Offset(6, 11), const Offset(6, 12), const Offset(6, 13), const Offset(6, 14),
+      const Offset(7, 14), const Offset(8, 14),
+      // 26 - 31: الصعود نحو جهة الأحمر
+      const Offset(8, 13), const Offset(8, 12), const Offset(8, 11), const Offset(8, 10), const Offset(8, 9),
+      // 32 - 38: الاتجاه نحو اليمين
+      const Offset(9, 8), const Offset(10, 8), const Offset(11, 8), const Offset(12, 8), const Offset(13, 8), const Offset(14, 8),
+      const Offset(14, 7), const Offset(14, 6),
+      // 39 - 44: الالتفاف نحو الأعلى (قاعدة الأصفر)
+      const Offset(14, 5), const Offset(13, 5), const Offset(12, 5), const Offset(11, 5), const Offset(10, 5), const Offset(9, 5),
+      // 45 - 51: الاتجاه نحو البداية إكمالاً للدورة
+      const Offset(8, 4), const Offset(8, 3), const Offset(8, 2), const Offset(8, 1), const Offset(8, 0),
+      const Offset(7, 0), const Offset(6, 0),
     ];
     return List.unmodifiable(p);
   }
+
+  static const Map<PlayerColor, int> startOffsets = {
+    PlayerColor.green: 0,   
+    PlayerColor.blue: 13,   
+    PlayerColor.red: 26,    
+    PlayerColor.yellow: 39, 
+  };
+
 
   static Offset homePosition(PlayerColor color, int step, double cell) {
     switch (color) {
