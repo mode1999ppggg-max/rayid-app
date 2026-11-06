@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'ludo_audio.dart';
 
 // ============================================================================
 // RAYID PAY - CYBERPUNK LUDO ARENA (ULTIMATE PRODUCTION VERSION)
@@ -353,6 +354,8 @@ class _LudoGameScreenState extends State<LudoGameScreen> with SingleTickerProvid
   bool isGameOver = false;
   bool showTutorial = true;
   bool soundEnabled = true;
+     استدعاء مشغل الأصوات السيبراني
+    LudoAudio.playCyberSound();
 
   Timer? _timer;
   late AnimationController _diceController;
