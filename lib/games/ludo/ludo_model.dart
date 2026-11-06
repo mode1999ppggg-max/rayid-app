@@ -15,11 +15,11 @@ class LudoPlayer {
 
 class LudoGameController extends ChangeNotifier {
   List<LudoPlayer> players = [
-    LudoPlayer(color: LudoColor.red, uiColor: Colors.redAccent),
-    LudoPlayer(color: LudoColor.green, uiColor: Colors.greenAccent),
-    LudoPlayer(color: LudoColor.yellow, uiColor: Colors.amberAccent),
-    LudoPlayer(color: LudoColor.blue, uiColor: Colors.cyanAccent),
-  ];
+        LudoPlayer(color: PlayerColor.green, ...),
+    LudoPlayer(color: PlayerColor.yellow, ...),
+    LudoPlayer(color: PlayerColor.red, ...),
+    LudoPlayer(color: PlayerColor.blue, ...),
+
 
   int currentTurnIndex = 0;
   int diceValue = 0;
