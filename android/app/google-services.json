@@ -1,0 +1,32 @@
+{
+  "project_info": {
+    "project_number": "rayid-pay-project",
+    "project_id": "ridepay",
+    "storage_bucket": "ridepay.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:mobile:android:app",
+        "android_client_info": {
+          "package_name": "com.rayid.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSy_Placeholder_Key_For_RidePay"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "app_measurement_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
