@@ -139,7 +139,7 @@ class LudoGameScreen extends StatefulWidget {
   final bool isVsAI;
   const LudoGameScreen({super.key, required this.isVsAI});
 
-  @defaultState
+  @override
   State<LudoGameScreen> createState() => _LudoGameScreenState();
 }
 
@@ -212,7 +212,6 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
       ),
       body: Column(
         children: [
-          // شريط المعلومات العلوي مشابه للصورة
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             color: const Color(0xff121816),
@@ -223,7 +222,7 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
                   children: [
                     const Icon(Icons.emoji_events, color: Colors.amber, size: 18),
                     const SizedBox(width: 4),
-                    Text('الترتيب: 1', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                    const Text('الترتيب: 1', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
                   ],
                 ),
                 Container(
@@ -235,7 +234,6 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
             ),
           ),
 
-          // لوحة اللودو السيبرانية المربعة (مستوحاة من التصميم التقليدي بألوان نيون)
           Expanded(
             child: Center(
               child: AspectRatio(
@@ -253,7 +251,6 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
                   ),
                   child: Stack(
                     children: [
-                      // تقسيم الرقعة إلى 4 أرباع سيبرانية (أخضر، أصفر، أحمر، أزرق)
                       Column(
                         children: [
                           Expanded(
@@ -294,7 +291,6 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
             ),
           ),
 
-          // شريط التحكم السفلي (النرد وأزرار التفاعل)
           Container(
             padding: const EdgeInsets.all(12),
             decoration: const BoxDecoration(
@@ -316,17 +312,17 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
                   icon: const Icon(Icons.chat_bubble, color: Color(0xff00E676)),
                   onPressed: () {},
                 ),
-                ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xff00E676),
-                  foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  elevation: 6,
-                ).let((style) => ElevatedButton(
-                  style: style,
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xff00E676),
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    elevation: 6,
+                  ),
                   onPressed: (isPlayerTurn && !isRolling && playerPos < 40 && aiPos < 40) ? rollDice : null,
                   child: Text(isRolling ? '...' : '🎲 ارمِ ($diceValue)', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14)),
-                )),
+                ),
               ],
             ),
           ),
@@ -335,7 +331,7 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
     );
   }
 
-  Widget _buildBaseQuadrant(Color color, string name, int progress) {
+  Widget _buildBaseQuadrant(Color color, String name, int progress) {
     return Expanded(
       child: Container(
         margin: const EdgeInsets.all(4),
@@ -377,8 +373,4 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
       ),
     );
   }
-}
-
-extension on ButtonStyle {
-  Widget let(Widget Function(ButtonStyle) child) => child(this);
 }
