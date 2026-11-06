@@ -38,7 +38,7 @@ class LudoLobbyScreen extends StatelessWidget {
               ),
               const SizedBox(height: 6),
               const Center(
-                child: Text('اختر وضع اللعبة وادخل ساحة المعركة السيبرانية', style: TextStyle(color: Colors.grey, fontSize: 12), textAlign: TextAlign.center),
+                child: Text('ساحة المعركة السيبرانية المتقدمة بالممرات الكاملة', style: TextStyle(color: Colors.grey, fontSize: 12), textAlign: TextAlign.center),
               ),
               const SizedBox(height: 40),
 
@@ -100,7 +100,7 @@ class LudoLobbyScreen extends StatelessWidget {
   }
 }
 
-// ================= شاشة اللعبة المطابقة تماماً للشكل الاحترافي =================
+// ================= شاشة اللعبة المتكاملة مع الممرات والحركة الحقيقية =================
 class LudoGameScreen extends StatefulWidget {
   final bool isVsAI;
   const LudoGameScreen({super.key, required this.isVsAI});
@@ -113,11 +113,12 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
   int diceValue = 6;
   bool isRolling = false;
 
-  // مواضع القطع والتقدم للأرباع الأربعة (أخضر، أصفر، أحمر، أزرق)
-  List<int> playerSteps = [0, 0, 0, 0];
+  // مواضع القطع الأربعة (0 يعني داخل القاعدة، من 1 إلى 52 مسار السباق، 53+ خط النهاية)
+  List<int> playerPositions = [0, 0, 0, 0];
   int currentTurn = 0; // 0: أخضر, 1: أصفر, 2: أحمر, 3: أزرق
   String gameStatus = 'دور اللاعب الأخضر (رائد)';
-  
+  List<String> chatLogs = [];
+
   final List<String> playerNames = ['أخضر', 'أصفر', 'أحمر', 'أزرق'];
   final List<Color> playerColors = [Colors.green, Colors.amber, Colors.red, Colors.blue];
 
@@ -132,19 +133,42 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
         isRolling = false;
         diceValue = Random().nextInt(6) + 1;
 
-        playerSteps[currentTurn] += diceValue;
-        if (playerSteps[currentTurn] >= 40) {
-          playerSteps[currentTurn] = 40;
-          gameStatus = '🏆 فاز اللاعب ${playerNames[currentTurn]} بالمعركة السيبرانية!';
+        int currentPos = playerPositions[currentTurn];
+
+        // منطق حركة اللودو الصحيح
+        if (currentPos == 0) {
+          if (diceValue == 6) {
+            playerPositions[currentTurn] = 1; // الخروج من القاعدة عند رمي 6
+            gameStatus = '🚀 نجح ${playerNames[currentTurn]} في إخراج قطعة للممر!';
+          } else {
+            gameStatus = '❌ تحتاج إلى رمي (6) للخروج من القاعدة!';
+          }
         } else {
+          int newPos = currentPos + diceValue;
+          if (newPos <= 52) {
+            playerPositions[currentTurn] = newPos;
+            gameStatus = '⚡ تقدم اللاعب ${playerNames[currentTurn]} إلى الخانة $newPos';
+          } else {
+            gameStatus = '⚠️ تجاوزت خط النهاية، انتظر الرقم المناسب!';
+          }
+        }
+
+        // تبديل الدور إذا لم يكن الرقم 6 (حسب قوانين اللودو)
+        if (diceValue != 6) {
           do {
             currentTurn = (currentTurn + 1) % 4;
           } while (widget.isVsAI && (currentTurn == 2 || currentTurn == 3));
+        } else {
+          gameStatus += ' (حصلت على رمية إضافية لوجود رقم 6!)';
+        }
 
-          gameStatus = 'دور اللاعب: ${playerNames[currentTurn]}';
-          if (widget.isVsAI && currentTurn == 1) {
-            _triggerAITurn();
-          }
+        if (!gameStatus.contains('تحتاج')) {
+          chatLogs.add('${playerNames[currentTurn]} رمى نرد: $diceValue');
+          if (chatLogs.length > 3) chatLogs.removeAt(0);
+        }
+
+        if (widget.isVsAI && currentTurn == 1) {
+          _triggerAITurn();
         }
       });
     });
@@ -160,11 +184,11 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xff1A1225), // خلفية بنفسجية داكنة مشابهة للصورة
+      backgroundColor: const Color(0xff1A1225),
       body: SafeArea(
         child: Column(
           children: [
-            // شريط الإرشاد العلوي والشخصية التفاعلية
+            // شريط الإرشاد العلوي
             Container(
               margin: const EdgeInsets.all(8),
               padding: const EdgeInsets.all(10),
@@ -175,21 +199,20 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
               ),
               child: Row(
                 children: [
-                  // أيقونة أو شخصية افتراضية في الزاوية
                   Container(
-                    width: 45,
-                    height: 45,
+                    width: 40,
+                    height: 40,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: const Color(0xff00E5FF).withOpacity(0.2),
                       border: Border.all(color: const Color(0xff00E5FF)),
                     ),
-                    child: const Icon(Icons.smart_toy, color: Color(0xff00E5FF), size: 24),
+                    child: const Icon(Icons.smart_toy, color: Color(0xff00E5FF), size: 20),
                   ),
                   const SizedBox(width: 10),
                   const Expanded(
                     child: Text(
-                      'تشتغل الميكروفون لديك الآن ، حاول إجراء الدردشة الصوتية مع الآخرين ، استمع به !',
+                      'نظام الممرات السيبرانية مفعل. ارمِ النرد بتركيز وتتبع خطوات قطعك!',
                       style: TextStyle(color: Colors.white, fontSize: 11, height: 1.3),
                     ),
                   ),
@@ -197,49 +220,45 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
               ),
             ),
 
-            // شريط الرأس (مشاهدين، كأس الترتيب، والإعدادات)
+            // شريط المشاهدين والإعدادات
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(color: const Color(0xff2A1B3D), borderRadius: BorderRadius.circular(12)),
-                        child: const Row(
-                          children: [
-                            Icon(Icons.visibility, color: Colors.white, size: 14),
-                            SizedBox(width: 4),
-                            Text('0 مشاهد', style: TextStyle(color: Colors.white, fontSize: 10)),
-                          ],
-                        ),
-                      ),
-                    ],
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(color: const Color(0xff2A1B3D), borderRadius: BorderRadius.circular(12)),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.visibility, color: Colors.white, size: 14),
+                        SizedBox(width: 4),
+                        Text('1 مشاهد نشط', style: TextStyle(color: Colors.white, fontSize: 10)),
+                      ],
+                    ),
                   ),
-                  Row(
+                  const Row(
                     children: [
-                      const Icon(Icons.emoji_events, color: Colors.amber, size: 22),
-                      const SizedBox(width: 12),
-                      const Icon(Icons.settings, color: Colors.white, size: 22),
+                      Icon(Icons.emoji_events, color: Colors.amber, size: 20),
+                      SizedBox(width: 12),
+                      Icon(Icons.settings, color: Colors.white, size: 20),
                     ],
                   ),
                 ],
               ),
             ),
 
-            // رقعة اللودو المربعة السيبرانية (مطابقة تماماً للصورة بأرباعها الأربعة)
+            // رقعة اللودو السيبرانية الاحترافية مع الممرات التفصيلية
             Expanded(
               child: Center(
                 child: AspectRatio(
                   aspectRatio: 1.0,
                   child: Container(
-                    margin: const EdgeInsets.all(12),
+                    margin: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: const Color(0xff3E2723), // إطار خشبي/سيبراني للرقعة
+                      color: const Color(0xff3E2723),
                       borderRadius: BorderRadius.circular(12),
-                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.6), blurRadius: 15, spreadRadius: 2)],
+                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.6), blurRadius: 15)],
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(4.0),
@@ -253,9 +272,9 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
                             Expanded(
                               child: Row(
                                 children: [
-                                  _buildQuadrant(Colors.green, playerSteps[0]), // أخضر
-                                  _buildCenterColumn(),
-                                  _buildQuadrant(Colors.amber, playerSteps[1]), // أصفر
+                                  _buildBaseWithPathway(Colors.green, playerPositions[0]), // أخضر
+                                  _buildDetailedCenterLane(),
+                                  _buildBaseWithPathway(Colors.amber, playerPositions[1]), // أصفر
                                 ],
                               ),
                             ),
@@ -269,9 +288,9 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
                             Expanded(
                               child: Row(
                                 children: [
-                                  _buildQuadrant(Colors.red, playerSteps[2]), // أحمر
-                                  _buildCenterColumn(),
-                                  _buildQuadrant(Colors.blue, playerSteps[3]), // أزرق
+                                  _buildBaseWithPathway(Colors.red, playerPositions[2]), // أحمر
+                                  _buildDetailedCenterLane(),
+                                  _buildBaseWithPathway(Colors.blue, playerPositions[3]), // أزرق
                                 ],
                               ),
                             ),
@@ -284,7 +303,7 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
               ),
             ),
 
-            // شريط معلومات المستخدم والتحكم السفلي (مطابق للصورة)
+            // شريط التحكم السفلي والدردشة التفاعلية
             Container(
               padding: const EdgeInsets.all(12),
               decoration: const BoxDecoration(
@@ -299,27 +318,24 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
                       const Text('Guest_5090476...', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
                       Row(
                         children: [
-                          IconButton(
-                            icon: const Icon(Icons.mic, color: Colors.grey, size: 20),
-                            onPressed: () {},
-                          ),
+                          const Icon(Icons.mic, color: Colors.grey, size: 20),
+                          const SizedBox(width: 8),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(color: Colors.amber, borderRadius: BorderRadius.circular(16)),
-                            child: const Icon(Icons.emoji_emotions, color: Colors.black, size: 18),
+                            child: const Icon(Icons.emoji_emotions, color: Colors.black, size: 16),
                           ),
                           const SizedBox(width: 8),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(color: Colors.amber, borderRadius: BorderRadius.circular(16)),
-                            child: const Icon(Icons.chat_bubble, color: Colors.black, size: 18),
+                            child: const Icon(Icons.chat_bubble, color: Colors.black, size: 16),
                           ),
                         ],
                       ),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  // زر رمي النرد الرئيسي
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -331,7 +347,7 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
                         elevation: 6,
                       ),
                       onPressed: (!isRolling && (currentTurn == 0 || !widget.isVsAI)) ? rollDice : null,
-                      child: Text(isRolling ? 'جاري الرَمي...' : '🎲 ارمِ النرد ($diceValue)', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14)),
+                      child: Text(isRolling ? 'جاري الرَمي...' : '🎲 ارمِ النرد وتقدم ($diceValue)', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13)),
                     ),
                   ),
                 ],
@@ -343,47 +359,37 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
     );
   }
 
-  Widget _buildQuadrant(Color color, int progress) {
+  // بناء القاعدة مع الممرات السيبرانية المدمجة
+  Widget _buildBaseWithPathway(Color color, int position) {
     return Expanded(
       child: Container(
         margin: const EdgeInsets.all(2),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.8),
+          color: color.withOpacity(0.2),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.white24),
+          border: Border.all(color: color.withOpacity(0.6), width: 1.5),
         ),
-        child: Stack(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Center(
-              child: Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: List.generate(4, (index) => Container(
-                  width: 18,
-                  height: 18,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white,
-                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.4), blurRadius: 4)],
-                  ),
-                  child: Center(
-                    child: Container(
-                      width: 10,
-                      height: 10,
-                      decoration: BoxDecoration(shape: BoxShape.circle, color: color),
-                    ),
-                  ),
-                )),
-              ),
+            Wrap(
+              spacing: 4,
+              runSpacing: 4,
+              children: List.generate(4, (index) => Container(
+                width: 14,
+                height: 14,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: position > 0 ? Colors.grey[800] : color,
+                  border: Border.all(color: Colors.white, width: 1),
+                ),
+              )),
             ),
-            Positioned(
-              bottom: 4,
-              right: 4,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(4)),
-                child: Text('$progress', style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
-              ),
+            const SizedBox(height: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(6)),
+              child: Text('الخانة: $position', style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.bold)),
             ),
           ],
         ),
@@ -391,16 +397,21 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
     );
   }
 
-  Widget _buildCenterColumn() {
+  // بناء الممرات والمسارات الوسطى بدقة
+  Widget _buildDetailedCenterLane() {
     return Container(
-      width: 35,
-      color: Colors.white10,
+      width: 30,
+      color: const Color(0xff121816),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(3, (index) => Container(
+        children: List.generate(6, (index) => Container(
           margin: const EdgeInsets.all(1),
-          height: 10,
-          decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2)),
+          height: 8,
+          decoration: BoxDecoration(
+            color: const Color(0xff00E5FF).withOpacity(0.4),
+            borderRadius: BorderRadius.circular(2),
+            border: Border.all(color: const Color(0xff00E5FF).withOpacity(0.8)),
+          ),
         )),
       ),
     );
