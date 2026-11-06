@@ -1,150 +1,23 @@
-import 'dart:async';
-import 'package:flutter/material.dart';
-import 'ludo_audio.dart';
+name: rayid_app
+description: "A new Flutter rewards application"
+publish_to: 'none'
+version: 1.0.0+1
 
-class LudoGameScreen extends StatefulWidget {
-  final bool isVsAI;
-  const LudoGameScreen({super.key, this.isVsAI = false});
+environment:
+  sdk: '>=3.2.3 <4.0.0'
 
-  @override
-  State<LudoGameScreen> createState() => _LudoGameScreenState();
-}
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.1.0
+  cupertino_icons: ^1.0.6
+  image_picker: ^1.0.7
+  audioplayers: ^6.0.0
 
-class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStateMixin {
-  bool soundEnabled = true;
-  bool isRolling = false;
-  bool hasRolled = false;
-  bool isAnimatingMove = false;
-  bool isGameOver = false;
-  int diceValue = 1;
-  
-  Timer? _timer;
-  late AnimationController _diceController;
-  late Animation<double> _diceAnimation;
-  PlayerColor currentTurnColor = PlayerColor.green;
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
 
-  final Map<PlayerColor, String> playerNames = {
-    PlayerColor.green: 'الأخضر',
-    PlayerColor.yellow: 'الأصفر',
-    PlayerColor.red: 'الأحمر',
-    PlayerColor.blue: 'الأزرق',
-  };
-
-  final Map<PlayerColor, Map<int, TokenPosition>> allTokens = {
-    PlayerColor.green: {0: TokenPosition(0), 1: TokenPosition(1), 2: TokenPosition(2), 3: TokenPosition(3)},
-    PlayerColor.yellow: {0: TokenPosition(0), 1: TokenPosition(1), 2: TokenPosition(2), 3: TokenPosition(3)},
-    PlayerColor.red: {0: TokenPosition(0), 1: TokenPosition(1), 2: TokenPosition(2), 3: TokenPosition(3)},
-    PlayerColor.blue: {0: TokenPosition(0), 1: TokenPosition(1), 2: TokenPosition(2), 3: TokenPosition(3)},
-  };
-
-  @override
-  void initState() {
-    super.initState();
-    _diceController = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
-    _diceAnimation = Tween<double>(begin: 1.0, end: 1.2).animate(CurvedAnimation(parent: _diceController, curve: Curves.easeInOut));
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    _diceController.dispose();
-    super.dispose();
-  }
-
-  void rollDice() {
-    if (isRolling || hasRolled || isAnimatingMove || isGameOver) return;
-    setState(() {
-      isRolling = true;
-    });
-    _diceController.forward().then((_) => _diceController.reverse());
-    
-    Timer(const Duration(milliseconds: 600), () {
-      if (!mounted) return;
-      setState(() {
-        isRolling = false;
-        hasRolled = true;
-        diceValue = (1 + (DateTime.now().millisecond % 6));
-      });
-      _animateToken(currentTurnColor, 0, [0, 1, 2, 3, 4], 0, diceValue);
-    });
-  }
-
-  void _animateToken(PlayerColor color, int tokenId, List<int> steps, int index, int totalRoll) {
-    if (!mounted || isGameOver) return;
-
-    // Ludo audio integration
-    LudoAudio.playCyberSound();
-
-    if (index >= steps.length) {
-      _finishMove(color, tokenId, totalRoll);
-      return;
-    }
-
-    setState(() {
-      allTokens[color]![tokenId].position = steps[index];
-    });
-
-    _timer = Timer(const Duration(milliseconds: 250), () {
-      if (mounted) _animateToken(color, tokenId, steps, index + 1, totalRoll);
-    });
-  }
-
-  void _finishMove(PlayerColor color, int tokenId, int totalRoll) {
-    setState(() {
-      isAnimatingMove = false;
-      hasRolled = false;
-      currentTurnColor = PlayerColor.values[(PlayerColor.values.indexOf(currentTurnColor) + 1) % PlayerColor.values.length];
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF121212),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1E1E1E),
-        title: const Text('Cyberpunk Ludo Arena', style: TextStyle(color: Colors.white)),
-        actions: [
-          IconButton(
-            icon: Icon(soundEnabled ? Icons.volume_up : Icons.volume_off, color: soundEnabled ? const Color(0xff00E676) : Colors.grey),
-            onPressed: () {
-              setState(() {
-                soundEnabled = !soundEnabled;
-              });
-            },
-          ),
-        ],
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text('دور اللاعب: ${playerNames[currentTurnColor]}', style: const TextStyle(color: Colors.white, fontSize: 20)),
-          const SizedBox(height: 20),
-          Center(
-            child: ScaleTransition(
-              scale: _diceAnimation,
-              child: ElevatedButton(
-                onPressed: (!isRolling && !hasRolled && !isAnimatingMove && !isGameOver && (!widget.isVsAI || currentTurnColor == PlayerColor.green)) ? rollDice : null,
-                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00E676)),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  child: Text(
-                    isRolling ? 'جاري رمي النرد...' : hasRolled ? 'اختر حجراً للتحريك' : '🎲 ارمِ النرد السيبراني ($diceValue)',
-                    style: const TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class TokenPosition {
-  int position;
-  TokenPosition(this.position);
-}
-
-enum PlayerColor { green, yellow, red, blue }
+flutter:
+  uses-material-design: true
