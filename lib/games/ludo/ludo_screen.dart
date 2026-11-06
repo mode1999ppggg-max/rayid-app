@@ -35,9 +35,9 @@ class LudoEngine {
 
             static const Map<PlayerColor, int> startOffsets = {
     PlayerColor.green: 0,
-    PlayerColor.yellow: 12,
-    PlayerColor.red: 24,
-    PlayerColor.blue: 36,
+    PlayerColor.yellow: 41,
+    PlayerColor.red: 27,
+    PlayerColor.blue: 14,
   };
 
 
