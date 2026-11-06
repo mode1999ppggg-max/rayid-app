@@ -8,6 +8,168 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 // ------------------------------------------------------------------------------
+// 0. شاشة الدخول والتحميل الافتتاحية (Cyberpunk Splash & Loading Screen)
+// ------------------------------------------------------------------------------
+
+class LudoSplashLoadingScreen extends StatefulWidget {
+  const LudoSplashLoadingScreen({super.key});
+
+  @override
+  State<LudoSplashLoadingScreen> createState() => _LudoSplashLoadingScreenState();
+}
+
+class _LudoSplashLoadingScreenState extends State<LudoSplashLoadingScreen> with SingleTickerProviderStateMixin {
+  late AnimationController _animController;
+  late Animation<double> _fadeAnimation;
+  double _loadingProgress = 0.0;
+  Timer? _loadTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    );
+    _fadeAnimation = CurvedParentTween(parent: _animController, curve: Curves.easeInOut);
+    _animController.forward();
+
+    _loadTimer = Timer.periodic(const Duration(milliseconds: 40), (timer) {
+      setState(() {
+        _loadingProgress += 0.025;
+        if (_loadingProgress >= 1.0) {
+          _loadingProgress = 1.0;
+          timer.cancel();
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const LudoGameScreen()),
+          );
+        }
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _loadTimer?.cancel();
+    _animController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        backgroundColor: const Color(0xff060911),
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: RadialGradient(
+              center: Alignment.center,
+              radius: 0.8,
+              colors: [
+                const Color(0xff131c2e),
+                const Color(0xff060911),
+              ],
+            ),
+          ),
+          child: Center(
+            child: FadeTransition(
+              opacity: _fadeAnimation,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: const Color(0xff00f3ff), width: 3),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xff00f3ff).withOpacity(0.6),
+                          blurRadius: 25,
+                          spreadRadius: 5,
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.casino_rounded,
+                      size: 64,
+                      color: Color(0xffffcc00),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'RAYID PAY',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xff00f3ff),
+                      letterSpacing: 2,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'CYBERPUNK LUDO ARENA',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white,
+                      letterSpacing: 3,
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                  SizedBox(
+                    width: 220,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: LinearProgressIndicator(
+                        value: _loadingProgress,
+                        backgroundColor: const Color(0xff1a263f),
+                        color: const Color(0xffff3366),
+                        minHeight: 8,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'جاري تحميل الأنظمة السيبرانية... ${(_loadingProgress * 100).toInt()}%',
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// مساعد للأنيميشن
+class CurvedParentTween extends Animation<double> {
+  final AnimationController parent;
+  final Curve curve;
+  CurvedParentTween({required this.parent, required this.curve}) : super();
+  @override
+  double get value => curve.transform(parent.value);
+  @override
+  AnimationStatus get status => parent.status;
+  @override
+  void addListener(VoidCallback listener) => parent.addListener(listener);
+  @override
+  void removeListener(VoidCallback listener) => parent.removeListener(listener);
+  @override
+  void addStatusListener(AnimationStatusListener listener) => parent.addStatusListener(listener);
+  @override
+  void removeStatusListener(AnimationStatusListener listener) => parent.removeStatusListener(listener);
+}
+
+// ------------------------------------------------------------------------------
 // 1. نماذج البيانات وقواعد اللعبة الهندسية (Game Models & Rules)
 // ------------------------------------------------------------------------------
 
@@ -537,7 +699,7 @@ Offset getTokenPixelPosition(int pos, LudoPlayer player, int tokenIndex, double 
 }
 
 // ------------------------------------------------------------------------------
-// 4. واجهة المستخدم الرسومية الاحترافية المتوافقة مع Samsung A16 (مفصولة تماماً لضمان عدم تداخل الأقواس)
+// 4. واجهة المستخدم الرسومية الاحترافية المتوافقة مع Samsung A16
 // ------------------------------------------------------------------------------
 
 class LudoGameScreen extends StatefulWidget {
@@ -578,7 +740,6 @@ class LudoScreenBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // استدعاء الكونترولر عبر الـ context أو الوصول المباشر
     final parentState = context.findAncestorStateOfType<_LudoGameScreenState>();
     final _controller = parentState!._controller;
 
