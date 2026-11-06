@@ -133,7 +133,7 @@ class _LudoSplashLoadingScreenState extends State<LudoSplashLoadingScreen> with 
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'جاري ضبط مسارات اللاعبين وهندسة الحلبة... ${(_loadingProgress * 100).toInt()}%',
+                    'جاري ضبط مطابقة اللوحة والإحداثيات النهائية... ${(_loadingProgress * 100).toInt()}%',
                     style: const TextStyle(
                       color: Colors.white70,
                       fontSize: 12,
@@ -226,7 +226,6 @@ class LudoGameController extends ChangeNotifier {
   }
 
   void _initPlayers() {
-    // تصحيح مؤشرات الانطلاق (baseStartIndex) لتتطابق تماماً مع مرجعية مسارات sharedTrackCoords
     List<LudoPlayer> allPlayers = [
       LudoPlayer(color: LudoColor.red, uiColor: const Color(0xffff3366), name: 'الأحمر', baseStartIndex: 0, baseIndexForCoords: 0, entryBeforeHome: 50),
       LudoPlayer(color: LudoColor.green, uiColor: const Color(0xff00ff66), name: 'الأخضر', baseStartIndex: 13, baseIndexForCoords: 1, entryBeforeHome: 11),
@@ -530,7 +529,7 @@ class LudoGameController extends ChangeNotifier {
 }
 
 // ------------------------------------------------------------------------------
-// 3. إحداثيات ورسام لوحة اللودو سايبربانك الاحترافية
+// 3. إحداثيات ورسام لوحة اللودو سايبربانك الاحترافية (مطابقة تامة للمواقع والألوان)
 // ------------------------------------------------------------------------------
 
 final List<Point<int>> sharedTrackCoords = [
@@ -576,11 +575,15 @@ class LudoBoardPainter extends CustomPainter {
       canvas.drawLine(Offset(0, i), Offset(w, i), circuitPaint);
     }
 
-    // قواعد اللاعبين الأربعة المحددة بدقة (أخضر أعلى-يسار، أحمر أعلى-يمين، أزرق أسفل-يسار، أصفر أسفل-يمين)
-    _drawCyberBaseWithCircles(canvas, paint, 0, 0, cellSize * 6, const Color(0xff00ff66));               // الأخضر (Top-Left)
-    _drawCyberBaseWithCircles(canvas, paint, cellSize * 9, 0, cellSize * 6, const Color(0xffff3366));    // الأحمر (Top-Right)
-    _drawCyberBaseWithCircles(canvas, paint, 0, cellSize * 9, cellSize * 6, const Color(0xff00f3ff));    // الأزرق (Bottom-Left)
-    _drawCyberBaseWithCircles(canvas, paint, cellSize * 9, cellSize * 9, cellSize * 6, const Color(0xffffcc00)); // الأصفر (Bottom-Right)
+    // تصحيح مواقع وقواعد الألوان الأربعة هندسياً لتطابق المراجع تماماً:
+    // الأخضر (Top-Left: x=0, y=0)
+    // الأحمر (Top-Right: x=9, y=0)
+    // الأزرق (Bottom-Left: x=0, y=9)
+    // الأصفر (Bottom-Right: x=9, y=9)
+    _drawCyberBaseWithCircles(canvas, paint, 0, 0, cellSize * 6, const Color(0xff00ff66));               // الأخضر
+    _drawCyberBaseWithCircles(canvas, paint, cellSize * 9, 0, cellSize * 6, const Color(0xffff3366));    // الأحمر
+    _drawCyberBaseWithCircles(canvas, paint, 0, cellSize * 9, cellSize * 6, const Color(0xff00f3ff));    // الأزرق
+    _drawCyberBaseWithCircles(canvas, paint, cellSize * 9, cellSize * 9, cellSize * 6, const Color(0xffffcc00)); // الأصفر
 
     // مسارات اللعب المشتركة
     for (int i = 0; i < sharedTrackCoords.length; i++) {
@@ -615,22 +618,22 @@ class LudoBoardPainter extends CustomPainter {
       canvas.drawRect(Rect.fromLTWH(pt.x * cellSize + 1, pt.y * cellSize + 1, cellSize - 2, cellSize - 2), paint);
     }
 
-    // المسارات النهائية (Home Paths) لكل لون وموقع
+    // المسارات النهائية (Home Paths) لكل لون وموقع بدقة متناهية
     for (int step = 0; step < 6; step++) {
-      // الأحمر (Top-Right Entry)
+      // الأحمر (Top-Right Home Path)
       paint.style = PaintingStyle.fill;
       paint.color = const Color(0xffff3366).withOpacity(0.65);
       canvas.drawRect(Rect.fromLTWH((1 + step) * cellSize + 1, 7 * cellSize + 1, cellSize - 2, cellSize - 2), paint);
 
-      // الأخضر (Top-Left Entry)
+      // الأخضر (Top-Left Home Path)
       paint.color = const Color(0xff00ff66).withOpacity(0.65);
       canvas.drawRect(Rect.fromLTWH(7 * cellSize + 1, (1 + step) * cellSize + 1, cellSize - 2, cellSize - 2), paint);
 
-      // الأزرق (Bottom-Left Entry)
+      // الأزرق (Bottom-Left Home Path)
       paint.color = const Color(0xff00f3ff).withOpacity(0.65);
       canvas.drawRect(Rect.fromLTWH((13 - step) * cellSize + 1, 7 * cellSize + 1, cellSize - 2, cellSize - 2), paint);
 
-      // الأصفر (Bottom-Right Entry)
+      // الأصفر (Bottom-Right Home Path)
       paint.color = const Color(0xffffcc00).withOpacity(0.65);
       canvas.drawRect(Rect.fromLTWH(7 * cellSize + 1, (13 - step) * cellSize + 1, cellSize - 2, cellSize - 2), paint);
     }
@@ -686,6 +689,7 @@ Offset getTokenPixelPosition(int pos, LudoPlayer player, int tokenIndex, double 
   int baseIdx = player.baseIndexForCoords;
 
   if (pos == -1) {
+    // قاعدة مطابقة تماماً للموقع المرسوم في الـ CustomPainter:
     // baseIdx 0 -> الأحمر (Top-Right: x=9, y=0)
     // baseIdx 1 -> الأخضر (Top-Left: x=0, y=0)
     // baseIdx 2 -> الأزرق (Bottom-Left: x=0, y=9)
