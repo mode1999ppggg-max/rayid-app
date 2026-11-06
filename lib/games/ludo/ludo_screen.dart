@@ -674,7 +674,7 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
     return widgets;
   }
 
-    Offset _getBaseOffset(int player, int idx, double boardSize, double cell) {
+  Offset _getBaseOffset(int player, int idx, double boardSize, double cell) {
     double startX = 0, startY = 0;
     if (player == 0) { startX = cell * 1; startY = cell * 1; }
     else if (player == 1) { startX = cell * 10; startY = cell * 1; }
