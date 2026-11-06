@@ -354,8 +354,8 @@ class _LudoGameScreenState extends State<LudoGameScreen> with SingleTickerProvid
   bool isGameOver = false;
   bool showTutorial = true;
   bool soundEnabled = true;
-     استدعاء مشغل الأصوات السيبراني
-    LudoAudio.playCyberSound();
+     // Ludo audio integration
+LudoAudio.playCyberSound();
 
   Timer? _timer;
   late AnimationController _diceController;
