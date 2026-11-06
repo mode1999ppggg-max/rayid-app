@@ -1,6 +1,7 @@
 // ==============================================================================
-// ملف اللعبة المتكامل والمطور هندسياً: lib/games/ludo/ludo_screen.dart
+// ملف اللعبة المتكامل والمطور: lib/games/ludo/ludo_screen.dart
 // مشروع RAYID PAY – CYBERPUNK LUDO ARENA
+// الإصدار المحسّن بصرياً (سايبربانك كامل)
 // ==============================================================================
 
 import 'dart:async';
@@ -8,7 +9,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 // ------------------------------------------------------------------------------
-// 0. شاشة الدخول والتحميل الافتتاحية (Cyberpunk Splash & Loading Screen)
+// 0. شاشة الدخول والتحميل
 // ------------------------------------------------------------------------------
 
 class LudoSplashLoadingScreen extends StatefulWidget {
@@ -18,7 +19,8 @@ class LudoSplashLoadingScreen extends StatefulWidget {
   State<LudoSplashLoadingScreen> createState() => _LudoSplashLoadingScreenState();
 }
 
-class _LudoSplashLoadingScreenState extends State<LudoSplashLoadingScreen> with SingleTickerProviderStateMixin {
+class _LudoSplashLoadingScreenState extends State<LudoSplashLoadingScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animController;
   late Animation<double> _fadeAnimation;
   double _loadingProgress = 0.0;
@@ -31,7 +33,7 @@ class _LudoSplashLoadingScreenState extends State<LudoSplashLoadingScreen> with 
       vsync: this,
       duration: const Duration(milliseconds: 1500),
     );
-    _fadeAnimation = CurvedParentTween(parent: _animController, curve: Curves.easeInOut);
+    _fadeAnimation = CurvedAnimation(parent: _animController, curve: Curves.easeInOut);
     _animController.forward();
 
     _loadTimer = Timer.periodic(const Duration(milliseconds: 30), (timer) {
@@ -67,10 +69,7 @@ class _LudoSplashLoadingScreenState extends State<LudoSplashLoadingScreen> with 
             gradient: RadialGradient(
               center: Alignment.center,
               radius: 0.8,
-              colors: [
-                Color(0xff131c2e),
-                Color(0xff060911),
-              ],
+              colors: [Color(0xff131c2e), Color(0xff060911)],
             ),
           ),
           child: Center(
@@ -92,11 +91,7 @@ class _LudoSplashLoadingScreenState extends State<LudoSplashLoadingScreen> with 
                         ),
                       ],
                     ),
-                    child: const Icon(
-                      Icons.casino_rounded,
-                      size: 64,
-                      color: Color(0xffffcc00),
-                    ),
+                    child: const Icon(Icons.casino_rounded, size: 64, color: Color(0xffffcc00)),
                   ),
                   const SizedBox(height: 24),
                   const Text(
@@ -150,26 +145,8 @@ class _LudoSplashLoadingScreenState extends State<LudoSplashLoadingScreen> with 
   }
 }
 
-class CurvedParentTween extends Animation<double> {
-  final AnimationController parent;
-  final Curve curve;
-  CurvedParentTween({required this.parent, required this.curve}) : super();
-  @override
-  double get value => curve.transform(parent.value);
-  @override
-  AnimationStatus get status => parent.status;
-  @override
-  void addListener(VoidCallback listener) => parent.addListener(listener);
-  @override
-  void removeListener(VoidCallback listener) => parent.removeListener(listener);
-  @override
-  void addStatusListener(AnimationStatusListener listener) => parent.addStatusListener(listener);
-  @override
-  void removeStatusListener(AnimationStatusListener listener) => parent.removeStatusListener(listener);
-}
-
 // ------------------------------------------------------------------------------
-// 1. نماذج البيانات وقواعد اللعبة الهندسية (Game Models & Rules)
+// 1. نماذج البيانات
 // ------------------------------------------------------------------------------
 
 enum LudoColor { red, green, blue, yellow }
@@ -178,9 +155,9 @@ class LudoPlayer {
   final LudoColor color;
   final Color uiColor;
   final String name;
-  final int baseStartIndex; 
-  final int baseIndexForCoords; 
-  final int entryBeforeHome; 
+  final int baseStartIndex;
+  final int baseIndexForCoords;
+  final int entryBeforeHome;
 
   List<int> tokenPositions = [-1, -1, -1, -1];
 
@@ -196,9 +173,8 @@ class LudoPlayer {
   bool get hasWon => tokenPositions.every((pos) => pos == 58);
   int get finishedCount => tokenPositions.where((pos) => pos == 58).length;
 }
-
 // ------------------------------------------------------------------------------
-// 2. محرك ولُب اللعبة والتحقق الهندسي الموحد (Game Engine & Controller)
+// 2. محرك اللعبة
 // ------------------------------------------------------------------------------
 
 class LudoGameController extends ChangeNotifier {
@@ -226,11 +202,6 @@ class LudoGameController extends ChangeNotifier {
   }
 
   void _initPlayers() {
-    // تصحيح نقاط الانطلاق (baseStartIndex) ونقاط دخول البيت (entryBeforeHome) لكل لون هندسياً:
-    // - الأحمر (Top-Right): baseStartIndex = 0, entryBeforeHome = 50
-    // - الأخضر (Top-Left): baseStartIndex = 13, entryBeforeHome = 11
-    // - الأزرق (Bottom-Left): baseStartIndex = 26, entryBeforeHome = 24
-    // - الأصفر (Bottom-Right): baseStartIndex = 39, entryBeforeHome = 37
     List<LudoPlayer> allPlayers = [
       LudoPlayer(color: LudoColor.red, uiColor: const Color(0xffff3366), name: 'الأحمر', baseStartIndex: 0, baseIndexForCoords: 0, entryBeforeHome: 50),
       LudoPlayer(color: LudoColor.green, uiColor: const Color(0xff00ff66), name: 'الأخضر', baseStartIndex: 13, baseIndexForCoords: 1, entryBeforeHome: 11),
@@ -270,9 +241,7 @@ class LudoGameController extends ChangeNotifier {
 
   @override
   void notifyListeners() {
-    if (!_isDisposed) {
-      super.notifyListeners();
-    }
+    if (!_isDisposed) super.notifyListeners();
   }
 
   void rollDice() {
@@ -308,22 +277,17 @@ class LudoGameController extends ChangeNotifier {
     if (currentPos == 58) return 58;
 
     if (currentPos < 52) {
-      if (currentPos == player.entryBeforeHome) {
-        return 52;
-      }
+      if (currentPos == player.entryBeforeHome) return 52;
       return (currentPos + 1) % 52;
     } else if (currentPos >= 52 && currentPos < 58) {
       return currentPos + 1;
     }
-
     return currentPos;
   }
 
   int simulateMovement(int currentPos, int steps, LudoPlayer player) {
     if (currentPos == -1) {
-      if (steps == 6) {
-        return player.baseStartIndex;
-      }
+      if (steps == 6) return player.baseStartIndex;
       return -1;
     }
 
@@ -340,9 +304,7 @@ class LudoGameController extends ChangeNotifier {
         tempPos = _calculateSingleStep(tempPos, player);
         remainingStepsToHome++;
       }
-      if (steps != remainingStepsToHome) {
-        return -1;
-      }
+      if (steps != remainingStepsToHome) return -1;
     }
     return pos;
   }
@@ -417,7 +379,7 @@ class LudoGameController extends ChangeNotifier {
     if (currentPos == -1) {
       int startPos = player.baseStartIndex;
       bool captured = _captureCheck(startPos, playerIndex);
-      
+
       if (gameSessionId != currentSession || _isDisposed) {
         isAnimatingMove = false;
         return;
@@ -425,7 +387,7 @@ class LudoGameController extends ChangeNotifier {
 
       player.tokenPositions[tokenIndex] = startPos;
       bool extraTurn = (diceValue == 6) || captured;
-      
+
       await Future.delayed(const Duration(milliseconds: 300));
       if (gameSessionId != currentSession || _isDisposed) {
         isAnimatingMove = false;
@@ -532,9 +494,8 @@ class LudoGameController extends ChangeNotifier {
     notifyListeners();
   }
 }
-
 // ------------------------------------------------------------------------------
-// 3. إحداثيات ورسام لوحة اللودو سايبربانك الاحترافية
+// 3. إحداثيات اللوحة
 // ------------------------------------------------------------------------------
 
 final List<Point<int>> sharedTrackCoords = [
@@ -553,6 +514,10 @@ final List<Point<int>> sharedTrackCoords = [
   const Point(0, 6),
 ];
 
+// ------------------------------------------------------------------------------
+// 4. رسام اللوحة السايبربانك المتطور
+// ------------------------------------------------------------------------------
+
 class LudoBoardPainter extends CustomPainter {
   final List<LudoPlayer> players;
 
@@ -565,138 +530,229 @@ class LudoBoardPainter extends CustomPainter {
     double h = size.height;
     double cellSize = w / 15;
 
-    paint.color = const Color(0xff090d16);
+    // خلفية
+    paint.color = const Color(0xff05080f);
     canvas.drawRect(Rect.fromLTWH(0, 0, w, h), paint);
 
+    // شبكة دوائر كهربائية
     final circuitPaint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.0
-      ..color = const Color(0xff162032);
+      ..strokeWidth = 0.8
+      ..color = const Color(0xff0a1a2f);
 
-    for (double i = 0; i < w; i += cellSize * 2) {
+    for (double i = 0; i < w; i += cellSize * 1.5) {
       canvas.drawLine(Offset(i, 0), Offset(i, h), circuitPaint);
       canvas.drawLine(Offset(0, i), Offset(w, i), circuitPaint);
     }
 
-    // القواعد الأربع مطابقة تماماً للمواقع المادية على الشاشة:
-    // الأخضر (Top-Left: x=0, y=0)
-    // الأحمر (Top-Right: x=9, y=0)
-    // الأزرق (Bottom-Left: x=0, y=9)
-    // الأصفر (Bottom-Right: x=9, y=9)
-    _drawCyberBaseWithCircles(canvas, paint, 0, 0, cellSize * 6, const Color(0xff00ff66));               // الأخضر
-    _drawCyberBaseWithCircles(canvas, paint, cellSize * 9, 0, cellSize * 6, const Color(0xffff3366));    // الأحمر
-    _drawCyberBaseWithCircles(canvas, paint, 0, cellSize * 9, cellSize * 6, const Color(0xff00f3ff));    // الأزرق
-    _drawCyberBaseWithCircles(canvas, paint, cellSize * 9, cellSize * 9, cellSize * 6, const Color(0xffffcc00)); // الأصفر
+    final neonCircuit = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.1
+      ..color = const Color(0xff00f3ff).withOpacity(0.13);
 
+    for (int i = 0; i < 9; i++) {
+      double pos = cellSize * (1.5 + i * 1.4);
+      canvas.drawLine(Offset(0, pos), Offset(w, pos), neonCircuit);
+      canvas.drawLine(Offset(pos, 0), Offset(pos, h), neonCircuit);
+    }
+
+    // القواعد الأربع
+    _drawCyberPanel(canvas, 0, 0, cellSize * 6, const Color(0xff00ff66), const Color(0xff00ffaa)); // أخضر
+    _drawCyberPanel(canvas, cellSize * 9, 0, cellSize * 6, const Color(0xffff3366), const Color(0xffff6699)); // أحمر
+    _drawCyberPanel(canvas, 0, cellSize * 9, cellSize * 6, const Color(0xff00f3ff), const Color(0xff66f0ff)); // أزرق
+    _drawCyberPanel(canvas, cellSize * 9, cellSize * 9, cellSize * 6, const Color(0xffffcc00), const Color(0xffffee55)); // أصفر
+
+    // المسار المشترك
     for (int i = 0; i < sharedTrackCoords.length; i++) {
       var pt = sharedTrackCoords[i];
-      Color cellColor = const Color(0xff111827);
-      Color borderColor = const Color(0xff1f2937);
+      Color cellColor = const Color(0xff0c1220);
+      Color borderColor = const Color(0xff1a253a);
 
       if (i == 0) {
-        cellColor = const Color(0xffff3366).withOpacity(0.4);
+        cellColor = const Color(0xffff3366).withOpacity(0.45);
         borderColor = const Color(0xffff3366);
       } else if (i == 13) {
-        cellColor = const Color(0xff00ff66).withOpacity(0.4);
+        cellColor = const Color(0xff00ff66).withOpacity(0.45);
         borderColor = const Color(0xff00ff66);
       } else if (i == 26) {
-        cellColor = const Color(0xff00f3ff).withOpacity(0.4);
+        cellColor = const Color(0xff00f3ff).withOpacity(0.45);
         borderColor = const Color(0xff00f3ff);
       } else if (i == 39) {
-        cellColor = const Color(0xffffcc00).withOpacity(0.4);
+        cellColor = const Color(0xffffcc00).withOpacity(0.45);
         borderColor = const Color(0xffffcc00);
-      } else if ({0, 8, 13, 21, 26, 34, 39, 47}.contains(i)) {
-        cellColor = const Color(0xff1e293b);
+      } else if ({8, 21, 34, 47}.contains(i)) {
+        cellColor = const Color(0xff152238);
         borderColor = const Color(0xff38bdf8);
       }
 
       paint.style = PaintingStyle.fill;
       paint.color = cellColor;
-      canvas.drawRect(Rect.fromLTWH(pt.x * cellSize + 1, pt.y * cellSize + 1, cellSize - 2, cellSize - 2), paint);
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(pt.x * cellSize + 1.5, pt.y * cellSize + 1.5, cellSize - 3, cellSize - 3),
+          const Radius.circular(3),
+        ),
+        paint,
+      );
 
       paint.style = PaintingStyle.stroke;
-      paint.strokeWidth = 1.0;
+      paint.strokeWidth = 1.3;
       paint.color = borderColor;
-      canvas.drawRect(Rect.fromLTWH(pt.x * cellSize + 1, pt.y * cellSize + 1, cellSize - 2, cellSize - 2), paint);
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(pt.x * cellSize + 1.5, pt.y * cellSize + 1.5, cellSize - 3, cellSize - 3),
+          const Radius.circular(3),
+        ),
+        paint,
+      );
     }
 
-    for (int step = 0; step < 6; step++) {
-      // الأحمر (Top-Right Entry)
-      paint.style = PaintingStyle.fill;
-      paint.color = const Color(0xffff3366).withOpacity(0.65);
-      canvas.drawRect(Rect.fromLTWH((1 + step) * cellSize + 1, 7 * cellSize + 1, cellSize - 2, cellSize - 2), paint);
-
-      // الأخضر (Top-Left Entry)
-      paint.color = const Color(0xff00ff66).withOpacity(0.65);
-      canvas.drawRect(Rect.fromLTWH(7 * cellSize + 1, (1 + step) * cellSize + 1, cellSize - 2, cellSize - 2), paint);
-
-      // الأزرق (Bottom-Left Entry)
-      paint.color = const Color(0xff00f3ff).withOpacity(0.65);
-      canvas.drawRect(Rect.fromLTWH((13 - step) * cellSize + 1, 7 * cellSize + 1, cellSize - 2, cellSize - 2), paint);
-
-      // الأصفر (Bottom-Right Entry)
-      paint.color = const Color(0xffffcc00).withOpacity(0.65);
-      canvas.drawRect(Rect.fromLTWH(7 * cellSize + 1, (13 - step) * cellSize + 1, cellSize - 2, cellSize - 2), paint);
+    // ممرات البيت
+    for (int step = 0; step < 5; step++) {
+      _drawNeonCell(canvas, (1 + step) * cellSize, 7 * cellSize, cellSize, const Color(0xffff3366));
+      _drawNeonCell(canvas, 7 * cellSize, (1 + step) * cellSize, cellSize, const Color(0xff00ff66));
+      _drawNeonCell(canvas, (13 - step) * cellSize, 7 * cellSize, cellSize, const Color(0xff00f3ff));
+      _drawNeonCell(canvas, 7 * cellSize, (13 - step) * cellSize, cellSize, const Color(0xffffcc00));
     }
+
+    // المركز المتوهج
+    final centerRect = Rect.fromLTWH(cellSize * 6, cellSize * 6, cellSize * 3, cellSize * 3);
 
     paint.style = PaintingStyle.fill;
-    paint.color = const Color(0xff0b101c);
-    canvas.drawRect(Rect.fromLTWH(cellSize * 6, cellSize * 6, cellSize * 3, cellSize * 3), paint);
+    paint.color = const Color(0xff080c16);
+    canvas.drawRRect(RRect.fromRectAndRadius(centerRect, const Radius.circular(6)), paint);
 
-    final centerNeon = Paint()
+    final glowPaint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0
+      ..strokeWidth = 4
+      ..color = const Color(0xff00f3ff).withOpacity(0.65)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
+
+    canvas.drawRRect(RRect.fromRectAndRadius(centerRect.deflate(1), const Radius.circular(5)), glowPaint);
+
+    final xPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.8
       ..color = const Color(0xff00f3ff);
 
-    canvas.drawRect(Rect.fromLTWH(cellSize * 6, cellSize * 6, cellSize * 3, cellSize * 3), centerNeon);
-    canvas.drawLine(Offset(cellSize * 6, cellSize * 6), Offset(cellSize * 9, cellSize * 9), centerNeon);
-    canvas.drawLine(Offset(cellSize * 9, cellSize * 6), Offset(cellSize * 6, cellSize * 9), centerNeon);
+    canvas.drawLine(Offset(cellSize * 6.3, cellSize * 6.3), Offset(cellSize * 8.7, cellSize * 8.7), xPaint);
+    canvas.drawLine(Offset(cellSize * 8.7, cellSize * 6.3), Offset(cellSize * 6.3, cellSize * 8.7), xPaint);
+
+    final borderPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.2
+      ..color = const Color(0xffff00aa).withOpacity(0.7);
+    canvas.drawRRect(RRect.fromRectAndRadius(centerRect, const Radius.circular(6)), borderPaint);
+
+    // النجوم
+    _drawStar(canvas, cellSize * 7.5, cellSize * 0.7, cellSize * 0.32, const Color(0xff00f3ff));
+    _drawStar(canvas, cellSize * 0.7, cellSize * 7.5, cellSize * 0.32, const Color(0xff00ff66));
+    _drawStar(canvas, cellSize * 14.3, cellSize * 7.5, cellSize * 0.32, const Color(0xffff3366));
+    _drawStar(canvas, cellSize * 7.5, cellSize * 14.3, cellSize * 0.32, const Color(0xffffcc00));
   }
 
-  void _drawCyberBaseWithCircles(Canvas canvas, Paint paint, double x, double y, double size, Color color) {
+  void _drawCyberPanel(Canvas canvas, double x, double y, double size, Color mainColor, Color accentColor) {
+    final paint = Paint();
+
     paint.style = PaintingStyle.fill;
-    paint.color = color.withOpacity(0.12);
-    canvas.drawRect(Rect.fromLTWH(x, y, size, size), paint);
+    paint.color = mainColor.withOpacity(0.13);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(Rect.fromLTWH(x, y, size, size), const Radius.circular(10)),
+      paint,
+    );
 
     paint.style = PaintingStyle.stroke;
-    paint.strokeWidth = 2.0;
-    paint.color = color;
-    canvas.drawRect(Rect.fromLTWH(x, y, size, size), paint);
+    paint.strokeWidth = 2.8;
+    paint.color = mainColor;
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(Rect.fromLTWH(x + 1, y + 1, size - 2, size - 2), const Radius.circular(9)),
+      paint,
+    );
 
-    final circlePaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.8
-      ..color = color.withOpacity(0.7);
+    paint.strokeWidth = 1.5;
+    paint.color = accentColor.withOpacity(0.65);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(Rect.fromLTWH(x + 9, y + 9, size - 18, size - 18), const Radius.circular(6)),
+      paint,
+    );
 
-    List<Offset> baseSlots = [
-      Offset(x + size * 0.25, y + size * 0.25),
-      Offset(x + size * 0.75, y + size * 0.25),
-      Offset(x + size * 0.25, y + size * 0.75),
-      Offset(x + size * 0.75, y + size * 0.75),
+    final dotPaint = Paint()..style = PaintingStyle.fill;
+    List<Offset> dots = [
+      Offset(x + size * 0.28, y + size * 0.28),
+      Offset(x + size * 0.72, y + size * 0.28),
+      Offset(x + size * 0.28, y + size * 0.72),
+      Offset(x + size * 0.72, y + size * 0.72),
     ];
 
-    for (var slot in baseSlots) {
-      canvas.drawCircle(slot, size * 0.16, circlePaint);
+    for (var dot in dots) {
+      dotPaint.color = accentColor.withOpacity(0.4);
+      canvas.drawCircle(dot, size * 0.09, dotPaint);
+      dotPaint.color = accentColor;
+      canvas.drawCircle(dot, size * 0.055, dotPaint);
     }
+  }
+
+  void _drawNeonCell(Canvas canvas, double x, double y, double size, Color color) {
+    final paint = Paint()..style = PaintingStyle.fill;
+    paint.color = color.withOpacity(0.55);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(Rect.fromLTWH(x + 1.5, y + 1.5, size - 3, size - 3), const Radius.circular(3)),
+      paint,
+    );
+
+    paint.style = PaintingStyle.stroke;
+    paint.strokeWidth = 1.5;
+    paint.color = color;
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(Rect.fromLTWH(x + 1.5, y + 1.5, size - 3, size - 3), const Radius.circular(3)),
+      paint,
+    );
+  }
+
+  void _drawStar(Canvas canvas, double cx, double cy, double radius, Color color) {
+    final paint = Paint()
+      ..style = PaintingStyle.fill
+      ..color = color.withOpacity(0.9);
+
+    final path = Path();
+    for (int i = 0; i < 5; i++) {
+      double angle = (i * 72 - 90) * pi / 180;
+      double x = cx + radius * cos(angle);
+      double y = cy + radius * sin(angle);
+      if (i == 0) {
+        path.moveTo(x, y);
+      } else {
+        path.lineTo(x, y);
+      }
+
+      angle = ((i * 72 + 36) - 90) * pi / 180;
+      x = cx + radius * 0.4 * cos(angle);
+      y = cy + radius * 0.4 * sin(angle);
+      path.lineTo(x, y);
+    }
+    path.close();
+    canvas.drawPath(path, paint);
+
+    paint.color = color.withOpacity(0.25);
+    canvas.drawCircle(Offset(cx, cy), radius * 1.5, paint);
   }
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
+// ------------------------------------------------------------------------------
+// 5. حساب موقع الحجر
+// ------------------------------------------------------------------------------
+
 Offset getTokenPixelPosition(int pos, LudoPlayer player, int tokenIndex, double cellSize, List<LudoPlayer> allPlayers) {
   Point<double> gridPoint;
   int baseIdx = player.baseIndexForCoords;
 
   if (pos == -1) {
-    // تصحيح التموضع للقواعد الأربعة:
-    // baseIdx 0 -> الأحمر (Top-Right: x=9, y=0)
-    // baseIdx 1 -> الأخضر (Top-Left: x=0, y=0)
-    // baseIdx 2 -> الأزرق (Bottom-Left: x=0, y=9)
-    // baseIdx 3 -> الأصفر (Bottom-Right: x=9, y=9)
     double baseX = (baseIdx == 0 || baseIdx == 3) ? 9.0 : 0.0;
     double baseY = (baseIdx == 0 || baseIdx == 1) ? 0.0 : 9.0;
-    
+
     List<Point<double>> baseOffsets = [
       const Point(1.25, 1.25),
       const Point(3.75, 1.25),
@@ -708,11 +764,15 @@ Offset getTokenPixelPosition(int pos, LudoPlayer player, int tokenIndex, double 
     gridPoint = const Point(7.0, 7.0);
   } else if (pos >= 52 && pos <= 57) {
     int step = pos - 52;
-    // تصحيح مسارات الدخول النهائية لكل لاعب لتبدأ من حافة مساره الصحيح نحو المركز (7,7)
-    if (baseIdx == 0) gridPoint = Point(1.0 + step, 7.0);       // الأحمر
-    else if (baseIdx == 1) gridPoint = Point(7.0, 1.0 + step);   // الأخضر
-    else if (baseIdx == 2) gridPoint = Point(13.0 - step, 7.0);  // الأزرق
-    else gridPoint = Point(7.0, 13.0 - step);                    // الأصفر
+    if (baseIdx == 0) {
+      gridPoint = Point(1.0 + step, 7.0);
+    } else if (baseIdx == 1) {
+      gridPoint = Point(7.0, 1.0 + step);
+    } else if (baseIdx == 2) {
+      gridPoint = Point(13.0 - step, 7.0);
+    } else {
+      gridPoint = Point(7.0, 13.0 - step);
+    }
   } else {
     Point<int> pt = sharedTrackCoords[pos % 52];
     gridPoint = Point(pt.x.toDouble(), pt.y.toDouble());
@@ -726,7 +786,8 @@ Offset getTokenPixelPosition(int pos, LudoPlayer player, int tokenIndex, double 
     for (int p = 0; p < allPlayers.length; p++) {
       for (int t = 0; t < allPlayers[p].tokenPositions.length; t++) {
         int otherPos = allPlayers[p].tokenPositions[t];
-        bool shareSameVisualSpace = (otherPos == pos) && (pos < 52 || pos == -1 || pos == 58 || (pos >= 52 && allPlayers[p] == player));
+        bool shareSameVisualSpace = (otherPos == pos) &&
+            (pos < 52 || pos == -1 || pos == 58 || (pos >= 52 && allPlayers[p] == player));
         if (shareSameVisualSpace) {
           if (allPlayers[p] == player && t == tokenIndex) {
             sharingIndex = sharingCount;
@@ -737,10 +798,10 @@ Offset getTokenPixelPosition(int pos, LudoPlayer player, int tokenIndex, double 
     }
     if (sharingCount > 1) {
       List<Offset> offsets = [
-        const Offset(-4, -4),
-        const Offset(4, -4),
-        const Offset(-4, 4),
-        const Offset(4, 4),
+        const Offset(-5, -5),
+        const Offset(5, -5),
+        const Offset(-5, 5),
+        const Offset(5, 5),
       ];
       offsetX = offsets[sharingIndex % 4].dx;
       offsetY = offsets[sharingIndex % 4].dy;
@@ -750,333 +811,8 @@ Offset getTokenPixelPosition(int pos, LudoPlayer player, int tokenIndex, double 
   return Offset((gridPoint.x + 0.5) * cellSize + offsetX, (gridPoint.y + 0.5) * cellSize + offsetY);
 }
 
-// ------------------------------------------------------------------------------
-// 4. واجهة المستخدم الرسومية الاحترافية المتوافقة مع Samsung A16
-// ------------------------------------------------------------------------------
 
-class LudoGameScreen extends StatefulWidget {
-  const LudoGameScreen({super.key});
 
-  @override
-  State<LudoGameScreen> createState() => _LudoGameScreenState();
-}
 
-class _LudoGameScreenState extends State<LudoGameScreen> with SingleTickerProviderStateMixin {
-  late final LudoGameController _controller;
-  late AnimationController _diceAnimController;
 
-  @override
-  void initState() {
-    super.initState();
-    _controller = LudoGameController(totalPlayersCount: 4);
-    _diceAnimController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 400),
-    );
-  }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    _diceAnimController.dispose();
-    super.dispose();
-  }
-
-  void _triggerDiceRoll() {
-    if (_controller.hasRolled || _controller.isGameOver || _controller.isRolling || _controller.isAnimatingMove) return;
-    _diceAnimController.forward(from: 0.0);
-    _controller.rollDice();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return Directionality(
-          textDirection: TextDirection.rtl,
-          child: Scaffold(
-            backgroundColor: const Color(0xff060911),
-            appBar: AppBar(
-              backgroundColor: const Color(0xff0b101c),
-              elevation: 6,
-              shadowColor: const Color(0xff00f3ff).withOpacity(0.3),
-              title: const Text(
-                'RAYID PAY – CYBERPUNK LUDO ARENA',
-                style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: Colors.white),
-              ),
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_forward, color: Colors.white),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-              actions: [
-                PopupMenuButton<int>(
-                  icon: const Icon(Icons.group_rounded, color: Color(0xff00f3ff)),
-                  tooltip: 'اختر عدد اللاعبين',
-                  onSelected: (val) => _controller.setPlayersCount(val),
-                  itemBuilder: (context) => [
-                    const PopupMenuItem(value: 2, child: Text('لاعبان (2 Players)')),
-                    const PopupMenuItem(value: 3, child: Text('ثلاثة لاعبين (3 Players)')),
-                    const PopupMenuItem(value: 4, child: Text('أربعة لاعبين (4 Players)')),
-                  ],
-                ),
-                IconButton(
-                  icon: const Icon(Icons.refresh_rounded, color: Color(0xffffcc00)),
-                  tooltip: 'إعادة ضبط اللعبة',
-                  onPressed: () => _controller.resetGame(),
-                ),
-              ],
-            ),
-            body: SafeArea(
-              child: Column(
-                children: [
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xff0f1626),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: _controller.currentTurnPlayer.uiColor, width: 2),
-                      boxShadow: [
-                        BoxShadow(
-                          color: _controller.currentTurnPlayer.uiColor.withOpacity(0.35),
-                          blurRadius: 10,
-                          spreadRadius: 1,
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 12,
-                          height: 12,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: _controller.currentTurnPlayer.uiColor,
-                            boxShadow: [
-                              BoxShadow(color: _controller.currentTurnPlayer.uiColor, blurRadius: 6)
-                            ]
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            _controller.gameMessage,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 12),
-                    padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xff0d1320),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.white12),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: _controller.players.map((p) {
-                        return Column(
-                          children: [
-                            Text(p.name, style: TextStyle(color: p.uiColor, fontSize: 11, fontWeight: FontWeight.bold)),
-                            const SizedBox(height: 2),
-                            Text('${p.finishedCount}/4 وصول', style: const TextStyle(color: Colors.white70, fontSize: 10)),
-                          ],
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  Expanded(
-                    child: Center(
-                      child: AspectRatio(
-                        aspectRatio: 1,
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            double availableWidth = constraints.maxWidth;
-                            double availableHeight = constraints.maxHeight;
-                            double boardSize = availableWidth < availableHeight ? availableWidth : availableHeight;
-                            double cellSize = boardSize / 15;
-
-                            return Center(
-                              child: SizedBox(
-                                width: boardSize,
-                                height: boardSize,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xff060911),
-                                    borderRadius: BorderRadius.circular(16),
-                                    border: Border.all(color: const Color(0xffff007f), width: 2.5),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: const Color(0xffff007f).withOpacity(0.5),
-                                        blurRadius: 20,
-                                        spreadRadius: 2,
-                                      ),
-                                    ],
-                                  ),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(14),
-                                    child: Stack(
-                                      children: [
-                                        CustomPaint(
-                                          size: Size(boardSize, boardSize),
-                                          painter: LudoBoardPainter(players: _controller.players),
-                                        ),
-                                        for (int pIndex = 0; pIndex < _controller.players.length; pIndex++) ...{
-                                          for (int tIndex = 0; tIndex < _controller.players[pIndex].tokenPositions.length; tIndex++) ...{
-                                            () {
-                                              var player = _controller.players[pIndex];
-                                              int pos = player.tokenPositions[tIndex];
-                                              Offset pixelPos = getTokenPixelPosition(pos, player, tIndex, cellSize, _controller.players);
-                                              bool isMovable = _controller.isTokenMovable(pIndex, tIndex);
-                                              bool isHome = pos == 58;
-
-                                              return Positioned(
-                                                left: pixelPos.dx - 11,
-                                                top: pixelPos.dy - 11,
-                                                child: GestureDetector(
-                                                  onTap: () => _controller.moveToken(pIndex, tIndex),
-                                                  child: AnimatedContainer(
-                                                    duration: const Duration(milliseconds: 300),
-                                                    curve: Curves.easeInOut,
-                                                    width: 22,
-                                                    height: 22,
-                                                    decoration: BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      color: isHome 
-                                                          ? Colors.amber 
-                                                          : (pos != -1 ? player.uiColor : const Color(0xff1b2233)),
-                                                      border: Border.all(
-                                                        color: isMovable ? Colors.yellowAccent : (pos != -1 ? Colors.white : const Color(0xff556688)), 
-                                                        width: isMovable ? 2.5 : 1.5,
-                                                      ),
-                                                      boxShadow: isMovable ? [
-                                                        const BoxShadow(color: Colors.yellowAccent, blurRadius: 10, spreadRadius: 2)
-                                                      ] : (pos != -1 ? [BoxShadow(color: player.uiColor.withOpacity(0.7), blurRadius: 8)] : []),
-                                                    ),
-                                                    child: Center(
-                                                      child: Text(
-                                                        isHome ? '★' : (pos != -1 ? '$pos' : 'B'),
-                                                        style: TextStyle(
-                                                          fontSize: 8,
-                                                          color: pos != -1 ? Colors.black : const Color(0xff8899aa),
-                                                          fontWeight: FontWeight.bold,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              );
-                                            }()
-                                          }
-                                        },
-                                        Center(
-                                          child: GestureDetector(
-                                            onTap: _triggerDiceRoll,
-                                            child: RotationTransition(
-                                              turns: Tween(begin: 0.0, end: 1.0).animate(_diceAnimController),
-                                              child: Container(
-                                                width: 54,
-                                                height: 54,
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  color: const Color(0xff111827),
-                                                  border: Border.all(color: const Color(0xffffcc00), width: 2),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: const Color(0xffffcc00).withOpacity(0.6),
-                                                      blurRadius: 14,
-                                                      spreadRadius: 2,
-                                                    ),
-                                                  ],
-                                                ),
-                                                child: Center(
-                                                  child: _controller.isRolling
-                                                      ? const SizedBox(
-                                                          width: 20,
-                                                          height: 20,
-                                                          child: CircularProgressIndicator(
-                                                            color: Color(0xffffcc00),
-                                                            strokeWidth: 2,
-                                                          ),
-                                                        )
-                                                      : Text(
-                                                          _controller.diceValue == 0 ? '🎲' : '${_controller.diceValue}',
-                                                          style: const TextStyle(
-                                                            fontSize: 22,
-                                                            fontWeight: FontWeight.bold,
-                                                            color: Color(0xffffcc00),
-                                                          ),
-                                                        ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xff0f1626),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white12),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _controller.hasRolled || _controller.isGameOver || _controller.isAnimatingMove ? Colors.grey.shade800 : const Color(0xff00e676),
-                            foregroundColor: Colors.black,
-                            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          ),
-                          onPressed: _controller.hasRolled || _controller.isGameOver || _controller.isAnimatingMove ? null : _triggerDiceRoll,
-                          child: const Text(
-                            'رمي النرد (ROLL)',
-                            style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
-                          ),
-                        ),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xffff3366),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          ),
-                          onPressed: () => _controller.resetGame(),
-                          child: const Text(
-                            'لعبة جديدة',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
