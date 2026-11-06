@@ -639,7 +639,7 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
           coord = Offset(boardSize * 0.5 + (p == 0 ? -10 : 10), boardSize * 0.5);
         } else if (pos >= 0 && pos < LudoEngine.totalPathCells) {
           int absoluteIndex = LudoEngine.getAbsolutePosition(pos, p);
-          coord = Offset((boardPathCoordinates[absoluteIndex].dx + 0.5) * cell, (boardPathCoordinates[absolute].dy + 0.5) * cell);
+          coord = Offset((boardPathCoordinates[absoluteIndex].dx + 0.5) * cell, (boardPathCoordinates[absoluteIndex].dy + 0.5) * cell);
         } else {
           coord = _getHomeStretchOffset(p, pos - LudoEngine.homeStretchStart, boardSize, cell);
         }
