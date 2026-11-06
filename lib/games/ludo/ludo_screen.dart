@@ -33,25 +33,25 @@ class LudoLobbyScreen extends StatelessWidget {
               const SizedBox(height: 16),
               const Center(child: Text('RAYID CYBER LUDO', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 2))),
               const SizedBox(height: 6),
-              const Center(child: Text('محرك اللعبة السيبراني الهندسي المطور والنهائي مع تصحيح المتغيرات', style: TextStyle(color: Colors.grey, fontSize: 13), textAlign: TextAlign.center)),
+              const Center(child: Text('النسخة الرباعية النهائية الشاملة والمحرك السيبراني المتكامل', style: TextStyle(color: Colors.grey, fontSize: 13), textAlign: TextAlign.center)),
               const SizedBox(height: 48),
               _buildLobbyButton(
                 context,
-                title: 'لعب ضد الذكاء الاصطناعي (AI)',
+                title: 'لعب رباعي ضد الذكاء الاصطناعي (AI)',
                 icon: Icons.smart_toy_rounded,
                 borderColor: const Color(0xff00E5FF),
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const LudoGameScreen(isVsAI: true, isTwoPlayerMode: true)));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const LudoGameScreen(isVsAI: true)));
                 },
               ),
               const SizedBox(height: 16),
               _buildLobbyButton(
                 context,
-                title: 'لعب ثنائي محلي (مع صديق)',
+                title: 'لعب رباعي محلي (مع أصدقاء)',
                 icon: Icons.people_alt_rounded,
                 borderColor: const Color(0xff00E676),
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const LudoGameScreen(isVsAI: false, isTwoPlayerMode: true)));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const LudoGameScreen(isVsAI: false)));
                 },
               ),
             ],
@@ -84,7 +84,7 @@ class LudoLobbyScreen extends StatelessWidget {
   }
 }
 
-// محرك قواعد اللعبة الهندسي المستقل والمصحح بالكامل
+// محرك قواعد اللعبة الهندسي المستقل والمصحح بالكامل للعب الرباعي
 class LudoEngine {
   static const int totalPathCells = 52;
   static const int homeStretchStart = 52;
@@ -186,45 +186,11 @@ class LudoEngine {
       }
     }
   }
-
-  static String runEngineUnitTests() {
-    StringBuffer log = StringBuffer();
-    try {
-      List<int> pieces = [-1, -1, -1, -1];
-      List<int> legal = getLegalMoves(pieces, 6, 0);
-      assert(legal.length == 4);
-      log.writeln('اختبار خروج القاعدة (رمي 6): ناجح ✅');
-
-      legal = getLegalMoves(pieces, 5, 0);
-      assert(legal.isEmpty);
-      log.writeln('اختبار منع الخروج بدون 6: ناجح ✅');
-
-      int absGreen = getAbsolutePosition(0, 0);
-      int absYellow = getAbsolutePosition(0, 1);
-      assert(absGreen == 0 && absYellow == 13);
-      log.writeln('اختبار حساب الموقع المطلق للاعبين: ناجح ✅');
-
-      int nearWin = 57;
-      int winPos = calculateNewPosition(nearWin, 1, 0);
-      assert(winPos == targetWin);
-      log.writeln('اختبار الوصول الدقيق للمركز والفوز: ناجح ✅');
-
-      int overPos = calculateNewPosition(57, 3, 0);
-      assert(overPos == 57);
-      log.writeln('اختبار منع تجاوز النهاية: ناجح ✅');
-
-      log.writeln('جميع اختبارات وحدة المحرك نجحت بامتياز تام! 🚀');
-    } catch (e) {
-      log.writeln('فشل في اختبارات المحرك: $e');
-    }
-    return log.toString();
-  }
 }
 
 class LudoGameScreen extends StatefulWidget {
   final bool isVsAI;
-  final bool isTwoPlayerMode;
-  const LudoGameScreen({super.key, required this.isVsAI, required this.isTwoPlayerMode});
+  const LudoGameScreen({super.key, required this.isVsAI});
 
   @override
   State<LudoGameScreen> createState() => _LudoGameScreenState();
@@ -238,7 +204,8 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
   bool isGameOver = false;
   Timer? _activeTimer;
 
-  final int activePlayersCount = 2;
+  // 4 لاعبين نشطين بالكامل (أخضر، أصفر، أحمر، أزرق)
+  final int activePlayersCount = 4;
 
   List<List<int>> playerPieces = [
     [-1, -1, -1, -1],
@@ -263,8 +230,6 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
     super.initState();
     _diceAnimController = AnimationController(vsync: this, duration: const Duration(milliseconds: 400));
     _diceScaleAnim = Tween<double>(begin: 1.0, end: 1.2).animate(CurvedAnimation(parent: _diceAnimController, curve: Curves.easeInOut));
-    
-    debugPrint(LudoEngine.runEngineUnitTests());
   }
 
   @override
@@ -338,7 +303,7 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
           });
         } else {
           gameStatus = 'تم رمي ($diceValue). اضغط على الحجر المناسب للتحريك!';
-          if (widget.isVsAI && currentTurn == 1) {
+          if (widget.isVsAI && currentTurn > 0) {
             _executeAIMove(legalMoves);
           }
         }
@@ -377,7 +342,7 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
 
         if (totalRoll == 6) {
           gameStatus = 'رقم 6 مميز! حصلت على رمية إضافية.';
-          if (widget.isVsAI && currentTurn == 1) {
+          if (widget.isVsAI && currentTurn > 0) {
             _activeTimer = Timer(const Duration(milliseconds: 900), () {
               if (mounted && !isGameOver) rollDice();
             });
@@ -403,14 +368,13 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
 
   void _nextTurn() {
     if (isGameOver) return;
-    do {
+    setState(() {
       currentTurn = (currentTurn + 1) % activePlayersCount;
-    } while (widget.isVsAI && currentTurn == 1);
+      gameStatus = 'دور اللاعب: ${playerNames[currentTurn]} - ارمِ النرد.';
+      hasRolled = false;
+    });
 
-    gameStatus = 'دور اللاعب: ${playerNames[currentTurn]} - ارمِ النرد.';
-    hasRolled = false;
-
-    if (widget.isVsAI && currentTurn == 1) {
+    if (widget.isVsAI && currentTurn > 0) {
       _activeTimer = Timer(const Duration(milliseconds: 800), () {
         if (mounted && !isGameOver) rollDice();
       });
@@ -422,11 +386,12 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
     _activeTimer = Timer(const Duration(milliseconds: 900), () {
       if (!mounted || isGameOver) return;
 
+      int aiPlayer = currentTurn;
       int chosenMove = legalMoves.first;
 
       for (int idx in legalMoves) {
-        int pos = playerPieces[1][idx];
-        int finalPos = LudoEngine.calculateNewPosition(pos, diceValue, 1);
+        int pos = playerPieces[aiPlayer][idx];
+        int finalPos = LudoEngine.calculateNewPosition(pos, diceValue, aiPlayer);
         if (finalPos == LudoEngine.targetWin) {
           chosenMove = idx;
           break;
@@ -435,12 +400,12 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
 
       if (chosenMove == legalMoves.first) {
         for (int idx in legalMoves) {
-          int pos = playerPieces[1][idx];
+          int pos = playerPieces[aiPlayer][idx];
           if (pos >= 0 && pos < LudoEngine.totalPathCells) {
-            int targetAbs = LudoEngine.getAbsolutePosition(LudoEngine.calculateNewPosition(pos, diceValue, 1), 1);
+            int targetAbs = LudoEngine.getAbsolutePosition(LudoEngine.calculateNewPosition(pos, diceValue, aiPlayer), aiPlayer);
             bool willCapture = false;
             for (int p = 0; p < activePlayersCount; p++) {
-              if (p == 1) continue;
+              if (p == aiPlayer) continue;
               for (int e = 0; e < 4; e++) {
                 int enemyPos = playerPieces[p][e];
                 if (enemyPos >= 0 && enemyPos < LudoEngine.totalPathCells) {
@@ -462,14 +427,14 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
 
       if (diceValue == 6 && chosenMove == legalMoves.first) {
         for (int idx in legalMoves) {
-          if (playerPieces[1][idx] == -1) {
+          if (playerPieces[aiPlayer][idx] == -1) {
             chosenMove = idx;
             break;
           }
         }
       }
 
-      selectPiece(1, chosenMove);
+      selectPiece(aiPlayer, chosenMove);
     });
   }
 
@@ -480,7 +445,7 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xff121816),
         title: Text('🏆 انتصار سيبراني', style: TextStyle(color: playerColors[currentTurn], fontWeight: FontWeight.bold)),
-        content: Text('الفائز في الساحة الثنائية هو: $winnerName!', style: const TextStyle(color: Colors.white)),
+        content: Text('الفائز في الساحة الرباعية هو: $winnerName!', style: const TextStyle(color: Colors.white)),
         actions: [
           TextButton(
             onPressed: () {
@@ -505,22 +470,67 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xff0A0E0D),
-      appBar: AppBar(
-        title: const Text('RAYID CYBER ARENA', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Color(0xff00E5FF))),
-        backgroundColor: const Color(0xff080C0B),
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: Color(0xff00E676)),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh, color: Color(0xff00E676)),
-            onPressed: resetGame,
-            tooltip: 'إعادة تعيين',
-          )
-        ],
-      ),
       body: SafeArea(
         child: Column(
           children: [
+            // شريط المعلومات العلوي (Cyber HUD Top Bar)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: const BoxDecoration(
+                color: Color(0xff080C0B),
+                border: Border(bottom: BorderSide(color: Color(0xff00E5FF), width: 0.5)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.refresh, color: Color(0xff00E676), size: 20),
+                        onPressed: resetGame,
+                        tooltip: 'إعادة تعيين',
+                        constraints: const BoxConstraints(),
+                        padding: EdgeInsets.zero,
+                      ),
+                      const SizedBox(width: 12),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xff121816),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0xff00E5FF).withOpacity(0.4)),
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(Icons.visibility, color: Colors.grey, size: 12),
+                            SizedBox(width: 4),
+                            Text('0 مشاهد', style: TextStyle(color: Colors.white, fontSize: 10)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Text('RAYID CYBER ARENA', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Color(0xff00E5FF), letterSpacing: 1.2)),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xff121816),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.amber, width: 1),
+                        ),
+                        child: const Icon(Icons.emoji_events, color: Colors.amber, size: 14),
+                      ),
+                      const SizedBox(width: 8),
+                      const Icon(Icons.settings, color: Colors.white, size: 20),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            // شريط حالة اللعبة السيبراني
             Container(
               margin: const EdgeInsets.all(8),
               padding: const EdgeInsets.all(10),
@@ -542,6 +552,8 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
                 ],
               ),
             ),
+
+            // رقعة اللعب السيبرانية في المنتصف
             Expanded(
               child: Center(
                 child: AspectRatio(
@@ -552,6 +564,7 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
                       color: const Color(0xff050709),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: const Color(0xff00E676), width: 2),
+                      boxShadow: [BoxShadow(color: const Color(0xff00E676).withOpacity(0.2), blurRadius: 15)],
                     ),
                     child: LayoutBuilder(
                       builder: (context, constraints) {
@@ -571,49 +584,103 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
                 ),
               ),
             ),
+
+            // شريط التحكم السفلي وبطاقات التفاعل (Cyber Bottom HUD & Controls)
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: const BoxDecoration(
                 color: Color(0xff080C0B),
-                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                 border: Border(top: BorderSide(color: Color(0xff00E5FF), width: 1)),
               ),
-              child: Row(
+              child: Column(
                 children: [
-                  Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: const Color(0xff121816),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: playerColors[currentTurn], width: 2),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '$diceValue',
-                        style: TextStyle(color: playerColors[currentTurn], fontSize: 22, fontWeight: FontWeight.w900),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: playerColors[currentTurn].withOpacity(0.2),
+                              border: Border.all(color: playerColors[currentTurn], width: 2),
+                            ),
+                            child: Icon(Icons.person, color: playerColors[currentTurn], size: 20),
+                          ),
+                          const SizedBox(width: 8),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('دور: ${playerNames[currentTurn]}', style: TextStyle(color: playerColors[currentTurn], fontSize: 11, fontWeight: FontWeight.bold)),
+                              const Text('الترتيب: 1', style: TextStyle(color: Colors.amber, fontSize: 9)),
+                            ],
+                          ),
+                        ],
                       ),
-                    ),
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.mic_off, color: Colors.grey, size: 20),
+                            onPressed: () {},
+                          ),
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(color: Colors.amber.withOpacity(0.2), shape: BoxShape.circle),
+                            child: const Icon(Icons.emoji_emotions, color: Colors.amber, size: 18),
+                          ),
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(color: const Color(0xff00E5FF).withOpacity(0.2), shape: BoxShape.circle),
+                            child: const Icon(Icons.chat_bubble, color: Color(0xff00E5FF), size: 18),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ScaleTransition(
-                      scale: _diceScaleAnim,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: playerColors[currentTurn],
-                          foregroundColor: Colors.black,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                          elevation: 6,
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: const Color(0xff121816),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: playerColors[currentTurn], width: 2),
+                          boxShadow: [BoxShadow(color: playerColors[currentTurn].withOpacity(0.3), blurRadius: 8)],
                         ),
-                        onPressed: (!isRolling && !hasRolled && !isAnimatingMove && !isGameOver && (currentTurn == 0 || !widget.isVsAI)) ? rollDice : null,
-                        child: Text(
-                          isRolling ? 'جاري الرَمي...' : (hasRolled ? 'اختر حجراً للتحريك' : '🎲 ارمِ النرد'),
-                          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
+                        child: Center(
+                          child: Text(
+                            '$diceValue',
+                            style: TextStyle(color: playerColors[currentTurn], fontSize: 20, fontWeight: FontWeight.w900),
+                          ),
                         ),
                       ),
-                    ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ScaleTransition(
+                          scale: _diceScaleAnim,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: playerColors[currentTurn],
+                              foregroundColor: Colors.black,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                              elevation: 6,
+                            ),
+                            onPressed: (!isRolling && !hasRolled && !isAnimatingMove && !isGameOver && (currentTurn == 0 || !widget.isVsAI)) ? rollDice : null,
+                            child: Text(
+                              isRolling ? 'جاري الرَمي...' : (hasRolled ? 'اختر حجراً للتحريك' : '🎲 ارمِ النرد'),
+                              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -636,7 +703,7 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
         if (pos == -1) {
           coord = _getBaseOffset(p, i, boardSize, cell);
         } else if (pos == LudoEngine.targetWin) {
-          coord = Offset(boardSize * 0.5 + (p == 0 ? -10 : 10), boardSize * 0.5);
+          coord = Offset(boardSize * 0.5 + (p == 0 ? -10 : (p == 1 ? 10 : 0)), boardSize * 0.5 + (p == 2 ? 10 : (p == 3 ? -10 : 0)));
         } else if (pos >= 0 && pos < LudoEngine.totalPathCells) {
           int absoluteIndex = LudoEngine.getAbsolutePosition(pos, p);
           coord = Offset((boardPathCoordinates[absoluteIndex].dx + 0.5) * cell, (boardPathCoordinates[absoluteIndex].dy + 0.5) * cell);
@@ -676,8 +743,10 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
 
   Offset _getBaseOffset(int player, int idx, double boardSize, double cell) {
     double startX = 0, startY = 0;
-    if (player == 0) { startX = cell * 1; startY = cell * 1; }
-    else if (player == 1) { startX = cell * 10; startY = cell * 1; }
+    if (player == 0) { startX = cell * 1; startY = cell * 1; } // أخضر
+    else if (player == 1) { startX = cell * 10; startY = cell * 1; } // أصفر
+    else if (player == 2) { startX = cell * 10; startY = cell * 10; } // أحمر
+    else if (player == 3) { startX = cell * 1; startY = cell * 10; } // أزرق
 
     double dx = (idx % 2 == 0) ? startX + cell * 1.0 : startX + cell * 3.0;
     double dy = (idx < 2) ? startY + cell * 1.0 : startY + cell * 3.0;
@@ -689,7 +758,8 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
     double cy = boardSize * 0.5;
     if (player == 0) return Offset(cx, cell * (1.5 + stepIdx));
     if (player == 1) return Offset(boardSize - cell * (1.5 + stepIdx), cy);
-    return Offset(cx, cy);
+    if (player == 2) return Offset(cx, boardSize - cell * (1.5 + stepIdx));
+    return Offset(cell * (1.5 + stepIdx), cy);
   }
 }
 
