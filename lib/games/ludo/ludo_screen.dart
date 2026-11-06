@@ -348,9 +348,10 @@ class _LudoGameScreenState extends State<LudoGameScreen> with SingleTickerProvid
   int currentTurnIndex = 0;
   int diceValue = 6;
   PlayerColor get currentTurnColor => turnOrder[currentTurnIndex];
+bool hasRolled = false;
 
   bool isRolling = false;
-  bool hasRolled = false;
+  
   bool isAnimatingMove = false;
   bool isGameOver = false;
   bool showTutorial = true;
