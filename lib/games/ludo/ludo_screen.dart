@@ -6,7 +6,7 @@ class LudoLobbyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A), // خلفية داكنة بفايبريشن سايبربنك
+      backgroundColor: const Color(0xFF0F172A),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -14,11 +14,10 @@ class LudoLobbyScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // عنوان اللعبة أو اللوجو
               const Icon(
                 Icons.sports_esports,
                 size: 80,
-                color: Color(0xFF06B6D4), // لون نيون سماوي
+                color: Color(0xFF06B6D4),
               ),
               const SizedBox(height: 16),
               const Text(
@@ -41,41 +40,30 @@ class LudoLobbyScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 48),
-
-              // زر اللعب ضد الكمبيوتر (البوت)
               _buildMenuButton(
                 context,
                 title: 'لعب ضد البوت (AI)',
                 icon: Icons.smart_toy,
                 color: const Color(0xFF3B82F6),
                 onTap: () {
-                  // هنا ننقل اللاعب لشاشة اللعبة الفعلية
-                  // Navigator.push(...)
+                  // TODO: ربطها بشاشة اللعب لاحقاً
                 },
               ),
               const SizedBox(height: 16),
-
-              // زر لعب ثنائي (لاعب ضد لاعب)
               _buildMenuButton(
                 context,
                 title: 'لعب ثنائي (مع صديق)',
                 icon: Icons.people,
                 color: const Color(0xFF10B981),
-                onTap: () {
-                  // الانتقال لشاشة اللعب الثنائي
-                },
+                onTap: () {},
               ),
               const SizedBox(height: 16),
-
-              // زر قوانين اللعبة أو الجوائز
               _buildMenuButton(
                 context,
                 title: 'قوانين والجوائز',
                 icon: Icons.card_giftcard,
                 color: const Color(0xFFF59E0B),
-                onTap: () {
-                  // عرض نافذة الجوائز والنقاط
-                },
+                onTap: () {},
               ),
             ],
           ),
@@ -84,7 +72,6 @@ class LudoLobbyScreen extends StatelessWidget {
     );
   }
 
-  // مساعد لبناء الأزرار بشكل أنيق
   Widget _buildMenuButton(
     BuildContext context, {
     required String title,
@@ -98,7 +85,7 @@ class LudoLobbyScreen extends StatelessWidget {
         foregroundColor: Colors.white,
         side: BorderSide(color: color, width: 1.5),
         padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleType.borderRadius ?? RoundedRectangleBorder(
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
       ),
