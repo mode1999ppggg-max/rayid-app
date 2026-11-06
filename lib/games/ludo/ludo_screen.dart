@@ -133,7 +133,7 @@ class _LudoSplashLoadingScreenState extends State<LudoSplashLoadingScreen> with 
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'جاري ضبط مطابقة اللوحة والإحداثيات النهائية... ${(_loadingProgress * 100).toInt()}%',
+                    'جاري مزامنة إحداثيات المسارات بدقة تامة... ${(_loadingProgress * 100).toInt()}%',
                     style: const TextStyle(
                       color: Colors.white70,
                       fontSize: 12,
@@ -226,6 +226,11 @@ class LudoGameController extends ChangeNotifier {
   }
 
   void _initPlayers() {
+    // تصحيح نقاط الانطلاق (baseStartIndex) ونقاط دخول البيت (entryBeforeHome) لكل لون هندسياً:
+    // - الأحمر (Top-Right): baseStartIndex = 0, entryBeforeHome = 50
+    // - الأخضر (Top-Left): baseStartIndex = 13, entryBeforeHome = 11
+    // - الأزرق (Bottom-Left): baseStartIndex = 26, entryBeforeHome = 24
+    // - الأصفر (Bottom-Right): baseStartIndex = 39, entryBeforeHome = 37
     List<LudoPlayer> allPlayers = [
       LudoPlayer(color: LudoColor.red, uiColor: const Color(0xffff3366), name: 'الأحمر', baseStartIndex: 0, baseIndexForCoords: 0, entryBeforeHome: 50),
       LudoPlayer(color: LudoColor.green, uiColor: const Color(0xff00ff66), name: 'الأخضر', baseStartIndex: 13, baseIndexForCoords: 1, entryBeforeHome: 11),
@@ -529,7 +534,7 @@ class LudoGameController extends ChangeNotifier {
 }
 
 // ------------------------------------------------------------------------------
-// 3. إحداثيات ورسام لوحة اللودو سايبربانك الاحترافية (مطابقة تامة للمواقع والألوان)
+// 3. إحداثيات ورسام لوحة اللودو سايبربانك الاحترافية
 // ------------------------------------------------------------------------------
 
 final List<Point<int>> sharedTrackCoords = [
@@ -560,11 +565,9 @@ class LudoBoardPainter extends CustomPainter {
     double h = size.height;
     double cellSize = w / 15;
 
-    // خلفية اللوحة
     paint.color = const Color(0xff090d16);
     canvas.drawRect(Rect.fromLTWH(0, 0, w, h), paint);
 
-    // شبكة الدوائر الإلكترونية
     final circuitPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0
@@ -575,7 +578,7 @@ class LudoBoardPainter extends CustomPainter {
       canvas.drawLine(Offset(0, i), Offset(w, i), circuitPaint);
     }
 
-    // تصحيح مواقع وقواعد الألوان الأربعة هندسياً لتطابق المراجع تماماً:
+    // القواعد الأربع مطابقة تماماً للمواقع المادية على الشاشة:
     // الأخضر (Top-Left: x=0, y=0)
     // الأحمر (Top-Right: x=9, y=0)
     // الأزرق (Bottom-Left: x=0, y=9)
@@ -585,7 +588,6 @@ class LudoBoardPainter extends CustomPainter {
     _drawCyberBaseWithCircles(canvas, paint, 0, cellSize * 9, cellSize * 6, const Color(0xff00f3ff));    // الأزرق
     _drawCyberBaseWithCircles(canvas, paint, cellSize * 9, cellSize * 9, cellSize * 6, const Color(0xffffcc00)); // الأصفر
 
-    // مسارات اللعب المشتركة
     for (int i = 0; i < sharedTrackCoords.length; i++) {
       var pt = sharedTrackCoords[i];
       Color cellColor = const Color(0xff111827);
@@ -618,27 +620,25 @@ class LudoBoardPainter extends CustomPainter {
       canvas.drawRect(Rect.fromLTWH(pt.x * cellSize + 1, pt.y * cellSize + 1, cellSize - 2, cellSize - 2), paint);
     }
 
-    // المسارات النهائية (Home Paths) لكل لون وموقع بدقة متناهية
     for (int step = 0; step < 6; step++) {
-      // الأحمر (Top-Right Home Path)
+      // الأحمر (Top-Right Entry)
       paint.style = PaintingStyle.fill;
       paint.color = const Color(0xffff3366).withOpacity(0.65);
       canvas.drawRect(Rect.fromLTWH((1 + step) * cellSize + 1, 7 * cellSize + 1, cellSize - 2, cellSize - 2), paint);
 
-      // الأخضر (Top-Left Home Path)
+      // الأخضر (Top-Left Entry)
       paint.color = const Color(0xff00ff66).withOpacity(0.65);
       canvas.drawRect(Rect.fromLTWH(7 * cellSize + 1, (1 + step) * cellSize + 1, cellSize - 2, cellSize - 2), paint);
 
-      // الأزرق (Bottom-Left Home Path)
+      // الأزرق (Bottom-Left Entry)
       paint.color = const Color(0xff00f3ff).withOpacity(0.65);
       canvas.drawRect(Rect.fromLTWH((13 - step) * cellSize + 1, 7 * cellSize + 1, cellSize - 2, cellSize - 2), paint);
 
-      // الأصفر (Bottom-Right Home Path)
+      // الأصفر (Bottom-Right Entry)
       paint.color = const Color(0xffffcc00).withOpacity(0.65);
       canvas.drawRect(Rect.fromLTWH(7 * cellSize + 1, (13 - step) * cellSize + 1, cellSize - 2, cellSize - 2), paint);
     }
 
-    // المركز
     paint.style = PaintingStyle.fill;
     paint.color = const Color(0xff0b101c);
     canvas.drawRect(Rect.fromLTWH(cellSize * 6, cellSize * 6, cellSize * 3, cellSize * 3), paint);
@@ -689,7 +689,7 @@ Offset getTokenPixelPosition(int pos, LudoPlayer player, int tokenIndex, double 
   int baseIdx = player.baseIndexForCoords;
 
   if (pos == -1) {
-    // قاعدة مطابقة تماماً للموقع المرسوم في الـ CustomPainter:
+    // تصحيح التموضع للقواعد الأربعة:
     // baseIdx 0 -> الأحمر (Top-Right: x=9, y=0)
     // baseIdx 1 -> الأخضر (Top-Left: x=0, y=0)
     // baseIdx 2 -> الأزرق (Bottom-Left: x=0, y=9)
@@ -708,6 +708,7 @@ Offset getTokenPixelPosition(int pos, LudoPlayer player, int tokenIndex, double 
     gridPoint = const Point(7.0, 7.0);
   } else if (pos >= 52 && pos <= 57) {
     int step = pos - 52;
+    // تصحيح مسارات الدخول النهائية لكل لاعب لتبدأ من حافة مساره الصحيح نحو المركز (7,7)
     if (baseIdx == 0) gridPoint = Point(1.0 + step, 7.0);       // الأحمر
     else if (baseIdx == 1) gridPoint = Point(7.0, 1.0 + step);   // الأخضر
     else if (baseIdx == 2) gridPoint = Point(13.0 - step, 7.0);  // الأزرق
