@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart'; // تم إضافة مكتبة فايربيس للربط بالسحابة
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:io';
 import 'dart:async';
 import 'dart:math';
@@ -8,10 +9,9 @@ import 'games/ludo/ludo_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // تهيئة فايربيز مع مهلة زمنية آمنة (ثانيتين) لكي لا يعلق التطبيق أبداً على شاشة الشعار
   try {
     await Firebase.initializeApp().timeout(
-      const Duration(seconds: 2),
+      const Duration(seconds: 3),
       onTimeout: () {
         debugPrint('Firebase init timeout, bypassing to prevent app hang.');
         throw TimeoutException('Init timeout');
@@ -284,31 +284,59 @@ class UserAppModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  // ربط حقيقي مع Firebase Auth لإنشاء الحساب
   Future<bool> signUpUser(String name, String username, String email, String phone, String password) async {
-    await Future.delayed(const Duration(milliseconds: 600));
-    userName = name;
-    userUsername = username;
-    userEmail = email;
-    userPhone = phone;
-    isLoggedIn = true;
-    notifyListeners();
-    return true;
+    try {
+      UserCredential credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
+      if (credential.user != nullptr) {
+        userName = name;
+        userUsername = username;
+        userEmail = email;
+        userPhone = phone;
+        isLoggedIn = true;
+        notifyListeners();
+        return true;
+      }
+    } catch (e) {
+      debugPrint('Firebase Sign Up Error: $e');
+    }
+    return false;
   }
 
+  // ربط حقيقي مع Firebase Auth لتسجيل الدخول
   Future<bool> signInUser(String email, String password) async {
-    await Future.delayed(const Duration(milliseconds: 600));
-    userEmail = email;
-    isLoggedIn = true;
-    notifyListeners();
-    return true;
+    try {
+      UserCredential credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
+      if (credential.user != nullptr) {
+        userEmail = email;
+        isLoggedIn = true;
+        notifyListeners();
+        return true;
+      }
+    } catch (e) {
+      debugPrint('Firebase Sign In Error: $e');
+    }
+    return false;
   }
 
-  void signOutUser() {
+  void signOutUser() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+    } catch (_) {}
     isLoggedIn = false;
     notifyListeners();
   }
 
-  void deleteAccount() {
+  void deleteAccount() async {
+    try {
+      await FirebaseAuth.instance.currentUser?.delete();
+    } catch (_) {}
     isLoggedIn = false;
     userName = '';
     userUsername = '';
@@ -434,7 +462,7 @@ class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
 
     setState(() => _isLoading = false);
     if (!success && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'حدث خطأ في المصادقة.' : 'Authentication error.'), backgroundColor: Colors.red));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'فشل المصادقة. تأكد من صحة البيانات أو تفعيل Email/Password في لوحة فايربيز.' : 'Authentication failed. Check Firebase settings.'), backgroundColor: Colors.red));
     }
   }
 
