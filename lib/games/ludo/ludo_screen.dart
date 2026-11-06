@@ -1,455 +1,412 @@
-import 'package:flutter/material.dart';
-import 'dart:math';
-import 'dart:async';
-
-class LudoLobbyScreen extends StatelessWidget {
-  const LudoLobbyScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xff0A0E0D),
-      appBar: AppBar(
-        title: const Text('CYBERPUNK LUDO ARENA', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Color(0xff00E5FF), letterSpacing: 1.5)),
-        backgroundColor: const Color(0xff080C0B),
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: Color(0xff00E676)),
-      ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xff0A0E0D), Color(0xff050807), Color(0xff0A0E0D)],
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Center(
-                child: Icon(Icons.casino, size: 72, color: Color(0xff00E676)),
-              ),
-              const SizedBox(height: 16),
-              const Center(
-                child: Text('CYBERPUNK LUDO', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 2)),
-              ),
-              const SizedBox(height: 6),
-              const Center(
-                child: Text('تحدَ الخصوم برقعة نيون متطورة واكسب نقاط ترفيهية في رايد باي', style: TextStyle(color: Colors.grey, fontSize: 12), textAlign: TextAlign.center),
-              ),
-              const SizedBox(height: 40),
-
-              _buildLobbyButton(
-                context,
-                title: 'لعب ضد الذكاء الاصطناعي (AI)',
-                icon: Icons.smart_toy,
-                borderColor: const Color(0xff00E5FF),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const LudoGameScreen(isVsAI: true)),
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
-
-              _buildLobbyButton(
-                context,
-                title: 'لعب ثنائي محلي (مع صديق)',
-                icon: Icons.people,
-                borderColor: const Color(0xff00E676),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const LudoGameScreen(isVsAI: false)),
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
-
-              _buildLobbyButton(
-                context,
-                title: 'قوانين وجوائز المعركة',
-                icon: Icons.card_giftcard,
-                borderColor: Colors.amber,
-                onTap: () {
-                  _showRulesDialog(context);
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLobbyButton(BuildContext context, {required String title, required IconData icon, required Color borderColor, required VoidCallback onTap}) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xff121816),
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
-          side: BorderSide(color: borderColor, width: 2),
-        ),
-        elevation: 6,
-      ),
-      onPressed: onTap,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: borderColor, size: 22),
-          const SizedBox(width: 12),
-          Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
-        ],
-      ),
-    );
-  }
-
-  void _showRulesDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xff121816),
-        title: const Text('قوانين لودو السيبرانية', style: TextStyle(color: Color(0xff00E676), fontWeight: FontWeight.bold)),
-        content: const Text(
-          '1. رقعة نيون متكاملة تضم 4 مسارات طاقة رئيسية.\n'
-          '2. ارمِ النرد وحرك قطعك السيبرانية بذكاء لتتجنب الخصم.\n'
-          '3. الفائز يجمع أكبر عدد من نقاط الترفيه المحولة لمحفظة رايد باي.',
-          style: TextStyle(color: Colors.grey, fontSize: 13, height: 1.5),
-        ),
-        actions: [
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black),
-            onPressed: () => Navigator.pop(context),
-            child: const Text('حسناً', style: TextStyle(fontWeight: FontWeight.bold)),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ================= شاشة اللعبة المتكاملة والاحترافية =================
-class LudoGameScreen extends StatefulWidget {
-  final bool isVsAI;
-  const LudoGameScreen({super.key, required this.isVsAI});
-
-  @override
-  State<LudoGameScreen> createState() => _LudoGameScreenState();
-}
-
-class _LudoGameScreenState extends State<LudoGameScreen> {
-  int diceValue = 6;
-  bool isRolling = false;
-  
-  // مواقع القطع السيبرانية الأربعة (0 يعني في القاعدة، من 1 إلى 56 مسار السباق، 57 خط النهاية)
-  int greenPos = 0;
-  int yellowPos = 0;
-  int redPos = 0;
-  int bluePos = 0;
-
-  int currentTurn = 0; // 0: أخضر, 1: أصفر, 2: أحمر, 3: أزرق
-  String gameStatus = 'دور اللاعب الأخضر (ارْمِ النرد!)';
-  List<String> chatMessages = [];
-
-  final List<String> playerNames = ['أخضر (رائد)', 'أصفر (البوت)', 'أحمر', 'أزرق'];
-  final List<Color> playerColors = [Colors.greenAccent, Colors.amber, Colors.redAccent, Colors.blueAccent];
-
-  void rollDice() {
-    if (isRolling) return;
-    setState(() {
-      isRolling = true;
-    });
-
-    Timer(const Duration(milliseconds: 700), () {
-      setState(() {
-        isRolling = false;
-        diceValue = Random().nextInt(6) + 1;
-
-        // تحريك القطع حسب الدور الحالي
-        if (currentTurn == 0) {
-          greenPos = _movePiece(greenPos, diceValue);
-        } else if (currentTurn == 1) {
-          yellowPos = _movePiece(yellowPos, diceValue);
-        } else if (currentTurn == 2) {
-          redPos = _movePiece(redPos, diceValue);
-        } else {
-          bluePos = _movePiece(bluePos, diceValue);
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VS AI CYBER ARENA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
         }
 
-        // فحص الفوز
-        if (greenPos >= 56) {
-          gameStatus = '🎉 تهانينا! فاز اللاعب الأخضر بالمعركة!';
-          return;
-        } else if (yellowPos >= 56) {
-          gameStatus = '🏆 فاز اللاعب الأصفر!';
-          return;
+        body {
+            background-color: #0A0E0D;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
         }
 
-        // الانتقال للدور التالي
-        do {
-          currentTurn = (currentTurn + 1) % 4;
-        } while (widget.isVsAI && (currentTurn == 2 || currentTurn == 3)); // إذا ضد البوت نلعب أخضر وأصفر فقط
-
-        gameStatus = 'دور اللاعب: ${playerNames[currentTurn]}';
-
-        if (widget.isVsAI && currentTurn == 1) {
-          _triggerAITurn();
+        .cyber-container {
+            width: 100%;
+            max-width: 480px;
+            height: 100vh;
+            background: linear-gradient(135deg, #0A0E0D 0%, #050807 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 12px;
+            border: 2px solid rgba(0, 230, 118, 0.4);
+            box-shadow: 0 0 25px rgba(0, 230, 118, 0.2);
         }
-      });
-    });
-  }
 
-  int _movePiece(int current, int roll) {
-    if (current == 0) {
-      if (roll == 6) return 1; // الخروج من القاعدة برقم 6
-      return 0;
-    }
-    int next = current + roll;
-    if (next > 56) return 56; // النهاية
-    return next;
-  }
+        /* شريط الرأس */
+        .cyber-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #080C0B;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 229, 255, 0.3);
+        }
 
-  void _triggerAITurn() {
-    Timer(const Duration(seconds: 1), () {
-      if (!mounted) return;
-      rollDice();
-    });
-  }
+        .room-id {
+            font-size: 11px;
+            color: #a0a0a0;
+        }
 
-  void _sendQuickChat(String msg) {
-    setState(() {
-      chatMessages.add(msg);
-      if (chatMessages.length > 3) chatMessages.removeAt(0);
-    });
-  }
+        .game-title {
+            font-size: 13px;
+            font-weight: 900;
+            color: #00E5FF;
+            letter-spacing: 1px;
+        }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xff0A0E0D),
-      appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(widget.isVsAI ? 'VS AI CYBER ARENA' : 'DUAL CYBER ARENA', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xff00E5FF))),
-            const Text('الغرفة: #88219', style: TextStyle(fontSize: 10, color: Colors.grey)),
-          ],
-        ),
-        backgroundColor: const Color(0xff080C0B),
-      ),
-      body: Column(
-        children: [
-          // لوحة معلومات اللاعبين العلوية الاحترافية
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            color: const Color(0xff121816),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildPlayerBadge('أخضر', greenPos, Colors.greenAccent),
-                _buildPlayerBadge('أصفر', yellowPos, Colors.amber),
-                _buildPlayerBadge('أحمر', redPos, Colors.redAccent),
-                _buildPlayerBadge('أزرق', bluePos, Colors.blueAccent),
-              ],
-            ),
-          ),
+        .exit-btn {
+            background: none;
+            border: none;
+            color: #00E676;
+            font-size: 16px;
+            cursor: pointer;
+        }
 
-          // شريط حالة اللعبة والدردشة السريعة العائمة
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
-            color: const Color(0xff050709),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(gameStatus, style: const TextStyle(color: Color(0xff00E676), fontSize: 11, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis),
-                ),
-                if (chatMessages.isNotEmpty)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(color: const Color(0xff1A1025), borderRadius: BorderRadius.circular(8)),
-                    child: Text(chatMessages.last, style: const TextStyle(color: Color(0xff00E5FF), fontSize: 10)),
-                  ),
-              ],
-            ),
-          ),
+        /* عداد النقاط العلوي */
+        .score-board {
+            display: flex;
+            justify-content: space-between;
+            gap: 6px;
+            margin: 8px 0;
+        }
 
-          // رقعة اللودو السيبرانية المتكاملة (Board)
-          Expanded(
-            child: Center(
-              child: AspectRatio(
-                aspectRatio: 1.0,
-                child: Container(
-                  margin: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xff050709),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0xff00E676), width: 3),
-                    boxShadow: [
-                      BoxShadow(color: const Color(0xff00E676).withOpacity(0.3), blurRadius: 20, spreadRadius: 2),
-                      BoxShadow(color: const Color(0xff00E5FF).withOpacity(0.2), blurRadius: 10),
-                    ],
-                  ),
-                  child: Stack(
-                    children: [
-                      // تصميم الأرباع الأربعة للودو
-                      Column(
-                        children: [
-                          Expanded(
-                            child: Row(
-                              children: [
-                                _buildBoardBase(Colors.greenAccent, 'أخضر', greenPos),
-                                _buildCenterPathVertical(),
-                                _buildBoardBase(Colors.amber, 'أصفر', yellowPos),
-                              ],
-                            ),
-                          ),
-                          _buildCenterHomeHub(),
-                          Expanded(
-                            child: Row(
-                              children: [
-                                _buildBoardBase(Colors.redAccent, 'أحمر', redPos),
-                                _buildCenterPathVertical(),
-                                _buildBoardBase(Colors.blueAccent, 'أزرق', bluePos),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
+        .badge {
+            flex: 1;
+            padding: 6px 4px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: bold;
+            text-align: center;
+            background-color: #121816;
+            border: 1px solid currentColor;
+        }
 
-          // شريط التحكم السفلي المتطور (النرد التفاعلي، المايك، الإيموجي، الدردشة)
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            decoration: const BoxDecoration(
-              color: Color(0xff080C0B),
-              border: Border(top: BorderSide(color: Color(0xff121816), width: 2)),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.mic, color: Colors.grey, size: 20),
-                      onPressed: () => _sendQuickChat('🎤 فتح المايك الصوتى'),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.emoji_emotions, color: Color(0xff00E5FF), size: 20),
-                      onPressed: () => _sendQuickChat('🔥 حماس سيبراني!'),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.chat_bubble, color: Color(0xff00E676), size: 20),
-                      onPressed: () => _sendQuickChat('👋 سلام للجميع'),
-                    ),
-                  ],
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: playerColors[currentTurn],
-                    foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    elevation: 8,
-                  ),
-                  onPressed: (!isRolling && (currentTurn == 0 || !widget.isVsAI)) ? rollDice : null,
-                  child: Text(isRolling ? '🎲 ...' : '🎲 ارمِ ($diceValue)', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14)),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+        .green-badge { color: #00E676; }
+        .yellow-badge { color: #FFD54F; }
+        .red-badge { color: #FF5252; }
+        .blue-badge { color: #40C4FF; }
 
-  Widget _buildPlayerBadge(String name, int pos, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withOpacity(0.5)),
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(radius: 4, backgroundColor: color),
-          const SizedBox(width: 4),
-          Text('$name: $pos', style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold)),
-        ],
-      ),
-    );
-  }
+        /* مؤشر الدور */
+        .turn-indicator-box {
+            background-color: #050709;
+            padding: 8px;
+            text-align: center;
+            border-radius: 8px;
+            border: 1px dashed #00E5FF;
+            margin-bottom: 8px;
+        }
 
-  Widget _buildBoardBase(Color color, String name, int position) {
-    return Expanded(
-      child: Container(
-        margin: const EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.15),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: color.withOpacity(0.7), width: 2),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.shield, color: color, size: 24),
-            const SizedBox(height: 4),
-            Text(name, style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 4),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(color: const Color(0xff0A0E0D), borderRadius: BorderRadius.circular(8)),
-              child: Text('الخطوة: $position', style: const TextStyle(color: Colors.white, fontSize: 10)),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+        #turn-text {
+            font-size: 12px;
+            font-weight: bold;
+            color: #00E676;
+        }
 
-  Widget _buildCenterPathVertical() {
-    return Container(
-      width: 40,
-      color: const Color(0xff0A0E0D),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(4, (index) => Container(
-          margin: const EdgeInsets.all(2),
-          height: 12,
-          decoration: BoxDecoration(
-            color: const Color(0xff00E5FF).withOpacity(0.3),
-            borderRadius: BorderRadius.circular(3),
-            border: Border.all(color: const Color(0xff00E5FF).withOpacity(0.5)),
-          ),
-        )),
-      ),
-    );
-  }
+        /* ساحة اللعب */
+        .cyber-arena {
+            flex: 1;
+            background-color: #050709;
+            border-radius: 16px;
+            border: 2px solid #00E676;
+            box-shadow: inset 0 0 15px rgba(0, 230, 118, 0.2), 0 0 15px rgba(0, 230, 118, 0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 12px;
+            position: relative;
+        }
 
-  Widget _buildCenterHomeHub() {
-    return Container(
-      height: 45,
-      color: const Color(0xff080C0B),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.flash_on, color: Colors.amber, size: 16),
-          const SizedBox(width: 6),
-          const Text('منطقة الأمان السيبرانية (HOME)', style: TextStyle(color: Colors.amberAccent, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
-        ],
-      ),
-    );
-  }
-}
+        .board-grid {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .player-box {
+            width: 44%;
+            height: 110px;
+            background-color: #121816;
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .yellow-box { border-color: #FFD54F; }
+        .green-box { border-color: #00E676; }
+        .blue-box { border-color: #40C4FF; }
+        .red-box { border-color: #FF5252; }
+
+        .player-box.active-turn {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px currentColor;
+        }
+
+        .shield-icon {
+            font-size: 22px;
+            margin-bottom: 4px;
+        }
+
+        .box-name {
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .step-counter {
+            font-size: 10px;
+            background-color: #0A0E0D;
+            padding: 2px 8px;
+            border-radius: 6px;
+            color: #fff;
+        }
+
+        /* الموصلات العمودية */
+        .vertical-connector {
+            width: 35px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .conn-bar {
+            height: 10px;
+            background-color: rgba(0, 229, 255, 0.3);
+            border-radius: 2px;
+            border: 1px solid rgba(0, 229, 255, 0.5);
+        }
+
+        /* منطقة الأمان المركزية */
+        .center-home-hub {
+            background-color: #080C0B;
+            padding: 8px;
+            text-align: center;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 215, 0, 0.4);
+        }
+
+        .center-home-hub span {
+            font-size: 10px;
+            font-weight: 900;
+            color: #FFD54F;
+            letter-spacing: 0.5px;
+        }
+
+        /* شريط التحكم السفلي */
+        .cyber-footer {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .control-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            transition: 0.2s;
+        }
+
+        .action-btn {
+            background-color: #00E676;
+            color: #000;
+        }
+
+        .action-btn:hover {
+            background-color: #00c853;
+        }
+
+        .reset-btn {
+            background-color: #121816;
+            color: #FF5252;
+            border: 1px solid #FF5252;
+        }
+
+        .reset-btn:hover {
+            background-color: rgba(255, 82, 82, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="cyber-container">
+        <!-- شريط الرأس (Header) -->
+        <header class="cyber-header">
+            <span class="room-id">الغرفة: #88219</span>
+            <h1 class="game-title">VS AI CYBER ARENA</h1>
+            <button class="exit-btn" onclick="exitGame()">➔</button>
+        </header>
+
+        <!-- عداد النقاط العلوي -->
+        <section class="score-board">
+            <div class="badge green-badge">أخضر: <span id="score-green">0</span></div>
+            <div class="badge yellow-badge">أصفر: <span id="score-yellow">0</span></div>
+            <div class="badge red-badge">أحمر: <span id="score-red">0</span></div>
+            <div class="badge blue-badge">أزرق: <span id="score-blue">0</span></div>
+        </section>
+
+        <!-- مؤشر الدور -->
+        <div class="turn-indicator-box">
+            <span id="turn-text">دور اللاعب: أخضر (رائد)</span>
+        </div>
+
+        <!-- ساحة اللعب (Arena) -->
+        <main class="cyber-arena">
+            <div class="board-grid">
+                <!-- المربع العلوي الأيسر (أصفر) -->
+                <div class="player-box yellow-box" id="box-yellow" onclick="handlePlayerClick(1)">
+                    <div class="shield-icon">🛡️</div>
+                    <div class="box-name">أصفر</div>
+                    <div class="step-counter">الخطوة: <span id="steps-yellow">0</span></div>
+                </div>
+
+                <!-- الموصل العمودي الأيمن -->
+                <div class="vertical-connector">
+                    <div class="conn-bar"></div><div class="conn-bar"></div><div class="conn-bar"></div><div class="conn-bar"></div>
+                </div>
+
+                <!-- المربع العلوي الأيمن (أخضر) -->
+                <div class="player-box green-box active-turn" id="box-green" onclick="handlePlayerClick(0)">
+                    <div class="shield-icon">🛡️</div>
+                    <div class="box-name">أخضر (رائد)</div>
+                    <div class="step-counter">الخطوة: <span id="steps-green">0</span></div>
+                </div>
+            </div>
+
+            <!-- منطقة الأمان السيبرانية في المنتصف -->
+            <div class="center-home-hub">
+                <span>⚡ منطقة الأمان السيبرانية (HOME) ⚡</span>
+            </div>
+
+            <div class="board-grid">
+                <!-- المربع السفلي الأيسر (أزرق) -->
+                <div class="player-box blue-box" id="box-blue" onclick="handlePlayerClick(3)">
+                    <div class="shield-icon">🛡️</div>
+                    <div class="box-name">أزرق</div>
+                    <div class="step-counter">الخطوة: <span id="steps-blue">0</span></div>
+                </div>
+
+                <!-- الموصل العمودي الأيسر -->
+                <div class="vertical-connector">
+                    <div class="conn-bar"></div><div class="conn-bar"></div><div class="conn-bar"></div><div class="conn-bar"></div>
+                </div>
+
+                <!-- المربع السفلي الأيمن (أحمر) -->
+                <div class="player-box red-box" id="box-red" onclick="handlePlayerClick(2)">
+                    <div class="shield-icon">🛡️</div>
+                    <div class="box-name">أحمر</div>
+                    <div class="step-counter">الخطوة: <span id="steps-red">0</span></div>
+                </div>
+            </div>
+        </main>
+
+        <!-- شريط التحكم السفلي -->
+        <footer class="cyber-footer">
+            <button class="control-btn action-btn" onclick="rollDiceAndMove()">تأكيد الإجراء / رمي النرد</button>
+            <button class="control-btn reset-btn" onclick="resetGame()">إعادة التعيين</button>
+        </footer>
+    </div>
+
+    <script>
+        // حالة اللعبة وبيانات اللاعبين الأربعة (0: أخضر، 1: أصفر، 2: أحمر، 3: أزرق)
+        const playerNamesList = ["أخضر (رائد)", "أصفر", "أحمر", "أزرق"];
+        let currentTurnIndex = 0; // يبدأ دور الأخضر افتراضياً
+
+        let steps = [0, 0, 0, 0];
+        let scores = [0, 0, 0, 0];
+
+        const maxStepsToSecure = 5; // الحد لتأمين الخطوات والحصول على نقطة
+
+        function updateUI() {
+            // تحديث الخطوات في الواجهة
+            document.getElementById('steps-green').innerText = steps[0];
+            document.getElementById('steps-yellow').innerText = steps[1];
+            document.getElementById('steps-red').innerText = steps[2];
+            document.getElementById('steps-blue').innerText = steps[3];
+
+            // تحديث النقاط في الواجهة العلويّة
+            document.getElementById('score-green').innerText = scores[0];
+            document.getElementById('score-yellow').innerText = scores[1];
+            document.getElementById('score-red').innerText = scores[2];
+            document.getElementById('score-blue').innerText = scores[3];
+
+            // تحديث نص مؤشر الدور
+            document.getElementById('turn-text').innerText = `دور اللاعب: ${playerNamesList[currentTurnIndex]}`;
+
+            // تحديث الإضاءة النيون وتأثير التميز لمربع الدور الحالي
+            const boxIds = ['box-green', 'box-yellow', 'box-red', 'box-blue'];
+            boxIds.forEach((id, idx) => {
+                const boxElement = document.getElementById(id);
+                if (idx === currentTurnIndex) {
+                    boxElement.classList.add('active-turn');
+                } else {
+                    boxElement.classList.remove('active-turn');
+                }
+            });
+        }
+
+        // التعامل مع الضغط اليدوي على مربعات اللاعبين
+        function handlePlayerClick(playerIndex) {
+            if (playerIndex !== currentTurnIndex) {
+                alert(`تنبيه: ليس دورك! الدور الحالي لـ (${playerNamesList[currentTurnIndex]})`);
+                return;
+            }
+            executeMove(playerIndex);
+        }
+
+        // زر تأكيد الإجراء / رمي النرد التلقائي
+        function rollDiceAndMove() {
+            executeMove(currentTurnIndex);
+        }
+
+        // تنفيذ خطوة الحركة وفحص شروط التأمين وتناوب الأدوار
+        function executeMove(playerIndex) {
+            steps[playerIndex]++;
+
+            // إذا وصل اللاعب للحد الأقصى للخطوات (مثلاً 5 خطوات)
+            if (steps[playerIndex] >= maxStepsToSecure) {
+                steps[playerIndex] = 0; // تصفير الخطوات
+                scores[playerIndex]++;  // زيادة نقطة التأمين في العداد العلوي
+                alert(`رائع! اللاعب (${playerNamesList[playerIndex]}) نجح في تأمين منطقته وحصل على نقطة!`);
+            }
+
+            // الانتقال التلقائي للدور التالي بالتتابع (0 -> 1 -> 2 -> 3 -> 0)
+            currentTurnIndex = (currentTurnIndex + 1) % 4;
+
+            updateUI();
+        }
+
+        // زر إعادة التعيين الكامل للعبة
+        function resetGame() {
+            steps = [0, 0, 0, 0];
+            scores = [0, 0, 0, 0];
+            currentTurnIndex = 0;
+            updateUI();
+        }
+
+        function exitGame() {
+            if(confirm("هل أنت متأكد من الخروج من الساحة؟")) {
+                window.location.reload();
+            }
+        }
+
+        // التشغيل الأولي لتحديث الواجهة عند التحميل
+        window.onload = function() {
+            updateUI();
+        };
+    </script>
+</body>
+</html>
