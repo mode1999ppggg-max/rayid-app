@@ -1,7 +1,140 @@
+// lib/games/ludo/ludo_screen.dart
+
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'dart:async';
 
+// 1. نماذج البيانات (Models)
+enum PlayerColor { green, yellow, red, blue }
+
+class TokenModel {
+  int id;
+  PlayerColor color;
+  int position; // -1: القاعدة، 0-51: المسار المشترك، 52-57: الممر النهائي، 58: الفوز
+  bool isHome;
+
+  TokenModel({
+    required this.id,
+    required this.color,
+    this.position = -1,
+    this.isHome = false,
+  });
+}
+
+// 2. محرك قواعد اللعبة الهندسي (LudoEngine)
+class LudoEngine {
+  static const int totalPathCells = 52;
+  static const int homeStretchStart = 52;
+  static const int homeStretchEnd = 57;
+  static const int targetWin = 58;
+
+  static const Map<PlayerColor, int> startOffsets = {
+    PlayerColor.green: 0,
+    PlayerColor.yellow: 13,
+    PlayerColor.red: 26,
+    PlayerColor.blue: 39,
+  };
+
+  static const Set<int> safeAbsoluteSpots = {0, 8, 13, 21, 26, 34, 39, 47};
+
+  static int getAbsolutePosition(int localPos, PlayerColor color) {
+    if (localPos < 0 || localPos >= totalPathCells) return -1;
+    return (localPos + startOffsets[color]!) % totalPathCells;
+  }
+
+  static int calculateNewPosition(int currentPos, int roll, PlayerColor color) {
+    if (currentPos == -1) {
+      return roll == 6 ? 0 : -1;
+    }
+    if (currentPos == targetWin) return targetWin;
+
+    if (currentPos >= 0 && currentPos < totalPathCells) {
+      int nextPos = currentPos + roll;
+      if (currentPos < 51 && nextPos >= 51) {
+        int excess = nextPos - 51;
+        if (excess == 0) return homeStretchStart;
+        if (excess > 0 && excess <= 6) {
+          return homeStretchStart + excess - 1;
+        }
+        return currentPos;
+      }
+      return nextPos % totalPathCells;
+    }
+
+    if (currentPos >= homeStretchStart && currentPos <= 57) {
+      int stretchIndex = currentPos - homeStretchStart;
+      int newStretchIndex = stretchIndex + roll;
+      if (newStretchIndex == 6) {
+        return targetWin;
+      } else if (newStretchIndex < 6) {
+        return homeStretchStart + newStretchIndex;
+      } else {
+        return currentPos;
+      }
+    }
+
+    return currentPos;
+  }
+
+  static List<int> getLegalMoves(List<TokenModel> playerTokens, int roll) {
+    List<int> legalIndices = [];
+    for (int i = 0; i < playerTokens.length; i++) {
+      int pos = playerTokens[i].position;
+      if (pos == -1) {
+        if (roll == 6) legalIndices.add(i);
+      } else if (pos >= 0 && pos < totalPathCells) {
+        legalIndices.add(i);
+      } else if (pos >= homeStretchStart && pos <= 57) {
+        int stretchIndex = pos - homeStretchStart;
+        if (stretchIndex + roll <= 6) legalIndices.add(i);
+      }
+    }
+    return legalIndices;
+  }
+
+  static List<int> getStepByStepPath(int currentPos, int roll, PlayerColor color) {
+    List<int> path = [];
+    int tempPos = currentPos;
+
+    if (tempPos == -1 && roll == 6) {
+      path.add(0);
+      return path;
+    }
+
+    for (int step = 0; step < roll; step++) {
+      tempPos = calculateNewPosition(tempPos, 1, color);
+      path.add(tempPos);
+      if (tempPos == targetWin) break;
+    }
+    return path;
+  }
+
+  static bool processCaptures(PlayerColor activeColor, int movedTokenId, Map<PlayerColor, List<TokenModel>> allTokens) {
+    TokenModel activeToken = allTokens[activeColor]![movedTokenId];
+    int activePos = activeToken.position;
+    if (activePos < 0 || activePos >= totalPathCells) return false;
+
+    int activeAbsolute = getAbsolutePosition(activePos, activeColor);
+    if (safeAbsoluteSpots.contains(activeAbsolute)) return false;
+
+    bool capturedAny = false;
+    allTokens.forEach((color, tokens) {
+      if (color == activeColor) return;
+      for (var token in tokens) {
+        if (token.position >= 0 && token.position < totalPathCells) {
+          int enemyAbsolute = getAbsolutePosition(token.position, color);
+          if (activeAbsolute == enemyAbsolute) {
+            token.position = -1; // إرجاع حجر الخصم للقاعدة
+            capturedAny = true;
+          }
+        }
+      }
+    });
+    return capturedAny;
+  }
+}
+
+// 3. شاشة البهو (Lobby)
 class LudoLobbyScreen extends StatelessWidget {
   const LudoLobbyScreen({super.key});
 
@@ -33,7 +166,7 @@ class LudoLobbyScreen extends StatelessWidget {
               const SizedBox(height: 16),
               const Center(child: Text('RAYID CYBER LUDO', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 2))),
               const SizedBox(height: 6),
-              const Center(child: Text('النسخة الرباعية النهائية الشاملة والمحرك السيبراني المتكامل', style: TextStyle(color: Colors.grey, fontSize: 13), textAlign: TextAlign.center)),
+              const Center(child: Text('النسخة النهائية المدمجة والمتكاملة', style: TextStyle(color: Colors.grey, fontSize: 13), textAlign: TextAlign.center)),
               const SizedBox(height: 48),
               _buildLobbyButton(
                 context,
@@ -84,110 +217,7 @@ class LudoLobbyScreen extends StatelessWidget {
   }
 }
 
-// محرك قواعد اللعبة الهندسي المستقل والمصحح بالكامل للعب الرباعي
-class LudoEngine {
-  static const int totalPathCells = 52;
-  static const int homeStretchStart = 52;
-  static const int homeStretchEnd = 57;
-  static const int targetWin = 58;
-
-  static const List<int> startOffsets = [0, 13, 26, 39];
-  static const Set<int> safeAbsoluteSpots = {0, 8, 13, 21, 26, 34, 39, 47};
-
-  static int getAbsolutePosition(int localPos, int playerIndex) {
-    if (localPos < 0 || localPos >= totalPathCells) return -1;
-    return (localPos + startOffsets[playerIndex]) % totalPathCells;
-  }
-
-  static int calculateNewPosition(int currentPos, int roll, int playerIndex) {
-    if (currentPos == -1) {
-      return roll == 6 ? 0 : -1;
-    }
-    if (currentPos == targetWin) return targetWin;
-
-    if (currentPos >= 0 && currentPos < totalPathCells) {
-      int nextPos = currentPos + roll;
-      if (currentPos < 51 && nextPos >= 51) {
-        int excess = nextPos - 51;
-        if (excess == 0) return homeStretchStart;
-        if (excess > 0 && excess <= 6) {
-          return homeStretchStart + excess - 1;
-        }
-        return currentPos;
-      }
-      return nextPos % totalPathCells;
-    }
-
-    if (currentPos >= homeStretchStart && currentPos <= 57) {
-      int stretchIndex = currentPos - homeStretchStart;
-      int newStretchIndex = stretchIndex + roll;
-      if (newStretchIndex == 6) {
-        return targetWin;
-      } else if (newStretchIndex < 6) {
-        return homeStretchStart + newStretchIndex;
-      } else {
-        return currentPos;
-      }
-    }
-
-    return currentPos;
-  }
-
-  static List<int> getLegalMoves(List<int> playerPieces, int roll, int playerIndex) {
-    List<int> legalIndices = [];
-    for (int i = 0; i < 4; i++) {
-      int pos = playerPieces[i];
-      if (pos == -1) {
-        if (roll == 6) legalIndices.add(i);
-      } else if (pos >= 0 && pos < totalPathCells) {
-        legalIndices.add(i);
-      } else if (pos >= homeStretchStart && pos <= 57) {
-        int stretchIndex = pos - homeStretchStart;
-        if (stretchIndex + roll <= 6) legalIndices.add(i);
-      }
-    }
-    return legalIndices;
-  }
-
-  static List<int> getStepByStepPath(int currentPos, int roll, int playerIndex) {
-    List<int> path = [];
-    int tempPos = currentPos;
-
-    if (tempPos == -1 && roll == 6) {
-      path.add(0);
-      return path;
-    }
-
-    for (int step = 0; step < roll; step++) {
-      tempPos = calculateNewPosition(tempPos, 1, playerIndex);
-      path.add(tempPos);
-      if (tempPos == targetWin) break;
-    }
-    return path;
-  }
-
-  static void processCaptures(int activePlayer, int movedPieceIdx, List<List<int>> allPieces, int totalActivePlayers) {
-    int activePos = allPieces[activePlayer][movedPieceIdx];
-    if (activePos < 0 || activePos >= totalPathCells) return;
-
-    int activeAbsolute = getAbsolutePosition(activePos, activePlayer);
-    if (safeAbsoluteSpots.contains(activeAbsolute)) return;
-
-    for (int p = 0; p < totalActivePlayers; p++) {
-      if (p == activePlayer) continue;
-      for (int i = 0; i < 4; i++) {
-        int enemyPos = allPieces[p][i];
-        if (enemyPos >= 0 && enemyPos < totalPathCells) {
-          int enemyAbsolute = getAbsolutePosition(enemyPos, p);
-          if (activeAbsolute == enemyAbsolute) {
-            allPieces[p][i] = -1;
-          }
-        }
-      }
-    }
-  }
-}
-
+// 4. شاشة اللعب الرئيسية (Game Screen)
 class LudoGameScreen extends StatefulWidget {
   final bool isVsAI;
   const LudoGameScreen({super.key, required this.isVsAI});
@@ -202,23 +232,41 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
   bool hasRolled = false;
   bool isAnimatingMove = false;
   bool isGameOver = false;
+  bool showTutorialCard = true;
+  bool isMicActive = false;
   Timer? _activeTimer;
 
-  // 4 لاعبين نشطين بالكامل (أخضر، أصفر، أحمر، أزرق)
-  final int activePlayersCount = 4;
-
-  List<List<int>> playerPieces = [
-    [-1, -1, -1, -1],
-    [-1, -1, -1, -1],
-    [-1, -1, -1, -1],
-    [-1, -1, -1, -1],
+  List<PlayerColor> turnOrder = [
+    PlayerColor.green,
+    PlayerColor.yellow,
+    PlayerColor.red,
+    PlayerColor.blue,
   ];
+  int currentTurnIndex = 0;
+  PlayerColor get currentTurnColor => turnOrder[currentTurnIndex];
 
-  int currentTurn = 0;
+  Map<PlayerColor, List<TokenModel>> allTokens = {
+    PlayerColor.green: List.generate(4, (i) => TokenModel(id: i, color: PlayerColor.green)),
+    PlayerColor.yellow: List.generate(4, (i) => TokenModel(id: i, color: PlayerColor.yellow)),
+    PlayerColor.red: List.generate(4, (i) => TokenModel(id: i, color: PlayerColor.red)),
+    PlayerColor.blue: List.generate(4, (i) => TokenModel(id: i, color: PlayerColor.blue)),
+  };
+
   String gameStatus = 'دور اللاعب: أخضر (رائد) - ارمِ النرد!';
 
-  final List<String> playerNames = ['أخضر', 'أصفر', 'أحمر', 'أزرق'];
-  final List<Color> playerColors = [Colors.greenAccent, Colors.amberAccent, Colors.redAccent, Colors.blueAccent];
+  final Map<PlayerColor, String> playerNames = {
+    PlayerColor.green: 'أخضر',
+    PlayerColor.yellow: 'أصفر',
+    PlayerColor.red: 'أحمر',
+    PlayerColor.blue: 'أزرق',
+  };
+
+  final Map<PlayerColor, Color> playerColors = {
+    PlayerColor.green: Colors.greenAccent,
+    PlayerColor.yellow: Colors.amberAccent,
+    PlayerColor.red: Colors.redAccent,
+    PlayerColor.blue: Colors.blueAccent,
+  };
 
   final List<Offset> boardPathCoordinates = _generateStrict52Path();
 
@@ -265,13 +313,13 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
   void resetGame() {
     _activeTimer?.cancel();
     setState(() {
-      playerPieces = [
-        [-1, -1, -1, -1],
-        [-1, -1, -1, -1],
-        [-1, -1, -1, -1],
-        [-1, -1, -1, -1],
-      ];
-      currentTurn = 0;
+      allTokens = {
+        PlayerColor.green: List.generate(4, (i) => TokenModel(id: i, color: PlayerColor.green)),
+        PlayerColor.yellow: List.generate(4, (i) => TokenModel(id: i, color: PlayerColor.yellow)),
+        PlayerColor.red: List.generate(4, (i) => TokenModel(id: i, color: PlayerColor.red)),
+        PlayerColor.blue: List.generate(4, (i) => TokenModel(id: i, color: PlayerColor.blue)),
+      };
+      currentTurnIndex = 0;
       hasRolled = false;
       isAnimatingMove = false;
       isGameOver = false;
@@ -294,7 +342,7 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
         diceValue = Random().nextInt(6) + 1;
         hasRolled = true;
 
-        List<int> legalMoves = LudoEngine.getLegalMoves(playerPieces[currentTurn], diceValue, currentTurn);
+        List<int> legalMoves = LudoEngine.getLegalMoves(allTokens[currentTurnColor]!, diceValue);
 
         if (legalMoves.isEmpty) {
           gameStatus = 'لا توجد حركات مُمكِنة للرقم $diceValue! ينتقل الدور.';
@@ -303,7 +351,7 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
           });
         } else {
           gameStatus = 'تم رمي ($diceValue). اضغط على الحجر المناسب للتحريك!';
-          if (widget.isVsAI && currentTurn > 0) {
+          if (widget.isVsAI && currentTurnColor != PlayerColor.green) {
             _executeAIMove(legalMoves);
           }
         }
@@ -311,38 +359,38 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
     });
   }
 
-  void selectPiece(int player, int pieceIndex) {
-    if (!hasRolled || player != currentTurn || isAnimatingMove || isGameOver) return;
+  void selectToken(PlayerColor color, int tokenId) {
+    if (!hasRolled || color != currentTurnColor || isAnimatingMove || isGameOver) return;
 
-    List<int> legalMoves = LudoEngine.getLegalMoves(playerPieces[player], diceValue, player);
-    if (!legalMoves.contains(pieceIndex)) {
+    List<int> legalMoves = LudoEngine.getLegalMoves(allTokens[color]!, diceValue);
+    if (!legalMoves.contains(tokenId)) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('هذه الحركة غير قانونية!'), duration: Duration(milliseconds: 700)));
       return;
     }
 
-    List<int> stepPath = LudoEngine.getStepByStepPath(playerPieces[player][pieceIndex], diceValue, player);
-    _executeStepAnimation(player, pieceIndex, stepPath, 0, diceValue);
+    List<int> stepPath = LudoEngine.getStepByStepPath(allTokens[color]![tokenId].position, diceValue, color);
+    _executeStepAnimation(color, tokenId, stepPath, 0, diceValue);
   }
 
-  void _executeStepAnimation(int player, int pieceIndex, List<int> steps, int stepIndex, int totalRoll) {
+  void _executeStepAnimation(PlayerColor color, int tokenId, List<int> steps, int stepIndex, int totalRoll) {
     if (stepIndex >= steps.length) {
       setState(() {
         isAnimatingMove = false;
         hasRolled = false;
 
-        LudoEngine.processCaptures(player, pieceIndex, playerPieces, activePlayersCount);
+        LudoEngine.processCaptures(color, tokenId, allTokens);
 
-        bool allWon = playerPieces[player].every((p) => p == LudoEngine.targetWin);
+        bool allWon = allTokens[color]!.every((t) => t.position == LudoEngine.targetWin);
         if (allWon) {
           isGameOver = true;
-          gameStatus = '🏆 فاز اللاعب ${playerNames[player]} بالمعركة السيبرانية!';
-          _showWinDialog(playerNames[player]);
+          gameStatus = '🏆 فاز اللاعب ${playerNames[color]} بالمعركة السيبرانية!';
+          _showWinDialog(playerNames[color]!);
           return;
         }
 
         if (totalRoll == 6) {
           gameStatus = 'رقم 6 مميز! حصلت على رمية إضافية.';
-          if (widget.isVsAI && currentTurn > 0) {
+          if (widget.isVsAI && currentTurnColor != PlayerColor.green) {
             _activeTimer = Timer(const Duration(milliseconds: 900), () {
               if (mounted && !isGameOver) rollDice();
             });
@@ -356,12 +404,12 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
 
     setState(() {
       isAnimatingMove = true;
-      playerPieces[player][pieceIndex] = steps[stepIndex];
+      allTokens[color]![tokenId].position = steps[stepIndex];
     });
 
     _activeTimer = Timer(const Duration(milliseconds: 180), () {
       if (mounted) {
-        _executeStepAnimation(player, pieceIndex, steps, stepIndex + 1, totalRoll);
+        _executeStepAnimation(color, tokenId, steps, stepIndex + 1, totalRoll);
       }
     });
   }
@@ -369,12 +417,12 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
   void _nextTurn() {
     if (isGameOver) return;
     setState(() {
-      currentTurn = (currentTurn + 1) % activePlayersCount;
-      gameStatus = 'دور اللاعب: ${playerNames[currentTurn]} - ارمِ النرد.';
+      currentTurnIndex = (currentTurnIndex + 1) % turnOrder.length;
+      gameStatus = 'دور اللاعب: ${playerNames[currentTurnColor]} - ارمِ النرد.';
       hasRolled = false;
     });
 
-    if (widget.isVsAI && currentTurn > 0) {
+    if (widget.isVsAI && currentTurnColor != PlayerColor.green) {
       _activeTimer = Timer(const Duration(milliseconds: 800), () {
         if (mounted && !isGameOver) rollDice();
       });
@@ -386,12 +434,12 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
     _activeTimer = Timer(const Duration(milliseconds: 900), () {
       if (!mounted || isGameOver) return;
 
-      int aiPlayer = currentTurn;
+      PlayerColor aiColor = currentTurnColor;
       int chosenMove = legalMoves.first;
 
       for (int idx in legalMoves) {
-        int pos = playerPieces[aiPlayer][idx];
-        int finalPos = LudoEngine.calculateNewPosition(pos, diceValue, aiPlayer);
+        int pos = allTokens[aiColor]![idx].position;
+        int finalPos = LudoEngine.calculateNewPosition(pos, diceValue, aiColor);
         if (finalPos == LudoEngine.targetWin) {
           chosenMove = idx;
           break;
@@ -400,23 +448,20 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
 
       if (chosenMove == legalMoves.first) {
         for (int idx in legalMoves) {
-          int pos = playerPieces[aiPlayer][idx];
+          int pos = allTokens[aiColor]![idx].position;
           if (pos >= 0 && pos < LudoEngine.totalPathCells) {
-            int targetAbs = LudoEngine.getAbsolutePosition(LudoEngine.calculateNewPosition(pos, diceValue, aiPlayer), aiPlayer);
+            int targetAbs = LudoEngine.getAbsolutePosition(LudoEngine.calculateNewPosition(pos, diceValue, aiColor), aiColor);
             bool willCapture = false;
-            for (int p = 0; p < activePlayersCount; p++) {
-              if (p == aiPlayer) continue;
-              for (int e = 0; e < 4; e++) {
-                int enemyPos = playerPieces[p][e];
-                if (enemyPos >= 0 && enemyPos < LudoEngine.totalPathCells) {
-                  if (LudoEngine.getAbsolutePosition(enemyPos, p) == targetAbs) {
+            allTokens.forEach((c, tokens) {
+              if (c == aiColor) return;
+              for (var t in tokens) {
+                if (t.position >= 0 && t.position < LudoEngine.totalPathCells) {
+                  if (LudoEngine.getAbsolutePosition(t.position, c) == targetAbs) {
                     willCapture = true;
-                    break;
                   }
                 }
               }
-              if (willCapture) break;
-            }
+            });
             if (willCapture) {
               chosenMove = idx;
               break;
@@ -427,14 +472,14 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
 
       if (diceValue == 6 && chosenMove == legalMoves.first) {
         for (int idx in legalMoves) {
-          if (playerPieces[aiPlayer][idx] == -1) {
+          if (allTokens[aiColor]![idx].position == -1) {
             chosenMove = idx;
             break;
           }
         }
       }
 
-      selectPiece(aiPlayer, chosenMove);
+      selectToken(aiColor, chosenMove);
     });
   }
 
@@ -444,7 +489,7 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xff121816),
-        title: Text('🏆 انتصار سيبراني', style: TextStyle(color: playerColors[currentTurn], fontWeight: FontWeight.bold)),
+        title: Text('🏆 انتصار سيبراني', style: TextStyle(color: playerColors[currentTurnColor], fontWeight: FontWeight.bold)),
         content: Text('الفائز في الساحة الرباعية هو: $winnerName!', style: const TextStyle(color: Colors.white)),
         actions: [
           TextButton(
@@ -473,7 +518,7 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
       body: SafeArea(
         child: Column(
           children: [
-            // شريط المعلومات العلوي (Cyber HUD Top Bar)
+            // Top HUD Bar
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: const BoxDecoration(
@@ -485,14 +530,22 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
                 children: [
                   Row(
                     children: [
-                      IconButton(
-                        icon: const Icon(Icons.refresh, color: Color(0xff00E676), size: 20),
-                        onPressed: resetGame,
-                        tooltip: 'إعادة تعيين',
-                        constraints: const BoxConstraints(),
-                        padding: EdgeInsets.zero,
-                      ),
+                      const Icon(Icons.settings, color: Colors.white, size: 20),
                       const SizedBox(width: 12),
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xff121816),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.amber, width: 1),
+                        ),
+                        child: const Icon(Icons.emoji_events, color: Colors.amber, size: 14),
+                      ),
+                    ],
+                  ),
+                  const Text('RAYID CYBER ARENA', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Color(0xff00E5FF), letterSpacing: 1.2)),
+                  Row(
+                    children: [
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
@@ -508,40 +561,64 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
                           ],
                         ),
                       ),
-                    ],
-                  ),
-                  const Text('RAYID CYBER ARENA', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Color(0xff00E5FF), letterSpacing: 1.2)),
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: const Color(0xff121816),
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.amber, width: 1),
-                        ),
-                        child: const Icon(Icons.emoji_events, color: Colors.amber, size: 14),
+                      const SizedBox(width: 10),
+                      IconButton(
+                        icon: const Icon(Icons.refresh, color: Color(0xff00E676), size: 20),
+                        onPressed: resetGame,
+                        tooltip: 'إعادة تعيين',
+                        constraints: const BoxConstraints(),
+                        padding: EdgeInsets.zero,
                       ),
-                      const SizedBox(width: 8),
-                      const Icon(Icons.settings, color: Colors.white, size: 20),
                     ],
                   ),
                 ],
               ),
             ),
 
-            // شريط حالة اللعبة السيبراني
+            // Tutorial Banner
+            if (showTutorialCard)
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(colors: [Color(0xff1A2624), Color(0xff0E1412)]),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xff00E676), width: 1),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(color: const Color(0xff00E676).withOpacity(0.2), shape: BoxShape.circle),
+                      child: const Icon(Icons.mic, color: Color(0xff00E676), size: 18),
+                    ),
+                    const SizedBox(width: 10),
+                    const Expanded(
+                      child: Text(
+                        'تشتغل الميكروفون لديك الآن، حاول إجراء الدردشة الصوتية مع الآخرين ، استمتع به !',
+                        style: TextStyle(color: Colors.white, fontSize: 11),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () => setState(() => showTutorialCard = false),
+                      child: const Text('تخطي الإرشاد', style: TextStyle(color: Color(0xff00E5FF), fontSize: 10, fontWeight: FontWeight.bold)),
+                    ),
+                  ],
+                ),
+              ),
+
+            // Status Bar
             Container(
-              margin: const EdgeInsets.all(8),
-              padding: const EdgeInsets.all(10),
+              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: const Color(0xff121816),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: const Color(0xff00E5FF).withOpacity(0.3)),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.bolt, color: Color(0xff00E676), size: 20),
+                  const Icon(Icons.bolt, color: Color(0xff00E676), size: 18),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -553,13 +630,13 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
               ),
             ),
 
-            // رقعة اللعب السيبرانية في المنتصف
+            // Game Board
             Expanded(
               child: Center(
                 child: AspectRatio(
                   aspectRatio: 1.0,
                   child: Container(
-                    margin: const EdgeInsets.all(12),
+                    margin: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: const Color(0xff050709),
                       borderRadius: BorderRadius.circular(16),
@@ -575,7 +652,7 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
                               size: Size(size, size),
                               painter: CyberBoardPainter(boardPathCoordinates),
                             ),
-                            ..._buildAllPieces(size),
+                            ..._buildAllTokens(size),
                           ],
                         );
                       },
@@ -585,7 +662,7 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
               ),
             ),
 
-            // شريط التحكم السفلي وبطاقات التفاعل (Cyber Bottom HUD & Controls)
+            // Bottom HUD Controls
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: const BoxDecoration(
@@ -600,22 +677,35 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
                     children: [
                       Row(
                         children: [
-                          Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: playerColors[currentTurn].withOpacity(0.2),
-                              border: Border.all(color: playerColors[currentTurn], width: 2),
-                            ),
-                            child: Icon(Icons.person, color: playerColors[currentTurn], size: 20),
+                          Stack(
+                            children: [
+                              Container(
+                                width: 38,
+                                height: 38,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: playerColors[currentTurnColor]!.withOpacity(0.2),
+                                  border: Border.all(color: playerColors[currentTurnColor]!, width: 2),
+                                ),
+                                child: Icon(Icons.person, color: playerColors[currentTurnColor], size: 20),
+                              ),
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: Container(
+                                  padding: const EdgeInsets.all(2),
+                                  decoration: const BoxDecoration(color: Colors.amber, shape: BoxShape.circle),
+                                  child: const Icon(Icons.star, size: 8, color: Colors.black),
+                                ),
+                              ),
+                            ],
                           ),
                           const SizedBox(width: 8),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('دور: ${playerNames[currentTurn]}', style: TextStyle(color: playerColors[currentTurn], fontSize: 11, fontWeight: FontWeight.bold)),
-                              const Text('الترتيب: 1', style: TextStyle(color: Colors.amber, fontSize: 9)),
+                              Text('دور: ${playerNames[currentTurnColor]}', style: TextStyle(color: playerColors[currentTurnColor], fontSize: 11, fontWeight: FontWeight.bold)),
+                              const Text('الترتيب: 1 | 👑 VIP', style: TextStyle(color: Colors.amber, fontSize: 9)),
                             ],
                           ),
                         ],
@@ -623,8 +713,16 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
                       Row(
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.mic_off, color: Colors.grey, size: 20),
-                            onPressed: () {},
+                            icon: Icon(isMicActive ? Icons.mic : Icons.mic_off, color: isMicActive ? const Color(0xff00E676) : Colors.grey, size: 22),
+                            onPressed: () {
+                              setState(() {
+                                isMicActive = !isMicActive;
+                              });
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text(isMicActive ? 'تم تشغيل الميكروفون والصوتيات بنجاح 🎙️' : 'تم كتم الميكروفون 🔇'),
+                                duration: const Duration(milliseconds: 800),
+                              ));
+                            },
                           ),
                           Container(
                             padding: const EdgeInsets.all(6),
@@ -650,13 +748,13 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
                         decoration: BoxDecoration(
                           color: const Color(0xff121816),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: playerColors[currentTurn], width: 2),
-                          boxShadow: [BoxShadow(color: playerColors[currentTurn].withOpacity(0.3), blurRadius: 8)],
+                          border: Border.all(color: playerColors[currentTurnColor]!, width: 2),
+                          boxShadow: [BoxShadow(color: playerColors[currentTurnColor]!.withOpacity(0.3), blurRadius: 8)],
                         ),
                         child: Center(
                           child: Text(
                             '$diceValue',
-                            style: TextStyle(color: playerColors[currentTurn], fontSize: 20, fontWeight: FontWeight.w900),
+                            style: TextStyle(color: playerColors[currentTurnColor], fontSize: 20, fontWeight: FontWeight.w900),
                           ),
                         ),
                       ),
@@ -666,13 +764,13 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
                           scale: _diceScaleAnim,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: playerColors[currentTurn],
+                              backgroundColor: playerColors[currentTurnColor],
                               foregroundColor: Colors.black,
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                               elevation: 6,
                             ),
-                            onPressed: (!isRolling && !hasRolled && !isAnimatingMove && !isGameOver && (currentTurn == 0 || !widget.isVsAI)) ? rollDice : null,
+                            onPressed: (!isRolling && !hasRolled && !isAnimatingMove && !isGameOver && (currentTurnColor == PlayerColor.green || !widget.isVsAI)) ? rollDice : null,
                             child: Text(
                               isRolling ? 'جاري الرَمي...' : (hasRolled ? 'اختر حجراً للتحريك' : '🎲 ارمِ النرد'),
                               style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
@@ -691,24 +789,25 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
     );
   }
 
-  List<Widget> _buildAllPieces(double boardSize) {
+  List<Widget> _buildAllTokens(double boardSize) {
     List<Widget> widgets = [];
     double cell = boardSize / 15.0;
 
-    for (int p = 0; p < activePlayersCount; p++) {
-      for (int i = 0; i < 4; i++) {
-        int pos = playerPieces[p][i];
+    allTokens.forEach((color, tokens) {
+      for (int i = 0; i < tokens.length; i++) {
+        TokenModel token = tokens[i];
         Offset coord;
 
-        if (pos == -1) {
-          coord = _getBaseOffset(p, i, boardSize, cell);
-        } else if (pos == LudoEngine.targetWin) {
-          coord = Offset(boardSize * 0.5 + (p == 0 ? -10 : (p == 1 ? 10 : 0)), boardSize * 0.5 + (p == 2 ? 10 : (p == 3 ? -10 : 0)));
-        } else if (pos >= 0 && pos < LudoEngine.totalPathCells) {
-          int absoluteIndex = LudoEngine.getAbsolutePosition(pos, p);
+        if (token.position == -1) {
+          coord = _getBaseOffset(color, i, boardSize, cell);
+        } else if (token.position == LudoEngine.targetWin) {
+          int pIdx = turnOrder.indexOf(color);
+          coord = Offset(boardSize * 0.5 + (pIdx == 0 ? -10 : (pIdx == 1 ? 10 : 0)), boardSize * 0.5 + (pIdx == 2 ? 10 : (pIdx == 3 ? -10 : 0)));
+        } else if (token.position >= 0 && token.position < LudoEngine.totalPathCells) {
+          int absoluteIndex = LudoEngine.getAbsolutePosition(token.position, color);
           coord = Offset((boardPathCoordinates[absoluteIndex].dx + 0.5) * cell, (boardPathCoordinates[absoluteIndex].dy + 0.5) * cell);
         } else {
-          coord = _getHomeStretchOffset(p, pos - LudoEngine.homeStretchStart, boardSize, cell);
+          coord = _getHomeStretchOffset(color, token.position - LudoEngine.homeStretchStart, boardSize, cell);
         }
 
         widgets.add(
@@ -716,19 +815,19 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
             left: coord.dx - 11,
             top: coord.dy - 11,
             child: GestureDetector(
-              onTap: () => selectPiece(p, i),
+              onTap: () => selectToken(color, i),
               child: Container(
                 width: 22,
                 height: 22,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: playerColors[p],
+                  color: playerColors[color],
                   border: Border.all(color: Colors.white, width: 1.5),
                   boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.6), blurRadius: 4)],
                 ),
                 child: Center(
                   child: Text(
-                    pos == -1 ? '🏠' : (pos == LudoEngine.targetWin ? '👑' : '$pos'),
+                    token.position == -1 ? '🏠' : (token.position == LudoEngine.targetWin ? '👑' : '${token.position}'),
                     style: const TextStyle(fontSize: 7, fontWeight: FontWeight.bold, color: Colors.black),
                   ),
                 ),
@@ -737,32 +836,33 @@ class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStat
           ),
         );
       }
-    }
+    });
     return widgets;
   }
 
-  Offset _getBaseOffset(int player, int idx, double boardSize, double cell) {
+  Offset _getBaseOffset(PlayerColor color, int idx, double boardSize, double cell) {
     double startX = 0, startY = 0;
-    if (player == 0) { startX = cell * 1; startY = cell * 1; } // أخضر
-    else if (player == 1) { startX = cell * 10; startY = cell * 1; } // أصفر
-    else if (player == 2) { startX = cell * 10; startY = cell * 10; } // أحمر
-    else if (player == 3) { startX = cell * 1; startY = cell * 10; } // أزرق
+    if (color == PlayerColor.green) { startX = cell * 1; startY = cell * 1; }
+    else if (color == PlayerColor.yellow) { startX = cell * 10; startY = cell * 1; }
+    else if (color == PlayerColor.red) { startX = cell * 10; startY = cell * 10; }
+    else if (color == PlayerColor.blue) { startX = cell * 1; startY = cell * 10; }
 
     double dx = (idx % 2 == 0) ? startX + cell * 1.0 : startX + cell * 3.0;
     double dy = (idx < 2) ? startY + cell * 1.0 : startY + cell * 3.0;
     return Offset(dx, dy);
   }
 
-  Offset _getHomeStretchOffset(int player, int stepIdx, double boardSize, double cell) {
+  Offset _getHomeStretchOffset(PlayerColor color, int stepIdx, double boardSize, double cell) {
     double cx = boardSize * 0.5;
     double cy = boardSize * 0.5;
-    if (player == 0) return Offset(cx, cell * (1.5 + stepIdx));
-    if (player == 1) return Offset(boardSize - cell * (1.5 + stepIdx), cy);
-    if (player == 2) return Offset(cx, boardSize - cell * (1.5 + stepIdx));
+    if (color == PlayerColor.green) return Offset(cx, cell * (1.5 + stepIdx));
+    if (color == PlayerColor.yellow) return Offset(boardSize - cell * (1.5 + stepIdx), cy);
+    if (color == PlayerColor.red) return Offset(cx, boardSize - cell * (1.5 + stepIdx));
     return Offset(cell * (1.5 + stepIdx), cy);
   }
 }
 
+// 5. رسام رقعة اللعب السيبرانية
 class CyberBoardPainter extends CustomPainter {
   final List<Offset> pathCoordinates;
   CyberBoardPainter(this.pathCoordinates);
