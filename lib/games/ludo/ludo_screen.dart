@@ -340,24 +340,29 @@ class LudoGameScreen extends StatefulWidget {
   State<LudoGameScreen> createState() => _LudoGameScreenState();
 }
 
-class _LudoGameScreenState extends State<LudoGameScreen> with SingleTickerProviderStateMixin {
   final Random _random = Random();
-  final List<PlayerColor> turnOrder = PlayerColor.values;
+  final List<PlayerColor> turnOrder = [
+    PlayerColor.green,
+    PlayerColor.yellow,
+    PlayerColor.red,
+    PlayerColor.blue,
+  ];
 
-  late Map<PlayerColor, List<TokenModel>> allTokens;
   int currentTurnIndex = 0;
   int diceValue = 6;
-  PlayerColor get currentTurnColor => turnOrder[currentTurnIndex];
-bool hasRolled = false;
-
   bool isRolling = false;
-  
+  bool hasRolled = false;
   bool isAnimatingMove = false;
   bool isGameOver = false;
   bool showTutorial = true;
   bool soundEnabled = true;
-    Timer? _timer;
+
+  Timer? _timer;
   late AnimationController _diceController;
+  late Animation<double> _diceAnimation;
+
+  PlayerColor get currentTurnColor => turnOrder[currentTurnIndex];
+
   late Animation<double> _diceAnimation;
 
   final Map<PlayerColor, String> playerNames = {
