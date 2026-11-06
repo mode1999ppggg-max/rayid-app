@@ -34,7 +34,7 @@ class _LudoSplashLoadingScreenState extends State<LudoSplashLoadingScreen> with 
     _fadeAnimation = CurvedParentTween(parent: _animController, curve: Curves.easeInOut);
     _animController.forward();
 
-    _loadTimer = Timer.periodic(const Duration(milliseconds: 40), (timer) {
+    _loadTimer = Timer.periodic(const Duration(milliseconds: 35), (timer) {
       setState(() {
         _loadingProgress += 0.025;
         if (_loadingProgress >= 1.0) {
@@ -63,13 +63,13 @@ class _LudoSplashLoadingScreenState extends State<LudoSplashLoadingScreen> with 
       child: Scaffold(
         backgroundColor: const Color(0xff060911),
         body: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: RadialGradient(
               center: Alignment.center,
               radius: 0.8,
               colors: [
-                const Color(0xff131c2e),
-                const Color(0xff060911),
+                Color(0xff131c2e),
+                Color(0xff060911),
               ],
             ),
           ),
@@ -80,7 +80,7 @@ class _LudoSplashLoadingScreenState extends State<LudoSplashLoadingScreen> with 
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(22),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(color: const Color(0xff00f3ff), width: 3),
@@ -133,7 +133,7 @@ class _LudoSplashLoadingScreenState extends State<LudoSplashLoadingScreen> with 
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'جاري تحميل الأنظمة السيبرانية... ${(_loadingProgress * 100).toInt()}%',
+                    'جاري تحميل الأنظمة السيبرانية والذكاء... ${(_loadingProgress * 100).toInt()}%',
                     style: const TextStyle(
                       color: Colors.white70,
                       fontSize: 12,
@@ -274,13 +274,13 @@ class LudoGameController extends ChangeNotifier {
     if (hasRolled || isGameOver || isRolling || isAnimatingMove || _isDisposed) return;
 
     isRolling = true;
-    gameMessage = "جاري رمي النرد وتوليد القيمة العشوائية...";
+    gameMessage = "جاري رمي النرد الإلكتروني...";
     notifyListeners();
 
     int currentSession = gameSessionId;
     int counter = 0;
     _diceTimer?.cancel();
-    _diceTimer = Timer.periodic(const Duration(milliseconds: 70), (timer) {
+    _diceTimer = Timer.periodic(const Duration(milliseconds: 65), (timer) {
       if (isGameOver || gameSessionId != currentSession || _isDisposed) {
         timer.cancel();
         return;
@@ -384,7 +384,7 @@ class LudoGameController extends ChangeNotifier {
         }
       });
     } else {
-      gameMessage = "لاعب ${currentTurnPlayer.name} رمى ($diceValue). اختر حجراً مضيئاً لتحريكه خطوة بخطوة.";
+      gameMessage = "لاعب ${currentTurnPlayer.name} رمى ($diceValue). اختر حجراً مضيئاً لتحريكه.";
       notifyListeners();
     }
   }
@@ -404,7 +404,7 @@ class LudoGameController extends ChangeNotifier {
     if (simulatedTarget == -1) return;
 
     isAnimatingMove = true;
-    gameMessage = "جاري تحريك الحجر السيبراني...";
+    gameMessage = "جاري تحريك الحجر خطوة بخطوة...";
     notifyListeners();
 
     int currentSession = gameSessionId;
@@ -421,7 +421,7 @@ class LudoGameController extends ChangeNotifier {
       player.tokenPositions[tokenIndex] = startPos;
       bool extraTurn = (diceValue == 6) || captured;
       
-      await Future.delayed(const Duration(milliseconds: 350));
+      await Future.delayed(const Duration(milliseconds: 300));
       if (gameSessionId != currentSession || _isDisposed) {
         isAnimatingMove = false;
         return;
@@ -431,7 +431,6 @@ class LudoGameController extends ChangeNotifier {
       return;
     }
 
-    // حركة سلسة خطوة بخطوة عبر مربعات اللعبة
     int steps = diceValue;
     for (int s = 0; s < steps; s++) {
       if (gameSessionId != currentSession || _isDisposed) {
@@ -444,7 +443,7 @@ class LudoGameController extends ChangeNotifier {
       if (nextPos == -1 || nextPos > 58) break;
       player.tokenPositions[tokenIndex] = nextPos;
       notifyListeners();
-      await Future.delayed(const Duration(milliseconds: 180));
+      await Future.delayed(const Duration(milliseconds: 160));
     }
 
     if (gameSessionId != currentSession || _isDisposed) {
@@ -465,7 +464,7 @@ class LudoGameController extends ChangeNotifier {
 
     if (player.hasWon) {
       isGameOver = true;
-      gameMessage = "تهانينا! فاز اللاعب ${player.name} بالبطولة الكبرى في السايبر!";
+      gameMessage = "تهانينا الفائقة! فاز اللاعب ${player.name} بالبطولة الكبرى!";
       isAnimatingMove = false;
       notifyListeners();
       return;
@@ -487,7 +486,7 @@ class LudoGameController extends ChangeNotifier {
         if (enemyPos == targetPos && enemyPos < 52) {
           players[p].tokenPositions[t] = -1;
           didCapture = true;
-          gameMessage = "تم القضاء على حجر اللاعب ${players[p].name} وإرجاعه لقاعدة الشحن!";
+          gameMessage = "تم القضاء على حجر اللاعب ${players[p].name} وإرجاعه للقاعدة!";
         }
       }
     }
@@ -498,7 +497,7 @@ class LudoGameController extends ChangeNotifier {
     if (gameSessionId != currentSession || _isDisposed || isGameOver) return;
     hasRolled = false;
     if (extraTurn) {
-      gameMessage += " (تحصل على رمية نرد إضافية استحقاقاً!)";
+      gameMessage += " (حصلت على رمية نرد إضافية استحقاقاً!)";
       notifyListeners();
     } else {
       _nextTurn();
@@ -565,7 +564,7 @@ class LudoBoardPainter extends CustomPainter {
     paint.color = const Color(0xff090d16);
     canvas.drawRect(Rect.fromLTWH(0, 0, w, h), paint);
 
-    // خطوط الشبكة الإلكترونية الخافتة
+    // خطوط الشبكة الإلكترونية
     final circuitPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0
@@ -576,7 +575,7 @@ class LudoBoardPainter extends CustomPainter {
       canvas.drawLine(Offset(0, i), Offset(w, i), circuitPaint);
     }
 
-    // قواعد اللاعبين الأربعة بنقاط دائرية نيون مطابقة للصورة الأخيرة
+    // قواعد اللاعبين الأربعة بنقاط دائرية نيون
     _drawCyberBaseWithCircles(canvas, paint, cellSize * 9, 0, cellSize * 6, const Color(0xffff3366)); // أحمر
     _drawCyberBaseWithCircles(canvas, paint, 0, 0, cellSize * 6, const Color(0xff00ff66)); // أخضر
     _drawCyberBaseWithCircles(canvas, paint, cellSize * 9, cellSize * 9, cellSize * 6, const Color(0xffffcc00)); // أصفر
@@ -647,18 +646,15 @@ class LudoBoardPainter extends CustomPainter {
   }
 
   void _drawCyberBaseWithCircles(Canvas canvas, Paint paint, double x, double y, double size, Color color) {
-    // خلفية القاعدة
     paint.style = PaintingStyle.fill;
     paint.color = color.withOpacity(0.12);
     canvas.drawRect(Rect.fromLTWH(x, y, size, size), paint);
 
-    // إطار القاعدة نيون
     paint.style = PaintingStyle.stroke;
     paint.strokeWidth = 2.0;
     paint.color = color;
     canvas.drawRect(Rect.fromLTWH(x, y, size, size), paint);
 
-    // رسم الدوائر الأربع الداخلية للقاعدة (مطابق للصورة تماماً)
     final circlePaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.8
