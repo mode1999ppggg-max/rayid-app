@@ -354,9 +354,7 @@ class _LudoGameScreenState extends State<LudoGameScreen> with SingleTickerProvid
   bool isGameOver = false;
   bool showTutorial = true;
   bool soundEnabled = true;
-  
-
-  Timer? _timer;
+    Timer? _timer;
   late AnimationController _diceController;
   late Animation<double> _diceAnimation;
 
