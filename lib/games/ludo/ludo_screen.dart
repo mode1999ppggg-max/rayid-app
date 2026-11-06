@@ -30,15 +30,15 @@ class LudoLobbyScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Center(
-                child: Icon(Icons.security, size: 64, color: Color(0xff00E676)),
+                child: Icon(Icons.casino, size: 64, color: Color(0xff00E676)),
               ),
               const SizedBox(height: 16),
               const Center(
-                child: Text('VS AI CYBER ARENA', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 2)),
+                child: Text('CYBERPUNK LUDO', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 2)),
               ),
               const SizedBox(height: 6),
               const Center(
-                child: Text('ساحة التحدي السيبرانية المتقدمة داخل رايد باي', style: TextStyle(color: Colors.grey, fontSize: 12), textAlign: TextAlign.center),
+                child: Text('اختر وضع اللعبة وادخل ساحة المعركة السيبرانية', style: TextStyle(color: Colors.grey, fontSize: 12), textAlign: TextAlign.center),
               ),
               const SizedBox(height: 40),
 
@@ -58,7 +58,7 @@ class LudoLobbyScreen extends StatelessWidget {
 
               _buildLobbyButton(
                 context,
-                title: 'لعب ثنائي محلي (مع صديق)',
+                title: 'لعب ثنائي (مع صديق)',
                 icon: Icons.people,
                 borderColor: const Color(0xff00E676),
                 onTap: () {
@@ -100,7 +100,7 @@ class LudoLobbyScreen extends StatelessWidget {
   }
 }
 
-// ================= شاشة اللعبة السيبرانية المتكاملة =================
+// ================= شاشة اللعبة المطابقة تماماً للشكل الاحترافي =================
 class LudoGameScreen extends StatefulWidget {
   final bool isVsAI;
   const LudoGameScreen({super.key, required this.isVsAI});
@@ -112,18 +112,16 @@ class LudoGameScreen extends StatefulWidget {
 class _LudoGameScreenState extends State<LudoGameScreen> {
   int diceValue = 6;
   bool isRolling = false;
-  
-  // خطوات اللاعبين الأربعة (أخضر، أصفر، أحمر، أزرق)
-  List<int> steps = [0, 0, 0, 0];
-  List<int> scores = [0, 0, 0, 0];
-  
+
+  // مواضع القطع والتقدم للأرباع الأربعة (أخضر، أصفر، أحمر، أزرق)
+  List<int> playerSteps = [0, 0, 0, 0];
   int currentTurn = 0; // 0: أخضر, 1: أصفر, 2: أحمر, 3: أزرق
-  String gameStatus = 'دور اللاعب: أخضر (رائد)';
+  String gameStatus = 'دور اللاعب الأخضر (رائد)';
+  
+  final List<String> playerNames = ['أخضر', 'أصفر', 'أحمر', 'أزرق'];
+  final List<Color> playerColors = [Colors.green, Colors.amber, Colors.red, Colors.blue];
 
-  final List<String> playerNames = ['أخضر (رائد)', 'أصفر', 'أحمر', 'أزرق'];
-  final List<Color> playerColors = [Colors.greenAccent, Colors.amber, Colors.redAccent, Colors.blueAccent];
-
-  void rollDiceAndMove() {
+  void rollDice() {
     if (isRolling) return;
     setState(() {
       isRolling = true;
@@ -134,25 +132,19 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
         isRolling = false;
         diceValue = Random().nextInt(6) + 1;
 
-        // تحريك اللاعب الحالي
-        steps[currentTurn] += diceValue;
-
-        // فحص التأمين (إذا وصل 5 خطوات يحصل على نقطة ويتصفير)
-        if (steps[currentTurn] >= 5) {
-          steps[currentTurn] = 0;
-          scores[currentTurn]++;
-          gameStatus = '🎉 نجح اللاعب ${playerNames[currentTurn]} في تأمين منطقته وحصل على نقطة!';
+        playerSteps[currentTurn] += diceValue;
+        if (playerSteps[currentTurn] >= 40) {
+          playerSteps[currentTurn] = 40;
+          gameStatus = '🏆 فاز اللاعب ${playerNames[currentTurn]} بالمعركة السيبرانية!';
         } else {
-          // الانتقال للدور التالي بالتتابع
           do {
             currentTurn = (currentTurn + 1) % 4;
-          } while (widget.isVsAI && (currentTurn == 2 || currentTurn == 3)); // إذا ضد البوت نلعب أخضر وأصفر فقط
+          } while (widget.isVsAI && (currentTurn == 2 || currentTurn == 3));
 
           gameStatus = 'دور اللاعب: ${playerNames[currentTurn]}';
-        }
-
-        if (widget.isVsAI && currentTurn == 1) {
-          _triggerAITurn();
+          if (widget.isVsAI && currentTurn == 1) {
+            _triggerAITurn();
+          }
         }
       });
     });
@@ -161,158 +153,189 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
   void _triggerAITurn() {
     Timer(const Duration(seconds: 1), () {
       if (!mounted) return;
-      rollDiceAndMove();
+      rollDice();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xff0A0E0D),
-      appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text('الغرفة: #88219', style: TextStyle(fontSize: 11, color: Colors.grey)),
-            const Text('VS AI CYBER ARENA', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xff00E5FF))),
-          ],
-        ),
-        backgroundColor: const Color(0xff080C0B),
-        iconTheme: const IconThemeData(color: Color(0xff00E676)),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(12.0),
+      backgroundColor: const Color(0xff1A1225), // خلفية بنفسجية داكنة مشابهة للصورة
+      body: SafeArea(
         child: Column(
           children: [
-            // عداد النقاط العلوي للأربعة لاعبين
+            // شريط الإرشاد العلوي والشخصية التفاعلية
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              margin: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: const Color(0xff121816),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xff00E676).withOpacity(0.3)),
+                color: const Color(0xff2A1B3D),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xff00E5FF).withOpacity(0.4)),
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildScoreBadge('أخضر', scores[0], Colors.greenAccent),
-                  _buildScoreBadge('أصفر', scores[1], Colors.amber),
-                  _buildScoreBadge('أحمر', scores[2], Colors.redAccent),
-                  _buildScoreBadge('أزرق', scores[3], Colors.blueAccent),
+                  // أيقونة أو شخصية افتراضية في الزاوية
+                  Container(
+                    width: 45,
+                    height: 45,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: const Color(0xff00E5FF).withOpacity(0.2),
+                      border: Border.all(color: const Color(0xff00E5FF)),
+                    ),
+                    child: const Icon(Icons.smart_toy, color: Color(0xff00E5FF), size: 24),
+                  ),
+                  const SizedBox(width: 10),
+                  const Expanded(
+                    child: Text(
+                      'تشتغل الميكروفون لديك الآن ، حاول إجراء الدردشة الصوتية مع الآخرين ، استمع به !',
+                      style: TextStyle(color: Colors.white, fontSize: 11, height: 1.3),
+                    ),
+                  ),
                 ],
               ),
             ),
-            const SizedBox(height: 10),
 
-            // مؤشر الدور الحالي
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: const Color(0xff050709),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xff00E5FF), style: BorderStyle.dash),
-              ),
-              child: Text(
-                gameStatus,
-                style: const TextStyle(color: Color(0xff00E676), fontSize: 11, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
+            // شريط الرأس (مشاهدين، كأس الترتيب، والإعدادات)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(color: const Color(0xff2A1B3D), borderRadius: BorderRadius.circular(12)),
+                        child: const Row(
+                          children: [
+                            Icon(Icons.visibility, color: Colors.white, size: 14),
+                            SizedBox(width: 4),
+                            Text('0 مشاهد', style: TextStyle(color: Colors.white, fontSize: 10)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      const Icon(Icons.emoji_events, color: Colors.amber, size: 22),
+                      const SizedBox(width: 12),
+                      const Icon(Icons.settings, color: Colors.white, size: 22),
+                    ],
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 10),
 
-            // ساحة اللعب السيبرانية (الأرباع الأربعة)
+            // رقعة اللودو المربعة السيبرانية (مطابقة تماماً للصورة بأرباعها الأربعة)
             Expanded(
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xff050709),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xff00E676), width: 2),
-                  boxShadow: [BoxShadow(color: const Color(0xff00E676).withOpacity(0.2), blurRadius: 15)],
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // الصف العلوي (أصفر وأخضر)
-                    Expanded(
-                      child: Row(
-                        children: [
-                          _buildPlayerBox('أصفر', steps[1], Colors.amber, currentTurn == 1),
-                          _buildVerticalConnector(),
-                          _buildPlayerBox('أخضر (رائد)', steps[0], Colors.greenAccent, currentTurn == 0),
-                        ],
+              child: Center(
+                child: AspectRatio(
+                  aspectRatio: 1.0,
+                  child: Container(
+                    margin: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xff3E2723), // إطار خشبي/سيبراني للرقعة
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.6), blurRadius: 15, spreadRadius: 2)],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xff0A0E0D),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  _buildQuadrant(Colors.green, playerSteps[0]), // أخضر
+                                  _buildCenterColumn(),
+                                  _buildQuadrant(Colors.amber, playerSteps[1]), // أصفر
+                                ],
+                              ),
+                            ),
+                            Container(
+                              height: 35,
+                              color: const Color(0xff121816),
+                              child: Center(
+                                child: Text(gameStatus, style: const TextStyle(color: Color(0xff00E676), fontSize: 10, fontWeight: FontWeight.bold)),
+                              ),
+                            ),
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  _buildQuadrant(Colors.red, playerSteps[2]), // أحمر
+                                  _buildCenterColumn(),
+                                  _buildQuadrant(Colors.blue, playerSteps[3]), // أزرق
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    // منطقة الأمان المركزية
-                    Container(
-                      padding: const EdgeInsets.symmetric(vertical: 6),
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: const Color(0xff080C0B),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.amber.withOpacity(0.4)),
-                      ),
-                      child: const Text(
-                        '⚡ منطقة الأمان السيبرانية (HOME) ⚡',
-                        style: TextStyle(color: Colors.amberAccent, fontSize: 10, fontWeight: FontWeight.w900),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    // الصف السفلي (أزرق وأحمر)
-                    Expanded(
-                      child: Row(
-                        children: [
-                          _buildPlayerBox('أزرق', steps[3], Colors.blueAccent, currentTurn == 3),
-                          _buildVerticalConnector(),
-                          _buildPlayerBox('أحمر', steps[2], Colors.redAccent, currentTurn == 2),
-                        ],
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
-            const SizedBox(height: 12),
 
-            // شريط التحكم السفلي
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xff00E676),
-                      foregroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    onPressed: (!isRolling && (currentTurn == 0 || !widget.isVsAI)) ? rollDiceAndMove : null,
-                    child: Text(isRolling ? 'جاري الرَمي...' : '🎲 تأكيد الإجراء / رمي النرد ($diceValue)', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+            // شريط معلومات المستخدم والتحكم السفلي (مطابق للصورة)
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: const BoxDecoration(
+                color: Color(0xff2A1B3D),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Guest_5090476...', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.mic, color: Colors.grey, size: 20),
+                            onPressed: () {},
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(color: Colors.amber, borderRadius: BorderRadius.circular(16)),
+                            child: const Icon(Icons.emoji_emotions, color: Colors.black, size: 18),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(color: Colors.amber, borderRadius: BorderRadius.circular(16)),
+                            child: const Icon(Icons.chat_bubble, color: Colors.black, size: 18),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xff121816),
-                    foregroundColor: const Color(0xffFF5252),
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: const BorderSide(color: Color(0xffFF5252)),
+                  const SizedBox(height: 8),
+                  // زر رمي النرد الرئيسي
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: playerColors[currentTurn],
+                        foregroundColor: Colors.black,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        elevation: 6,
+                      ),
+                      onPressed: (!isRolling && (currentTurn == 0 || !widget.isVsAI)) ? rollDice : null,
+                      child: Text(isRolling ? 'جاري الرَمي...' : '🎲 ارمِ النرد ($diceValue)', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14)),
                     ),
                   ),
-                  onPressed: () {
-                    setState(() {
-                      steps = [0, 0, 0, 0];
-                      scores = [0, 0, 0, 0];
-                      currentTurn = 0;
-                      gameStatus = 'دور اللاعب: أخضر (رائد)';
-                    });
-                  },
-                  child: const Text('إعادة', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),
@@ -320,39 +343,47 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
     );
   }
 
-  Widget _buildScoreBadge(String name, int score, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: const Color(0xff0A0E0D),
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: color),
-      ),
-      child: Text('$name: $score', style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold)),
-    );
-  }
-
-  Widget _buildPlayerBox(String name, int step, Color color, bool isActive) {
+  Widget _buildQuadrant(Color color, int progress) {
     return Expanded(
       child: Container(
-        margin: const EdgeInsets.all(4),
+        margin: const EdgeInsets.all(2),
         decoration: BoxDecoration(
-          color: const Color(0xff121816),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: isActive ? color : color.withOpacity(0.3), width: isActive ? 2.5 : 1),
-          boxShadow: isActive ? [BoxShadow(color: color.withOpacity(0.4), blurRadius: 10)] : [],
+          color: color.withOpacity(0.8),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.white24),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Stack(
           children: [
-            const Text('🛡️', style: TextStyle(fontSize: 20)),
-            const SizedBox(height: 2),
-            Text(name, style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 4),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(color: const Color(0xff0A0E0D), borderRadius: BorderRadius.circular(6)),
-              child: Text('الخطوة: $step', style: const TextStyle(color: Colors.white, fontSize: 10)),
+            Center(
+              child: Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: List.generate(4, (index) => Container(
+                  width: 18,
+                  height: 18,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.4), blurRadius: 4)],
+                  ),
+                  child: Center(
+                    child: Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+                    ),
+                  ),
+                )),
+              ),
+            ),
+            Positioned(
+              bottom: 4,
+              right: 4,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(4)),
+                child: Text('$progress', style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
+              ),
             ),
           ],
         ),
@@ -360,19 +391,16 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
     );
   }
 
-  Widget _buildVerticalConnector() {
+  Widget _buildCenterColumn() {
     return Container(
-      width: 25,
+      width: 35,
+      color: Colors.white10,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(4, (index) => Container(
-          margin: const EdgeInsets.symmetric(vertical: 2),
-          height: 8,
-          decoration: BoxDecoration(
-            color: const Color(0xff00E5FF).withOpacity(0.3),
-            borderRadius: BorderRadius.circular(2),
-            border: Border.all(color: const Color(0xff00E5FF).withOpacity(0.5)),
-          ),
+        children: List.generate(3, (index) => Container(
+          margin: const EdgeInsets.all(1),
+          height: 10,
+          decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2)),
         )),
       ),
     );
