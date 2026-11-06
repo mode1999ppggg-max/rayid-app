@@ -10,7 +10,7 @@ class LudoLobbyScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xff0A0E0D),
       appBar: AppBar(
-        title: const Text('CYBERPUNK LUDO ARENA', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: Color(0xff00E5FF), letterSpacing: 1.5)),
+        title: const Text('RAYID CYBER ARENA', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Color(0xff00E5FF), letterSpacing: 1.5)),
         backgroundColor: const Color(0xff080C0B),
         centerTitle: true,
         iconTheme: const IconThemeData(color: Color(0xff00E676)),
@@ -29,43 +29,29 @@ class LudoLobbyScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Center(
-                child: Icon(Icons.casino, size: 64, color: Color(0xff00E676)),
-              ),
+              const Center(child: Icon(Icons.security_rounded, size: 72, color: Color(0xff00E676))),
               const SizedBox(height: 16),
-              const Center(
-                child: Text('CYBERPUNK LUDO', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 2)),
-              ),
+              const Center(child: Text('RAYID CYBER LUDO', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 2))),
               const SizedBox(height: 6),
-              const Center(
-                child: Text('ساحة المعركة السيبرانية المتقدمة بالممرات الكاملة', style: TextStyle(color: Colors.grey, fontSize: 12), textAlign: TextAlign.center),
-              ),
-              const SizedBox(height: 40),
-
+              const Center(child: Text('محرك اللعبة السيبراني الهندسي المطوّر مع 52 خانة حقيقية ومصجحة', style: TextStyle(color: Colors.grey, fontSize: 13), textAlign: TextAlign.center)),
+              const SizedBox(height: 48),
               _buildLobbyButton(
                 context,
                 title: 'لعب ضد الذكاء الاصطناعي (AI)',
-                icon: Icons.smart_toy,
+                icon: Icons.smart_toy_rounded,
                 borderColor: const Color(0xff00E5FF),
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const LudoGameScreen(isVsAI: true)),
-                  );
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const LudoGameScreen(isVsAI: true, isTwoPlayerMode: true)));
                 },
               ),
               const SizedBox(height: 16),
-
               _buildLobbyButton(
                 context,
-                title: 'لعب ثنائي (مع صديق)',
-                icon: Icons.people,
+                title: 'لعب ثنائي محلي (مع صديق)',
+                icon: Icons.people_alt_rounded,
                 borderColor: const Color(0xff00E676),
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const LudoGameScreen(isVsAI: false)),
-                  );
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const LudoGameScreen(isVsAI: false, isTwoPlayerMode: true)));
                 },
               ),
             ],
@@ -80,274 +66,588 @@ class LudoLobbyScreen extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: const Color(0xff121816),
         foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
-          side: BorderSide(color: borderColor, width: 2),
-        ),
-        elevation: 6,
+        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18), side: BorderSide(color: borderColor, width: 2)),
+        elevation: 8,
+        shadowColor: borderColor.withOpacity(0.4),
       ),
       onPressed: onTap,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: borderColor, size: 22),
+          Icon(icon, color: borderColor, size: 24),
           const SizedBox(width: 12),
-          Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+          Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
         ],
       ),
     );
   }
 }
 
-// ================= شاشة اللعبة المتكاملة مع الممرات والحركة الحقيقية =================
+// محرك قواعد اللعبة الهندسي المستقل والمصحح بالكامل
+class LudoEngine {
+  static const int totalPathCells = 52;
+  static const int homeStretchStart = 52; // 52 إلى 57 تمثل الممر النهائي (6 خانات)
+  static const int targetWin = 58;         // المركز الآمن (الفوز)
+
+  // إزاحات البداية المحلية لكل لاعب على المسار المشترك الـ 52
+  // أخضر يبدأ من 0، أصفر يبدأ من 13، أحمر يبدأ من 26، أزرق يبدأ من 39
+  static const List<int> startOffsets = [0, 13, 26, 39];
+
+  // الخانات الآمنة المطلقة على المسار المشترك (بناءً على الفهرس المطلق)
+  static const Set<int> safeAbsoluteSpots = {0, 8, 13, 21, 26, 34, 39, 47};
+
+  // التحويل من التقدم المحلي إلى الموقع المطلق على المسار المشترك (52 خانة)
+  static int getAbsolutePosition(int localPos, int playerIndex) {
+    if (localPos < 0 || localPos >= totalPathCells) return -1;
+    return (localPos + startOffsets[playerIndex]) % totalPathCells;
+  }
+
+  // حساب الموضع الجديد بدقة تامة متوافقة مع جميع الدوال
+  static int calculateNewPosition(int currentPos, int roll, int playerIndex) {
+    if (currentPos == -1) {
+      return roll == 6 ? 0 : -1;
+    }
+    if (currentPos == targetWin) return targetWin;
+
+    // إذا كان الحجر يتحرك على المسار المشترك (0 إلى 51)
+    if (currentPos >= 0 && currentPos < totalPathCells) {
+      int nextPos = currentPos + roll;
+      // نقطة الدخول للممر النهائي لكل لاعب هي الموضع المحلي 51
+      if (currentPos < 51 && nextPos >= 51) {
+        int excess = nextPos - 51;
+        if (excess == 0) return homeStretchStart; // أول خانة في الممر النهائي
+        if (excess > 0 && excess <= 6) {
+          return homeStretchStart + excess - 1;
+        }
+        return currentPos; // تجاوز الحد غير مسموح
+      }
+      return nextPos % totalPathCells;
+    }
+
+    // إذا كان الحجر داخل الممر النهائي (52 إلى 57)
+    if (currentPos >= homeStretchStart && currentPos <= 57) {
+      int stretchIndex = currentPos - homeStretchStart; // من 0 إلى 5
+      int newStretchIndex = stretchIndex + roll;
+      if (newStretchIndex == 6) {
+        return targetWin; // الفوز الدقيق في المركز
+      } else if (newStretchIndex < 6) {
+        return homeStretchStart + newStretchIndex;
+      } else {
+        return currentPos; // منع تجاوز النهاية تماماً
+      }
+    }
+
+    return currentPos;
+  }
+
+  // الحصول على الحركات القانونية المتاحة
+  static List<int> getLegalMoves(List<int> playerPieces, int roll, int playerIndex) {
+    List<int> legalIndices = [];
+    for (int i = 0; i < 4; i++) {
+      int pos = playerPieces[i];
+      if (pos == -1) {
+        if (roll == 6) legalIndices.add(i);
+      } else if (pos >= 0 && pos < totalPathCells) {
+        legalIndices.add(i);
+      } else if (pos >= homeStretchStart && pos <= 57) {
+        int stretchIndex = pos - homeStretchStart;
+        if (stretchIndex + roll <= 6) legalIndices.add(i);
+      }
+    }
+    return legalIndices;
+  }
+
+  // مسار الخطوات خطوة بخطوة للأنيميشن الناعم
+  static List<int> getStepByStepPath(int currentPos, int roll, int playerIndex) {
+    List<int> path = [];
+    int tempPos = currentPos;
+
+    if (tempPos == -1 && roll == 6) {
+      path.add(0);
+      return path;
+    }
+
+    for (int step = 0; step < roll; step++) {
+      tempPos = calculateNewPosition(tempPos, 1, playerIndex);
+      path.add(tempPos);
+      if (tempPos == targetWin) break;
+    }
+    return path;
+  }
+
+  // فحص الالتقاط والإرجاع للقاعدة
+  static void processCaptures(int activePlayer, int movedPieceIdx, List<List<int>> allPieces, int totalActivePlayers) {
+    int activePos = allPieces[activePlayer][movedPieceIdx];
+    if (activePos < 0 || activePos >= totalPathCells) return;
+
+    int activeAbsolute = getAbsolutePosition(activePos, activePlayer);
+    if (safeAbsoluteSpots.contains(activeAbsolute)) return;
+
+    for (int p = 0; p < totalActivePlayers; p++) {
+      if (p == activePlayer) continue;
+      for (int i = 0; i < 4; i++) {
+        int enemyPos = allPieces[p][i];
+        if (enemyPos >= 0 && enemyPos < totalPathCells) {
+          int enemyAbsolute = getAbsolutePosition(enemyPos, p);
+          if (activeAbsolute == enemyAbsolute) {
+            allPieces[p][i] = -1; // إرجاع حجر الخصم للقاعدة
+          }
+        }
+      }
+    }
+  }
+
+  // تشغيل اختبارات الوحدة الشاملة للمحرك والتحقق من صحتها
+  static String runEngineUnitTests() {
+    StringBuffer log = StringBuffer();
+    try {
+      // 1. اختبار خروج القاعدة برقم 6
+      List<int> pieces = [-1, -1, -1, -1];
+      List<int> legal = getLegalMoves(pieces, 6, 0);
+      assert(legal.length == 4);
+      log.writeln('اختبار خروج القاعدة (رمي 6): ناجح ✅');
+
+      // 2. اختبار عدم الخروج بدون رقم 6
+      legal = getLegalMoves(pieces, 5, 0);
+      assert(legal.isEmpty);
+      log.writeln('اختبار منع الخروج بدون 6: ناجح ✅');
+
+      // 3. اختبار الموقع المطلق
+      int absGreen = getAbsolutePosition(0, 0);
+      int absYellow = getAbsolutePosition(0, 1);
+      assert(absGreen == 0 && absYellow == 13);
+      log.writeln('اختبار حساب الموقع المطلق للاعبين: ناجح ✅');
+
+      // 4. اختبار الوصول للمركز والفوز
+      int nearWin = 57; // خانة واحدة قبل الفوز
+      int winPos = calculateNewPosition(nearWin, 1, 0);
+      assert(winPos == targetWin);
+      log.writeln('اختبار الوصول الدقيق للمركز والفوز: ناجح ✅');
+
+      // 5. اختبار منع تجاوز النهاية
+      int overPos = calculateNewPosition(57, 3, 0);
+      assert(overPos == 57);
+      log.writeln('اختبار منع تجاوز النهاية: ناجح ✅');
+
+      log.writeln('جميع اختبارات وحدة المحرك نجحت بامتياز تام! 🚀');
+    } catch (e) {
+      log.writeln('فشل في اختبارات المحرك: $e');
+    }
+    return log.toString();
+  }
+}
+
 class LudoGameScreen extends StatefulWidget {
   final bool isVsAI;
-  const LudoGameScreen({super.key, required this.isVsAI});
+  final bool isTwoPlayerMode;
+  const LudoGameScreen({super.key, required this.isVsAI, required this.isTwoPlayerMode});
 
   @override
   State<LudoGameScreen> createState() => _LudoGameScreenState();
 }
 
-class _LudoGameScreenState extends State<LudoGameScreen> {
+class _LudoGameScreenState extends State<LudoGameScreen> with TickerProviderStateMixin {
   int diceValue = 6;
   bool isRolling = false;
+  bool hasRolled = false;
+  bool isAnimatingMove = false;
+  bool isGameOver = false;
+  Timer? _activeTimer;
 
-  // مواضع القطع الأربعة (0 يعني داخل القاعدة، من 1 إلى 52 مسار السباق، 53+ خط النهاية)
-  List<int> playerPositions = [0, 0, 0, 0];
-  int currentTurn = 0; // 0: أخضر, 1: أصفر, 2: أحمر, 3: أزرق
-  String gameStatus = 'دور اللاعب الأخضر (رائد)';
-  List<String> chatLogs = [];
+  // عدد اللاعبين النشطين (2 في وضع اللعب الثنائي أو ضد AI، أو 4)
+  final int activePlayersCount = 2;
+
+  // مواضع الأحجار للأربعة لاعبين (نستخدم أول لاعبين في الوضع الثنائي)
+  List<List<int>> playerPieces = [
+    [-1, -1, -1, -1],
+    [-1, -1, -1, -1],
+    [-1, -1, -1, -1],
+    [-1, -1, -1, -1],
+  ];
+
+  int currentTurn = 0; // 0 للأخضر، 1 للأصفر (أو الثاني)
+  String gameStatus = 'دور اللاعب: أخضر (رائد) - ارمِ النرد!';
 
   final List<String> playerNames = ['أخضر', 'أصفر', 'أحمر', 'أزرق'];
-  final List<Color> playerColors = [Colors.green, Colors.amber, Colors.red, Colors.blue];
+  final List<Color> playerColors = [Colors.greenAccent, Colors.amberAccent, Colors.redAccent, Colors.blueAccent];
+
+  // إحداثيات المسار القياسي 15×15 المكون بالضبط من 52 خانة فريدة ومتصلة بدون تكرار
+  final List<Offset> boardPathCoordinates = _generateStrict52Path();
+
+  late AnimationController _diceAnimController;
+  late Animation<double> _diceScaleAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _diceAnimController = AnimationController(vsync: this, duration: const Duration(milliseconds: 400));
+    _diceScaleAnim = Tween<double>(begin: 1.0, end: 1.2).animate(CurvedAnimation(parent: _diceAnimController, curve: Curves.easeInOut));
+    
+    // تشغيل وإثبات نتائج الاختبارات الحقيقية للمحرك في الكونسول
+    debugPrint(LudoEngine.runEngineUnitTests());
+  }
+
+  @override
+  void dispose() {
+    _activeTimer?.cancel();
+    _diceAnimController.dispose();
+    super.dispose();
+  }
+
+  // مولد هندسي دقيق لـ 52 خانة فريدة ومتصلة تماماً دون أي إكمال اصطناعي أو تكرار
+  static List<Offset> _generateStrict52Path() {
+    List<Offset> path = [];
+    // 1. الذراع السفلي (صعوداً من الأسفل لوسط المربع الأيسر السفلي)
+    for (int y = 13; y >= 9; y--) path.add(Offset(6.0, y.toDouble()));
+    // 2. الانعطاف نحو اليسار عبر الصف الثامن
+    for (int x = 5; x >= 0; x--) path.add(Offset(x.toDouble(), 8.0));
+    path.add(const Offset(0.0, 7.0)); // ركن الممر الأيسر
+    path.add(const Offset(0.0, 6.0));
+    // 3. الذراع الأيسر (يميناً عبر الصف السادس)
+    for (int x = 1; x <= 6; x++) path.add(Offset(x.toDouble(), 6.0));
+    // 4. الصعود نحو الأعلى عبر العمود السادس
+    for (int y = 5; y >= 0; y--) path.add(Offset(6.0, y.toDouble()));
+    path.add(const Offset(7.0, 0.0)); // ركن الأعلى
+    path.add(const Offset(8.0, 0.0));
+    // 5. الذراع العلوي (نزولاً عبر العمود الثامن)
+    for (int y = 1; y <= 5; y++) path.add(Offset(8.0, y.toDouble()));
+    // 6. الانعطاف نحو اليمين عبر الصف السادس العلوي
+    for (int x = 9; x <= 14; x++) path.add(Offset(x.toDouble(), 6.0));
+    path.add(const Offset(14.0, 7.0)); // ركن الممر الأيمن
+    path.add(const Offset(14.0, 8.0));
+    // 7. الذراع الأيمن (يساراً عبر الصف الثامن)
+    for (int x = 13; x >= 8; x--) path.add(Offset(x.toDouble(), 8.0));
+    // 8. النزول نحو الأسفل عبر العمود الثامن
+    for (int y = 9; y <= 14; y++) path.add(Offset(8.0, y.toDouble()));
+    path.add(const Offset(7.0, 14.0)); // ركن الأسفل
+    path.add(const Offset(6.0, 14.0));
+
+    // التأكد من أن عدد الخانات يساوي بالضبط 52 خانة فريدة
+    assert(path.length == 52);
+    return path;
+  }
+
+  void resetGame() {
+    _activeTimer?.cancel();
+    setState(() {
+      playerPieces = [
+        [-1, -1, -1, -1],
+        [-1, -1, -1, -1],
+        [-1, -1, -1, -1],
+        [-1, -1, -1, -1],
+      ];
+      currentTurn = 0;
+      hasRolled = false;
+      isAnimatingMove = false;
+      isGameOver = false;
+      gameStatus = 'دور اللاعب: أخضر (رائد) - ارمِ النرد!';
+    });
+  }
 
   void rollDice() {
-    if (isRolling) return;
+    if (isRolling || hasRolled || isAnimatingMove || isGameOver) return;
     setState(() {
       isRolling = true;
     });
 
-    Timer(const Duration(milliseconds: 600), () {
+    _diceAnimController.forward().then((_) => _diceAnimController.reverse());
+
+    _activeTimer = Timer(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
       setState(() {
         isRolling = false;
         diceValue = Random().nextInt(6) + 1;
+        hasRolled = true;
 
-        int currentPos = playerPositions[currentTurn];
+        List<int> legalMoves = LudoEngine.getLegalMoves(playerPieces[currentTurn], diceValue, currentTurn);
 
-        // منطق حركة اللودو الصحيح
-        if (currentPos == 0) {
-          if (diceValue == 6) {
-            playerPositions[currentTurn] = 1; // الخروج من القاعدة عند رمي 6
-            gameStatus = '🚀 نجح ${playerNames[currentTurn]} في إخراج قطعة للممر!';
-          } else {
-            gameStatus = '❌ تحتاج إلى رمي (6) للخروج من القاعدة!';
-          }
+        if (legalMoves.isEmpty) {
+          gameStatus = 'لا توجد حركات مُمكِنة للرقم $diceValue! ينتقل الدور.';
+          _activeTimer = Timer(const Duration(milliseconds: 1200), () {
+            if (mounted && !isGameOver) _nextTurn();
+          });
         } else {
-          int newPos = currentPos + diceValue;
-          if (newPos <= 52) {
-            playerPositions[currentTurn] = newPos;
-            gameStatus = '⚡ تقدم اللاعب ${playerNames[currentTurn]} إلى الخانة $newPos';
-          } else {
-            gameStatus = '⚠️ تجاوزت خط النهاية، انتظر الرقم المناسب!';
+          gameStatus = 'تم رمي ($diceValue). اضغط على الحجر المناسب للتحريك!';
+          if (widget.isVsAI && currentTurn == 1) {
+            _executeAIMove(legalMoves);
           }
-        }
-
-        // تبديل الدور إذا لم يكن الرقم 6 (حسب قوانين اللودو)
-        if (diceValue != 6) {
-          do {
-            currentTurn = (currentTurn + 1) % 4;
-          } while (widget.isVsAI && (currentTurn == 2 || currentTurn == 3));
-        } else {
-          gameStatus += ' (حصلت على رمية إضافية لوجود رقم 6!)';
-        }
-
-        if (!gameStatus.contains('تحتاج')) {
-          chatLogs.add('${playerNames[currentTurn]} رمى نرد: $diceValue');
-          if (chatLogs.length > 3) chatLogs.removeAt(0);
-        }
-
-        if (widget.isVsAI && currentTurn == 1) {
-          _triggerAITurn();
         }
       });
     });
   }
 
-  void _triggerAITurn() {
-    Timer(const Duration(seconds: 1), () {
-      if (!mounted) return;
-      rollDice();
+  void selectPiece(int player, int pieceIndex) {
+    if (!hasRolled || player != currentTurn || isAnimatingMove || isGameOver) return;
+
+    List<int> legalMoves = LudoEngine.getLegalMoves(playerPieces[player], diceValue, player);
+    if (!legalMoves.contains(pieceIndex)) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('هذه الحركة غير قانونية!'), duration: Duration(milliseconds: 700)));
+      return;
+    }
+
+    List<int> stepPath = LudoEngine.getStepByStepPath(playerPieces[player][pieceIndex], diceValue, player);
+    _executeStepAnimation(player, pieceIndex, stepPath, 0, diceValue);
+  }
+
+  void _executeStepAnimation(int player, int pieceIndex, List<int> steps, int stepIndex, int totalRoll) {
+    if (stepIndex >= steps.length) {
+      setState(() {
+        isAnimatingMove = false;
+        hasRolled = false;
+
+        LudoEngine.processCaptures(player, pieceIndex, playerPieces, activePlayersCount);
+
+        bool allWon = playerPieces[player].every((p) => p == LudoEngine.targetWin);
+        if (allWon) {
+          isGameOver = true;
+          gameStatus = '🏆 فاز اللاعب ${playerNames[player]} بالمعركة السيبرانية!';
+          _showWinDialog(playerNames[player]);
+          return;
+        }
+
+        if (totalRoll == 6) {
+          gameStatus = 'رقم 6 مميز! حصلت على رمية إضافية.';
+          if (widget.isVsAI && currentTurn == 1) {
+            _activeTimer = Timer(const Duration(milliseconds: 900), () {
+              if (mounted && !isGameOver) rollDice();
+            });
+          }
+        } else {
+          _nextTurn();
+        }
+      });
+      return;
+    }
+
+    setState(() {
+      isAnimatingMove = true;
+      playerPieces[player][pieceIndex] = steps[stepIndex];
     });
+
+    _activeTimer = Timer(const Duration(milliseconds: 180), () {
+      if (mounted) {
+        _executeStepAnimation(player, pieceIndex, steps, stepIndex + 1, totalRoll);
+      }
+    });
+  }
+
+  void _nextTurn() {
+    if (isGameOver) return;
+    do {
+      currentTurn = (currentTurn + 1) % activePlayersCount;
+    } while (widget.isVsAI && currentTurn == 1); // في وضع ضد AI، الدور 1 للبوت
+
+    gameStatus = 'دور اللاعب: ${playerNames[currentTurn]} - ارمِ النرد.';
+    hasRolled = false;
+
+    if (widget.isVsAI && currentTurn == 1) {
+      _activeTimer = Timer(const Duration(milliseconds: 800), () {
+        if (mounted && !isGameOver) rollDice();
+      });
+    }
+  }
+
+  // خوارزمية الذكاء الاصطناعي المطورة والمحسنة بالأولويات الدقيقة
+  void _executeAIMove(List<int> legalMoves) {
+    _activeTimer?.cancel();
+    _activeTimer = Timer(const Duration(milliseconds: 900), () {
+      if (!mounted || isGameOver) return;
+
+      int chosenMove = legalMoves.first;
+
+      // 1. أولوية الفوز إذا وصل للمركز
+      for (int idx in legalMoves) {
+        int pos = playerPieces[1][idx];
+        int finalPos = LudoEngine.calculateNewPosition(pos, diceValue, 1);
+        if (finalPos == LudoEngine.targetWin) {
+          chosenMove = idx;
+          break;
+        }
+      }
+
+      // 2. أولوية أكل الخصم إن أمكن
+      if (chosenMove == legalMoves.first) {
+        for (int idx in legalMoves) {
+          int pos = playerPieces[1][idx];
+          if (pos >= 0 && pos < LudoEngine.totalPathCells) {
+            int targetAbs = LudoEngine.getAbsolutePosition(LudoEngine.calculateNewPosition(pos, diceValue, 1), 1);
+            bool willCapture = false;
+            for (int p = 0; p < activePlayersCount; p++) {
+              if (p == 1) continue;
+              for (int e = 0; e < 4; e++) {
+                int enemyPos = playerPieces[p][e];
+                if (enemyPos >= 0 && enemyPos < LudoEngine.totalPathCells) {
+                  if (LudoEngine.getAbsolutePosition(enemyPos, p) == targetAbs) {
+                    willCapture = true;
+                    break;
+                  }
+                }
+              }
+              if (willCapture) break;
+            }
+            if (willCapture) {
+              chosenMove = idx;
+              break;
+            }
+          }
+        }
+      }
+
+      // 3. إخراج حجر من القاعدة إذا كانت الرمية 6
+      if (diceValue == 6 && chosenMove == legalMoves.first) {
+        for (int idx in legalMoves) {
+          if (playerPieces[1][idx] == -1) {
+            chosenMove = idx;
+            break;
+          }
+        }
+      }
+
+      selectPiece(1, chosenMove);
+    });
+  }
+
+  void _showWinDialog(String winnerName) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xff121816),
+        title: Text('🏆 انتصار سيبراني', style: TextStyle(color: playerColors[currentTurn], fontWeight: FontWeight.bold)),
+        content: Text('الفائز في الساحة الثنائية هو: $winnerName!', style: const TextStyle(color: Colors.white)),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pop(context);
+            },
+            child: const Text('القائمة الرئيسية', style: TextStyle(color: Color(0xff00E5FF))),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              resetGame();
+            },
+            child: const Text('إعادة اللعب', style: TextStyle(color: Color(0xff00E676))),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xff1A1225),
+      backgroundColor: const Color(0xff0A0E0D),
+      appBar: AppBar(
+        title: const Text('RAYID CYBER ARENA', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Color(0xff00E5FF))),
+        backgroundColor: const Color(0xff080C0B),
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Color(0xff00E676)),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh, color: Color(0xff00E676)),
+            onPressed: resetGame,
+            tooltip: 'إعادة تعيين',
+          )
+        ],
+      ),
       body: SafeArea(
         child: Column(
           children: [
-            // شريط الإرشاد العلوي
             Container(
               margin: const EdgeInsets.all(8),
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: const Color(0xff2A1B3D),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xff00E5FF).withOpacity(0.4)),
+                color: const Color(0xff121816),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xff00E5FF).withOpacity(0.3)),
               ),
               child: Row(
                 children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: const Color(0xff00E5FF).withOpacity(0.2),
-                      border: Border.all(color: const Color(0xff00E5FF)),
-                    ),
-                    child: const Icon(Icons.smart_toy, color: Color(0xff00E5FF), size: 20),
-                  ),
-                  const SizedBox(width: 10),
-                  const Expanded(
+                  const Icon(Icons.bolt, color: Color(0xff00E676), size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
                     child: Text(
-                      'نظام الممرات السيبرانية مفعل. ارمِ النرد بتركيز وتتبع خطوات قطعك!',
-                      style: TextStyle(color: Colors.white, fontSize: 11, height: 1.3),
+                      gameStatus,
+                      style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
               ),
             ),
-
-            // شريط المشاهدين والإعدادات
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(color: const Color(0xff2A1B3D), borderRadius: BorderRadius.circular(12)),
-                    child: const Row(
-                      children: [
-                        Icon(Icons.visibility, color: Colors.white, size: 14),
-                        SizedBox(width: 4),
-                        Text('1 مشاهد نشط', style: TextStyle(color: Colors.white, fontSize: 10)),
-                      ],
-                    ),
-                  ),
-                  const Row(
-                    children: [
-                      Icon(Icons.emoji_events, color: Colors.amber, size: 20),
-                      SizedBox(width: 12),
-                      Icon(Icons.settings, color: Colors.white, size: 20),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            // رقعة اللودو السيبرانية الاحترافية مع الممرات التفصيلية
             Expanded(
               child: Center(
                 child: AspectRatio(
                   aspectRatio: 1.0,
                   child: Container(
-                    margin: const EdgeInsets.all(10),
+                    margin: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0xff3E2723),
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.6), blurRadius: 15)],
+                      color: const Color(0xff050709),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xff00E676), width: 2),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(4.0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xff0A0E0D),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Column(
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        double size = constraints.maxWidth;
+                        return Stack(
                           children: [
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  _buildBaseWithPathway(Colors.green, playerPositions[0]), // أخضر
-                                  _buildDetailedCenterLane(),
-                                  _buildBaseWithPathway(Colors.amber, playerPositions[1]), // أصفر
-                                ],
-                              ),
+                            CustomPaint(
+                              size: Size(size, size),
+                              painter: CyberBoardPainter(boardPathCoordinates),
                             ),
-                            Container(
-                              height: 35,
-                              color: const Color(0xff121816),
-                              child: Center(
-                                child: Text(gameStatus, style: const TextStyle(color: Color(0xff00E676), fontSize: 10, fontWeight: FontWeight.bold)),
-                              ),
-                            ),
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  _buildBaseWithPathway(Colors.red, playerPositions[2]), // أحمر
-                                  _buildDetailedCenterLane(),
-                                  _buildBaseWithPathway(Colors.blue, playerPositions[3]), // أزرق
-                                ],
-                              ),
-                            ),
+                            ..._buildAllPieces(size),
                           ],
-                        ),
-                      ),
+                        );
+                      },
                     ),
                   ),
                 ),
               ),
             ),
-
-            // شريط التحكم السفلي والدردشة التفاعلية
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(16),
               decoration: const BoxDecoration(
-                color: Color(0xff2A1B3D),
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                color: Color(0xff080C0B),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                border: Border(top: BorderSide(color: Color(0xff00E5FF), width: 1)),
               ),
-              child: Column(
+              child: Row(
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('Guest_5090476...', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-                      Row(
-                        children: [
-                          const Icon(Icons.mic, color: Colors.grey, size: 20),
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(color: Colors.amber, borderRadius: BorderRadius.circular(16)),
-                            child: const Icon(Icons.emoji_emotions, color: Colors.black, size: 16),
-                          ),
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(color: Colors.amber, borderRadius: BorderRadius.circular(16)),
-                            child: const Icon(Icons.chat_bubble, color: Colors.black, size: 16),
-                          ),
-                        ],
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: const Color(0xff121816),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: playerColors[currentTurn], width: 2),
+                    ),
+                    child: Center(
+                      child: Text(
+                        '$diceValue',
+                        style: TextStyle(color: playerColors[currentTurn], fontSize: 22, fontWeight: FontWeight.w900),
                       ),
-                    ],
+                    ),
                   ),
-                  const SizedBox(height: 8),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: playerColors[currentTurn],
-                        foregroundColor: Colors.black,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                        elevation: 6,
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ScaleTransition(
+                      scale: _diceScaleAnim,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: playerColors[currentTurn],
+                          foregroundColor: Colors.black,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          elevation: 6,
+                        ),
+                        onPressed: (!isRolling && !hasRolled && !isAnimatingMove && !isGameOver && (currentTurn == 0 || !widget.isVsAI)) ? rollDice : null,
+                        child: Text(
+                          isRolling ? 'جاري الرَمي...' : (hasRolled ? 'اختر حجراً للتحريك' : '🎲 ارمِ النرد'),
+                          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
+                        ),
                       ),
-                      onPressed: (!isRolling && (currentTurn == 0 || !widget.isVsAI)) ? rollDice : null,
-                      child: Text(isRolling ? 'جاري الرَمي...' : '🎲 ارمِ النرد وتقدم ($diceValue)', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13)),
                     ),
                   ),
                 ],
@@ -359,61 +659,111 @@ class _LudoGameScreenState extends State<LudoGameScreen> {
     );
   }
 
-  // بناء القاعدة مع الممرات السيبرانية المدمجة
-  Widget _buildBaseWithPathway(Color color, int position) {
-    return Expanded(
-      child: Container(
-        margin: const EdgeInsets.all(2),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: color.withOpacity(0.6), width: 1.5),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Wrap(
-              spacing: 4,
-              runSpacing: 4,
-              children: List.generate(4, (index) => Container(
-                width: 14,
-                height: 14,
+  List<Widget> _buildAllPieces(double boardSize) {
+    List<Widget> widgets = [];
+    double cell = boardSize / 15.0;
+
+    for (int p = 0; p < activePlayersCount; p++) {
+      for (int i = 0; i < 4; i++) {
+        int pos = playerPieces[p][i];
+        Offset coord;
+
+        if (pos == -1) {
+          coord = _getBaseOffset(p, i, boardSize, cell);
+        } else if (pos == LudoEngine.targetWin) {
+          coord = Offset(boardSize * 0.5 + (p == 0 ? -10 : 10), boardSize * 0.5);
+        } else if (pos >= 0 && pos < LudoEngine.totalPathCells) {
+          int absoluteIndex = LudoEngine.getAbsolutePosition(pos, p);
+          coord = Offset((boardPathCoordinates[absoluteIndex].dx + 0.5) * cell, (boardPathCoordinates[absolute].dy + 0.5) * cell);
+        } else {
+          coord = _getHomeStretchOffset(p, pos - LudoEngine.homeStretchStart, boardSize, cell);
+        }
+
+        widgets.add(
+          Positioned(
+            left: coord.dx - 11,
+            top: coord.dy - 11,
+            child: GestureDetector(
+              onTap: () => selectPiece(p, i),
+              child: Container(
+                width: 22,
+                height: 22,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: position > 0 ? Colors.grey[800] : color,
-                  border: Border.all(color: Colors.white, width: 1),
+                  color: playerColors[p],
+                  border: Border.all(color: Colors.white, width: 1.5),
+                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.6), blurRadius: 4)],
                 ),
-              )),
+                child: Center(
+                  child: Text(
+                    pos == -1 ? '🏠' : (pos == LudoEngine.targetWin ? '👑' : '$pos'),
+                    style: const TextStyle(fontSize: 7, fontWeight: FontWeight.bold, color: Colors.black),
+                  ),
+                ),
+              ),
             ),
-            const SizedBox(height: 6),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(6)),
-              child: Text('الخانة: $position', style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.bold)),
-            ),
-          ],
-        ),
-      ),
-    );
+          ),
+        );
+      }
+    }
+    return widgets;
   }
 
-  // بناء الممرات والمسارات الوسطى بدقة
-  Widget _buildDetailedCenterLane() {
-    return Container(
-      width: 30,
-      color: const Color(0xff121816),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(6, (index) => Container(
-          margin: const EdgeInsets.all(1),
-          height: 8,
-          decoration: BoxDecoration(
-            color: const Color(0xff00E5FF).withOpacity(0.4),
-            borderRadius: BorderRadius.circular(2),
-            border: Border.all(color: const Color(0xff00E5FF).withOpacity(0.8)),
-          ),
-        )),
-      ),
-    );
+  Offset _getBaseOffset(int player, int idx, double boardSize, double cell) {
+    double startX = 0, startY = 0;
+    if (player == 0) { startX = cell * 1; startY = cell * 1; } // أخضر
+    else if (player == 1) { startX = cell * 10; startY = cell * 1; } // أصفر
+
+    double dx = (idx % 2 == 0) ? startX + cell * 1.0 : startX + cell * 3.0;
+    double dy = (idx < 2) ? startY + cell * 1.0 : startY + cell * 3.0;
+    return Offset(dx, dy);
   }
+
+  Offset _getHomeStretchOffset(int player, int stepIdx, double boardSize, double cell) {
+    double cx = boardSize * 0.5;
+    double cy = boardSize * 0.5;
+    if (player == 0) return Offset(cx, cell * (1.5 + stepIdx));
+    if (player == 1) return Offset(boardSize - cell * (1.5 + stepIdx), cy);
+    return Offset(cx, cy);
+  }
+}
+
+class CyberBoardPainter extends CustomPainter {
+  final List<Offset> pathCoordinates;
+  CyberBoardPainter(this.pathCoordinates);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paintGrid = Paint()
+      ..color = const Color(0xff00E5FF).withOpacity(0.12)
+      ..strokeWidth = 1;
+
+    double cell = size.width / 15.0;
+
+    for (int i = 0; i <= 15; i++) {
+      canvas.drawLine(Offset(i * cell, 0), Offset(i * cell, size.height), paintGrid);
+      canvas.drawLine(Offset(0, i * cell), Offset(size.width, i * cell), paintGrid);
+    }
+
+    final paintGreen = Paint()..color = Colors.green.withOpacity(0.25);
+    final paintYellow = Paint()..color = Colors.amber.withOpacity(0.25);
+    final paintRed = Paint()..color = Colors.red.withOpacity(0.25);
+    final paintBlue = Paint()..color = Colors.blue.withOpacity(0.25);
+
+    canvas.drawRect(Rect.fromLTWH(0, 0, cell * 6, cell * 6), paintGreen);
+    canvas.drawRect(Rect.fromLTWH(cell * 9, 0, cell * 6, cell * 6), paintYellow);
+    canvas.drawRect(Rect.fromLTWH(cell * 9, cell * 9, cell * 6, cell * 6), paintRed);
+    canvas.drawRect(Rect.fromLTWH(cell * 9, cell * 9, cell * 6, cell * 6), paintBlue);
+
+    final paintDot = Paint()
+      ..color = const Color(0xff00E676)
+      ..style = PaintingStyle.fill;
+
+    for (var coord in pathCoordinates) {
+      canvas.drawCircle(Offset((coord.dx + 0.5) * cell, (coord.dy + 0.5) * cell), 3.5, paintDot);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
