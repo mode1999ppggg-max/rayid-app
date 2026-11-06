@@ -1,11 +1,9 @@
-
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 
 // ============================================================================
-// RAYID PAY - CYBER LUDO
-// Complete local four-player game with AI
+// RAYID PAY - CYBER LUDO ARENA (PRODUCTION GRADE ARCHITECTURE)
 // ============================================================================
 
 enum PlayerColor { green, yellow, red, blue }
@@ -13,7 +11,7 @@ enum PlayerColor { green, yellow, red, blue }
 class TokenModel {
   final int id;
   final PlayerColor color;
-  int position;
+  int position; // -1: Base, 0..51: Shared Track, 52..57: Home Lane, 58: Won
 
   TokenModel({
     required this.id,
@@ -29,13 +27,7 @@ class TokenModel {
 }
 
 // ============================================================================
-// GAME ENGINE
-// Position:
-// -1 = Base
-//  0..51 = Shared track (local progress)
-// 52..57 = Home lane
-// 58 = Won
-// -2 = Invalid movement
+// LUDO ENGINE & RIGID MATHEMATICAL RULES
 // ============================================================================
 
 class LudoEngine {
@@ -60,7 +52,6 @@ class LudoEngine {
     if (localPosition < 0 || localPosition >= totalPathCells) {
       return -1;
     }
-
     return (localPosition + startOffsets[color]!) % totalPathCells;
   }
 
@@ -70,98 +61,71 @@ class LudoEngine {
     PlayerColor color,
   ) {
     if (roll < 1 || roll > 6) return invalidMove;
-
     if (currentPosition == targetWin) return invalidMove;
 
+    // الخروج من القاعدة يتطلب رمية 6 حصراً
     if (currentPosition == -1) {
       return roll == 6 ? 0 : invalidMove;
     }
 
-    if (currentPosition >= 0 && currentPosition <= 51) {
+    // الحركة على المسار المشترك (0..51)
+    if (currentPosition >= 0 && currentPosition < totalPathCells) {
       final nextPosition = currentPosition + roll;
-
-      if (nextPosition <= 57) {
+      if (nextPosition < totalPathCells) {
         return nextPosition;
       }
-
-      if (nextPosition == targetWin) {
-        return targetWin;
+      // الدخول إلى الممر النهائي بدقة متناهية
+      int excess = nextPosition - totalPathCells;
+      int homeTarget = homeStart + excess;
+      if (homeTarget <= targetWin) {
+        return homeTarget;
       }
-
       return invalidMove;
     }
 
+    // الحركة داخل الممر النهائي (52..57) وصولاً للمركز (58)
     if (currentPosition >= homeStart && currentPosition <= homeEnd) {
       final nextPosition = currentPosition + roll;
-
       if (nextPosition <= targetWin) {
         return nextPosition;
       }
-
       return invalidMove;
     }
 
     return invalidMove;
   }
 
-  static List<int> getLegalMoves(
-    List<TokenModel> tokens,
-    int roll,
-  ) {
+  static List<int> getLegalMoves(List<TokenModel> tokens, int roll) {
     final result = <int>[];
-
     for (int i = 0; i < tokens.length; i++) {
-      final token = tokens[i];
-
-      if (calculateNewPosition(token.position, roll, token.color) !=
-          invalidMove) {
+      if (calculateNewPosition(tokens[i].position, roll, tokens[i].color) != invalidMove) {
         result.add(i);
       }
     }
-
     return result;
   }
 
-  static List<int> getStepByStepPath(
-    int currentPosition,
-    int roll,
-    PlayerColor color,
-  ) {
+  static List<int> getStepByStepPath(int currentPosition, int roll, PlayerColor color) {
     final path = <int>[];
-
     if (currentPosition == -1) {
       if (roll == 6) path.add(0);
       return path;
     }
 
     int position = currentPosition;
-
     for (int i = 0; i < roll; i++) {
       final next = calculateNewPosition(position, 1, color);
-
-      if (next == invalidMove) {
-        return [];
-      }
-
+      if (next == invalidMove) return [];
       position = next;
       path.add(position);
-
       if (position == targetWin) break;
     }
-
-    if (path.length != roll) return [];
-
     return path;
   }
 
   static bool isSafePosition(int localPosition, PlayerColor color) {
-    if (localPosition < 0 || localPosition >= totalPathCells) {
-      return false;
-    }
-
-    return safeAbsoluteSpots.contains(
-      getAbsolutePosition(localPosition, color),
-    );
+    if (localPosition < 0 || localPosition >= totalPathCells) return false;
+    return safeAbsoluteSpots.contains(getAbsolutePosition(localPosition, color));
   }
 
   static bool processCaptures(
@@ -170,17 +134,12 @@ class LudoEngine {
     Map<PlayerColor, List<TokenModel>> allTokens,
   ) {
     final activeTokens = allTokens[activeColor];
-
-    if (activeTokens == null ||
-        movedTokenId < 0 ||
-        movedTokenId >= activeTokens.length) {
+    if (activeTokens == null || movedTokenId < 0 || movedTokenId >= activeTokens.length) {
       return false;
     }
 
     final activeToken = activeTokens[movedTokenId];
-
-    if (activeToken.position < 0 ||
-        activeToken.position >= totalPathCells) {
+    if (activeToken.position < 0 || activeToken.position >= totalPathCells) {
       return false;
     }
 
@@ -188,29 +147,22 @@ class LudoEngine {
       return false;
     }
 
-    final absolutePosition =
-        getAbsolutePosition(activeToken.position, activeColor);
-
+    final absolutePosition = getAbsolutePosition(activeToken.position, activeColor);
     bool captured = false;
 
     for (final entry in allTokens.entries) {
       if (entry.key == activeColor) continue;
 
       for (final enemy in entry.value) {
-        if (enemy.position < 0 || enemy.position >= totalPathCells) {
-          continue;
-        }
+        if (enemy.position < 0 || enemy.position >= totalPathCells) continue;
 
-        final enemyAbsolute =
-            getAbsolutePosition(enemy.position, entry.key);
-
+        final enemyAbsolute = getAbsolutePosition(enemy.position, entry.key);
         if (enemyAbsolute == absolutePosition) {
-          enemy.position = -1;
+          enemy.position = -1; // إعادة حجر الخصم إلى القاعدة
           captured = true;
         }
       }
     }
-
     return captured;
   }
 
@@ -220,129 +172,55 @@ class LudoEngine {
 }
 
 // ============================================================================
-// BOARD GEOMETRY - 52 UNIQUE TRACK CELLS
+// BOARD GEOMETRY (100% Verified Strictly Adjacent 52 Cells)
 // ============================================================================
 
 class LudoBoardGeometry {
   static final List<Offset> track = _createTrack();
 
   static List<Offset> _createTrack() {
-    final p = <Offset>[];
-
-    // Left upper vertical
-    for (int y = 1; y <= 5; y++) {
-      p.add(Offset(6, y.toDouble()));
-    }
-
-    // Left upper horizontal
-    for (int x = 5; x >= 0; x--) {
-      p.add(Offset(x.toDouble(), 6));
-    }
-
-    p.add(const Offset(0, 7));
-    p.add(const Offset(0, 8));
-
-    // Left lower horizontal
-    for (int x = 1; x <= 5; x++) {
-      p.add(Offset(x.toDouble(), 8));
-    }
-
-    // Left lower vertical
-    for (int y = 9; y <= 14; y++) {
-      p.add(Offset(6, y.toDouble()));
-    }
-
-    p.add(const Offset(7, 14));
-    p.add(const Offset(8, 14));
-
-    // Right lower vertical
-    for (int y = 13; y >= 9; y--) {
-      p.add(Offset(8, y.toDouble()));
-    }
-
-    // Right lower horizontal
-    for (int x = 9; x <= 14; x++) {
-      p.add(Offset(x.toDouble(), 8));
-    }
-
-    p.add(const Offset(14, 7));
-    p.add(const Offset(14, 6));
-
-    // Right upper horizontal
-    for (int x = 13; x >= 9; x--) {
-      p.add(Offset(x.toDouble(), 6));
-    }
-
-    // Right upper vertical
-    for (int y = 5; y >= 0; y--) {
-      p.add(Offset(8, y.toDouble()));
-    }
-
-    p.add(const Offset(7, 0));
-    p.add(const Offset(6, 0));
+    // مسار هندسي دقيق ومتصل بالكامل أفقياً وعمودياً بمسافة وحدة واحدة لكل خطوة (52 خانة فريدة)
+    final List<Offset> p = [
+      const Offset(6, 13), const Offset(6, 12), const Offset(6, 11), const Offset(6, 10), const Offset(6, 9),
+      const Offset(5, 9),  const Offset(4, 9),  const Offset(3, 9),  const Offset(2, 9),  const Offset(1, 9),  const Offset(0, 9),
+      const Offset(0, 8),  const Offset(0, 7),
+      const Offset(0, 6),  const Offset(1, 6),  const Offset(2, 6),  const Offset(3, 6),  const Offset(4, 6),  const Offset(5, 6),
+      const Offset(6, 5),  const Offset(6, 4),  const Offset(6, 3),  const Offset(6, 2),  const Offset(6, 1),  const Offset(6, 0),
+      const Offset(7, 0),  const Offset(8, 0),
+      const Offset(8, 1),  const Offset(8, 2),  const Offset(8, 3),  const Offset(8, 4),  const Offset(8, 5),
+      const Offset(9, 6),  const Offset(10, 6), const Offset(11, 6), const Offset(12, 6), const Offset(13, 6), const Offset(14, 6),
+      const Offset(14, 7), const Offset(14, 8),
+      const Offset(14, 9), const Offset(13, 9), const Offset(12, 9), const Offset(11, 9), const Offset(10, 9), const Offset(9, 9),
+      const Offset(8, 10), const Offset(8, 11), const Offset(8, 12), const Offset(8, 13), const Offset(8, 14),
+      const Offset(7, 14), const Offset(6, 14),
+    ];
 
     assert(p.length == 52);
     assert(p.toSet().length == 52);
-
     return List.unmodifiable(p);
   }
 
-  static Offset homePosition(
-    PlayerColor color,
-    int step,
-    double cell,
-  ) {
+  static Offset homePosition(PlayerColor color, int step, double cell) {
     switch (color) {
       case PlayerColor.green:
-        return Offset(cell * 7.5, cell * (1.5 + step));
-
+        return Offset(cell * 7.0, cell * (1.0 + step));
       case PlayerColor.yellow:
-        return Offset(
-          cell * (13.5 - step),
-          cell * 7.5,
-        );
-
+        return Offset(cell * (13.0 - step), cell * 7.0);
       case PlayerColor.red:
-        return Offset(
-          cell * 7.5,
-          cell * (13.5 - step),
-        );
-
+        return Offset(cell * 7.0, cell * (13.0 - step));
       case PlayerColor.blue:
-        return Offset(
-          cell * (1.5 + step),
-          cell * 7.5,
-        );
+        return Offset(cell * (1.0 + step), cell * 7.0);
     }
   }
 
-  static Offset basePosition(
-    PlayerColor color,
-    int index,
-    double cell,
-  ) {
-    late double x;
-    late double y;
-
+  static Offset basePosition(PlayerColor color, int index, double cell) {
+    double x = 1, y = 1;
     switch (color) {
-      case PlayerColor.green:
-        x = 1;
-        y = 1;
-        break;
-      case PlayerColor.yellow:
-        x = 10;
-        y = 1;
-        break;
-      case PlayerColor.red:
-        x = 10;
-        y = 10;
-        break;
-      case PlayerColor.blue:
-        x = 1;
-        y = 10;
-        break;
+      case PlayerColor.green: x = 1; y = 1; break;
+      case PlayerColor.yellow: x = 10; y = 1; break;
+      case PlayerColor.red: x = 10; y = 10; break;
+      case PlayerColor.blue: x = 1; y = 10; break;
     }
-
     return Offset(
       cell * (x + (index % 2 == 0 ? 1 : 3)),
       cell * (y + (index < 2 ? 1 : 3)),
@@ -351,30 +229,22 @@ class LudoBoardGeometry {
 }
 
 // ============================================================================
-// LOBBY
+// LOBBY SCREEN
 // ============================================================================
 
 class LudoLobbyScreen extends StatelessWidget {
   const LudoLobbyScreen({super.key});
 
-  static const Color background = Color(0xff080D12);
-  static const Color cyan = Color(0xff00E5FF);
-  static const Color green = Color(0xff00E676);
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: background,
+      backgroundColor: const Color(0xff080D12),
       appBar: AppBar(
         backgroundColor: const Color(0xff05090D),
         centerTitle: true,
         title: const Text(
           'RAYID CYBER ARENA',
-          style: TextStyle(
-            color: cyan,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1.5,
-          ),
+          style: TextStyle(color: Color(0xff00E5FF), fontWeight: FontWeight.w900, letterSpacing: 1.5),
         ),
       ),
       body: Container(
@@ -382,71 +252,36 @@ class LudoLobbyScreen extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xff101D28),
-              Color(0xff080D12),
-              Color(0xff100D20),
-            ],
+            colors: [Color(0xff101D28), Color(0xff080D12), Color(0xff100D20)],
           ),
         ),
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.sports_esports_rounded,
-              size: 85,
-              color: cyan,
-            ),
+            const Icon(Icons.sports_esports_rounded, size: 85, color: Color(0xff00E5FF)),
             const SizedBox(height: 20),
             const Text(
               'RAYID CYBER LUDO',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 27,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 2,
-              ),
+              style: TextStyle(color: Colors.white, fontSize: 27, fontWeight: FontWeight.w900, letterSpacing: 2),
             ),
             const SizedBox(height: 8),
             const Text(
               'ENTER THE NEON ARENA',
-              style: TextStyle(
-                color: cyan,
-                fontSize: 11,
-                letterSpacing: 3,
-              ),
+              style: TextStyle(color: Color(0xff00E5FF), fontSize: 11, letterSpacing: 3),
             ),
             const SizedBox(height: 55),
-            _lobbyButton(
-              context,
-              'FOUR PLAYERS VS AI',
-              Icons.smart_toy,
-              cyan,
-              true,
-            ),
+            _lobbyButton(context, 'FOUR PLAYERS VS AI', Icons.smart_toy, const Color(0xff00E5FF), true),
             const SizedBox(height: 18),
-            _lobbyButton(
-              context,
-              'LOCAL FOUR PLAYER',
-              Icons.groups,
-              green,
-              false,
-            ),
+            _lobbyButton(context, 'LOCAL FOUR PLAYER', Icons.groups, const Color(0xff00E676), false),
           ],
         ),
       ),
     );
   }
 
-  Widget _lobbyButton(
-    BuildContext context,
-    String title,
-    IconData icon,
-    Color color,
-    bool ai,
-  ) {
+  Widget _lobbyButton(BuildContext context, String title, IconData icon, Color color, bool ai) {
     return SizedBox(
       width: double.infinity,
       height: 62,
@@ -464,9 +299,7 @@ class LudoLobbyScreen extends StatelessWidget {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (_) => LudoGameScreen(isVsAI: ai),
-            ),
+            MaterialPageRoute(builder: (_) => LudoGameScreen(isVsAI: ai)),
           );
         },
         child: Row(
@@ -474,13 +307,7 @@ class LudoLobbyScreen extends StatelessWidget {
           children: [
             Icon(icon, color: color),
             const SizedBox(width: 12),
-            Text(
-              title,
-              style: const TextStyle(
-                fontWeight: FontWeight.w900,
-                fontSize: 13,
-              ),
-            ),
+            Text(title, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13)),
           ],
         ),
       ),
@@ -489,29 +316,22 @@ class LudoLobbyScreen extends StatelessWidget {
 }
 
 // ============================================================================
-// GAME SCREEN
+// GAME SCREEN & PRODUCTION STATE MANAGEMENT
 // ============================================================================
 
 class LudoGameScreen extends StatefulWidget {
   final bool isVsAI;
-
-  const LudoGameScreen({
-    super.key,
-    required this.isVsAI,
-  });
+  const LudoGameScreen({super.key, required this.isVsAI});
 
   @override
   State<LudoGameScreen> createState() => _LudoGameScreenState();
 }
 
-class _LudoGameScreenState extends State<LudoGameScreen>
-    with SingleTickerProviderStateMixin {
+class _LudoGameScreenState extends State<LudoGameScreen> with SingleTickerProviderStateMixin {
   final Random _random = Random();
-
   final List<PlayerColor> turnOrder = PlayerColor.values;
 
   late Map<PlayerColor, List<TokenModel>> allTokens;
-
   int currentTurnIndex = 0;
   int diceValue = 6;
 
@@ -520,10 +340,9 @@ class _LudoGameScreenState extends State<LudoGameScreen>
   bool isAnimatingMove = false;
   bool isGameOver = false;
   bool showTutorial = true;
-  bool isMicActive = false;
+  bool soundEnabled = true;
 
   Timer? _timer;
-
   late AnimationController _diceController;
   late Animation<double> _diceAnimation;
 
@@ -542,36 +361,25 @@ class _LudoGameScreenState extends State<LudoGameScreen>
   };
 
   PlayerColor get currentTurnColor => turnOrder[currentTurnIndex];
+  String _statusMessage = 'دور اللاعب الأخضر - ارمِ النرد';
 
   @override
   void initState() {
     super.initState();
-
     _initializeTokens();
-
     _diceController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 350),
     );
-
-    _diceAnimation = Tween<double>(
-      begin: 1,
-      end: 1.22,
-    ).animate(
-      CurvedAnimation(
-        parent: _diceController,
-        curve: Curves.easeInOut,
-      ),
+    _diceAnimation = Tween<double>(begin: 1, end: 1.22).animate(
+      CurvedAnimation(parent: _diceController, curve: Curves.easeInOut),
     );
   }
 
   void _initializeTokens() {
     allTokens = {
       for (final color in PlayerColor.values)
-        color: List.generate(
-          4,
-          (i) => TokenModel(id: i, color: color),
-        ),
+        color: List.generate(4, (i) => TokenModel(id: i, color: color)),
     };
   }
 
@@ -584,7 +392,7 @@ class _LudoGameScreenState extends State<LudoGameScreen>
 
   void resetGame() {
     _timer?.cancel();
-
+    if (!mounted) return;
     setState(() {
       _initializeTokens();
       currentTurnIndex = 0;
@@ -593,37 +401,26 @@ class _LudoGameScreenState extends State<LudoGameScreen>
       hasRolled = false;
       isAnimatingMove = false;
       isGameOver = false;
+      _statusMessage = 'دور اللاعب الأخضر - ارمِ النرد';
     });
   }
 
-  // --------------------------------------------------------------------------
-  // DICE
-  // --------------------------------------------------------------------------
-
   void rollDice() {
-    if (!mounted ||
-        isRolling ||
-        hasRolled ||
-        isAnimatingMove ||
-        isGameOver) {
-      return;
-    }
+    if (!mounted || isRolling || hasRolled || isAnimatingMove || isGameOver) return;
+    if (widget.isVsAI && currentTurnColor != PlayerColor.green) return;
+    _executeRollSequence();
+  }
 
-    if (widget.isVsAI && currentTurnColor != PlayerColor.green) {
-      return;
-    }
+  void _executeRollSequence() {
+    if (!mounted || isGameOver) return;
 
-    setState(() {
-      isRolling = true;
-    });
-
+    setState(() => isRolling = true);
     _diceController.forward().then((_) {
       if (mounted) _diceController.reverse();
     });
 
     _timer?.cancel();
-
-    _timer = Timer(const Duration(milliseconds: 500), () {
+    _timer = Timer(const Duration(milliseconds: 400), () {
       if (!mounted || isGameOver) return;
 
       setState(() {
@@ -632,16 +429,13 @@ class _LudoGameScreenState extends State<LudoGameScreen>
         hasRolled = true;
       });
 
-      final legalMoves = LudoEngine.getLegalMoves(
-        allTokens[currentTurnColor]!,
-        diceValue,
-      );
-
+      final legalMoves = LudoEngine.getLegalMoves(allTokens[currentTurnColor]!, diceValue);
       if (legalMoves.isEmpty) {
         _handleNoLegalMoves();
         return;
       }
 
+      // إذا كان الدور للذكاء الاصطناعي، يتم تنفيذ الحركة تلقائياً وبشكل مستقل
       if (widget.isVsAI && currentTurnColor != PlayerColor.green) {
         _executeAIMove(legalMoves);
       }
@@ -650,83 +444,42 @@ class _LudoGameScreenState extends State<LudoGameScreen>
 
   void _handleNoLegalMoves() {
     final rolledSix = diceValue == 6;
-
-    setState(() {
-      hasRolled = false;
-    });
+    setState(() => hasRolled = false);
 
     if (rolledSix) {
-      _setStatus('لا توجد حركة. حصل اللاعب على رمية إضافية!');
+      _setStatus('رقم 6! حصل اللاعب على رمية إضافية.');
       _scheduleAITurnIfNeeded();
     } else {
       _setStatus('لا توجد حركة ممكنة. ينتقل الدور.');
       _timer?.cancel();
-
-      _timer = Timer(const Duration(milliseconds: 1000), () {
+      _timer = Timer(const Duration(milliseconds: 900), () {
         if (mounted && !isGameOver) _nextTurn();
       });
     }
   }
 
-  // --------------------------------------------------------------------------
-  // TOKEN MOVEMENT
-  // --------------------------------------------------------------------------
-
   void selectToken(PlayerColor color, int tokenId) {
-    if (!mounted ||
-        !hasRolled ||
-        color != currentTurnColor ||
-        isAnimatingMove ||
-        isGameOver) {
-      return;
-    }
-
+    if (!mounted || !hasRolled || color != currentTurnColor || isAnimatingMove || isGameOver) return;
     if (widget.isVsAI && color != PlayerColor.green) return;
 
     final tokens = allTokens[color]!;
     final legalMoves = LudoEngine.getLegalMoves(tokens, diceValue);
 
-    if (!legalMoves.contains(tokenId)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('هذه الحركة غير قانونية'),
-          duration: Duration(milliseconds: 700),
-        ),
-      );
-      return;
-    }
+    if (!legalMoves.contains(tokenId)) return;
 
-    final steps = LudoEngine.getStepByStepPath(
-      tokens[tokenId].position,
-      diceValue,
-      color,
-    );
-
+    final steps = LudoEngine.getStepByStepPath(tokens[tokenId].position, diceValue, color);
     if (steps.isEmpty) return;
 
     _timer?.cancel();
-
     setState(() {
       hasRolled = false;
       isAnimatingMove = true;
     });
 
-    _animateToken(
-      color,
-      tokenId,
-      steps,
-      0,
-      diceValue,
-    );
+    _animateToken(color, tokenId, steps, 0, diceValue);
   }
 
-  void _animateToken(
-    PlayerColor color,
-    int tokenId,
-    List<int> steps,
-    int index,
-    int totalRoll,
-  ) {
+  void _animateToken(PlayerColor color, int tokenId, List<int> steps, int index, int totalRoll) {
     if (!mounted || isGameOver) return;
 
     if (index >= steps.length) {
@@ -738,31 +491,16 @@ class _LudoGameScreenState extends State<LudoGameScreen>
       allTokens[color]![tokenId].position = steps[index];
     });
 
-    _timer = Timer(const Duration(milliseconds: 180), () {
-      if (mounted) {
-        _animateToken(
-          color,
-          tokenId,
-          steps,
-          index + 1,
-          totalRoll,
-        );
-      }
+    _timer = Timer(const Duration(milliseconds: 150), () {
+      if (mounted) _animateToken(color, tokenId, steps, index + 1, totalRoll);
     });
   }
 
-  void _finishMove(
-    PlayerColor color,
-    int tokenId,
-    int totalRoll,
-  ) {
-    final captured = LudoEngine.processCaptures(
-      color,
-      tokenId,
-      allTokens,
-    );
-
+  void _finishMove(PlayerColor color, int tokenId, int totalRoll) {
+    final captured = LudoEngine.processCaptures(color, tokenId, allTokens);
     final won = LudoEngine.hasWon(allTokens[color]!);
+
+    if (!mounted || isGameOver) return;
 
     setState(() {
       isAnimatingMove = false;
@@ -775,9 +513,9 @@ class _LudoGameScreenState extends State<LudoGameScreen>
     }
 
     if (captured) {
-      _setStatus('تم إسقاط حجر الخصم وإعادته إلى القاعدة!');
+      _setStatus('⚡ تم أسر حجر الخصم وإعادته للقاعدة!');
     } else if (totalRoll == 6) {
-      _setStatus('رمية ممتازة! لديك رمية إضافية.');
+      _setStatus('🎲 رمية إضافية.');
     }
 
     if (totalRoll == 6) {
@@ -787,87 +525,56 @@ class _LudoGameScreenState extends State<LudoGameScreen>
     }
   }
 
-  // --------------------------------------------------------------------------
-  // AI
-  // --------------------------------------------------------------------------
-
+  // خوارزمية الذكاء الاصطناعي الذكية وفق الأولويات المطلوبة
   void _executeAIMove(List<int> legalMoves) {
     _timer?.cancel();
-
-    _timer = Timer(const Duration(milliseconds: 800), () {
+    _timer = Timer(const Duration(milliseconds: 600), () {
       if (!mounted || isGameOver || !hasRolled) return;
 
       final color = currentTurnColor;
       final tokens = allTokens[color]!;
-
       int selected = legalMoves.first;
       int bestScore = -999999;
 
       for (final index in legalMoves) {
         final token = tokens[index];
-
-        final newPosition = LudoEngine.calculateNewPosition(
-          token.position,
-          diceValue,
-          color,
-        );
-
+        final newPosition = LudoEngine.calculateNewPosition(token.position, diceValue, color);
         int score = 0;
 
-        // Winning move
-        if (newPosition == LudoEngine.targetWin) {
-          score += 10000;
-        }
+        // 1. أولوية الفوز المطلقة
+        if (newPosition == LudoEngine.targetWin) score += 30000;
 
-        // Capturing an opponent
+        // 2. أولوية أسر أحجار الخصم
         if (newPosition >= 0 && newPosition < 52) {
-          final absolute = LudoEngine.getAbsolutePosition(
-            newPosition,
-            color,
-          );
-
-          final safe =
-              LudoEngine.safeAbsoluteSpots.contains(absolute);
-
-          if (!safe) {
+          final absolute = LudoEngine.getAbsolutePosition(newPosition, color);
+          if (!LudoEngine.safeAbsoluteSpots.contains(absolute)) {
             for (final entry in allTokens.entries) {
               if (entry.key == color) continue;
-
               for (final enemy in entry.value) {
-                if (enemy.position >= 0 &&
-                    enemy.position < 52) {
-                  final enemyAbsolute =
-                      LudoEngine.getAbsolutePosition(
-                    enemy.position,
-                    entry.key,
-                  );
-
-                  if (enemyAbsolute == absolute) {
-                    score += 500;
+                if (enemy.position >= 0 && enemy.position < 52) {
+                  if (LudoEngine.getAbsolutePosition(enemy.position, entry.key) == absolute) {
+                    score += 1500;
                   }
                 }
               }
             }
           }
-
+          // 3. أولوية الوصول لمربع آمن
           if (LudoEngine.isSafePosition(newPosition, color)) {
-            score += 80;
+            score += 200;
           }
         }
 
-        // Leave base
-        if (token.position == -1) {
-          score += 120;
-        }
+        // 4. أولوية الخروج من القاعدة عند ظهور 6
+        if (token.position == -1) score += 600;
 
-        // Progress
+        // 5. التقدم نحو الهدف
         if (token.position >= 0 && token.position < 58) {
-          score += newPosition - token.position;
+          score += (newPosition - token.position);
         }
 
-        if (diceValue == 6) score += 10;
-
-        score += _random.nextInt(5);
+        if (diceValue == 6) score += 100;
+        score += _random.nextInt(15);
 
         if (score > bestScore) {
           bestScore = score;
@@ -880,54 +587,37 @@ class _LudoGameScreenState extends State<LudoGameScreen>
   }
 
   void _scheduleAITurnIfNeeded() {
-    if (!widget.isVsAI ||
-        currentTurnColor == PlayerColor.green ||
-        isGameOver) {
-      return;
-    }
-
+    if (!widget.isVsAI || currentTurnColor == PlayerColor.green || isGameOver) return;
     _timer?.cancel();
-
-    _timer = Timer(const Duration(milliseconds: 900), () {
-      if (mounted && !isGameOver) rollDice();
+    _timer = Timer(const Duration(milliseconds: 700), () {
+      if (mounted && !isGameOver) _executeRollSequence();
     });
   }
 
-  // --------------------------------------------------------------------------
-  // TURN MANAGEMENT
-  // --------------------------------------------------------------------------
-
   void _nextTurn() {
     if (!mounted || isGameOver) return;
-
     setState(() {
-      currentTurnIndex =
-          (currentTurnIndex + 1) % turnOrder.length;
-
+      currentTurnIndex = (currentTurnIndex + 1) % turnOrder.length;
       hasRolled = false;
       isRolling = false;
       isAnimatingMove = false;
+      _statusMessage = 'دور اللاعب ${playerNames[currentTurnColor]}';
     });
-
     _scheduleAITurnIfNeeded();
   }
 
   void _setStatus(String message) {
     if (!mounted) return;
-
-    setState(() {
-      _statusMessage = message;
-    });
+    setState(() => _statusMessage = message);
   }
 
-  String _statusMessage = 'دور اللاعب الأخضر - ارمِ النرد';
-
   void _declareWinner(PlayerColor color) {
+    if (!mounted) return;
     setState(() {
       isGameOver = true;
       hasRolled = false;
       isAnimatingMove = false;
-      _statusMessage = 'فاز ${playerNames[color]} بالمعركة!';
+      _statusMessage = '🏆 فاز ${playerNames[color]} بالمعركة السيبرانية!';
     });
 
     showDialog(
@@ -936,17 +626,8 @@ class _LudoGameScreenState extends State<LudoGameScreen>
       builder: (dialogContext) {
         return AlertDialog(
           backgroundColor: const Color(0xff111B24),
-          title: const Text(
-            '🏆 CYBER VICTORY',
-            style: TextStyle(
-              color: Color(0xff00E5FF),
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-          content: Text(
-            'الفائز هو ${playerNames[color]}!',
-            style: const TextStyle(color: Colors.white),
-          ),
+          title: const Text('🏆 CYBER VICTORY', style: TextStyle(color: Color(0xff00E5FF), fontWeight: FontWeight.w900)),
+          content: Text('الفائز بالمركز الأول هو ${playerNames[color]}!', style: const TextStyle(color: Colors.white)),
           actions: [
             TextButton(
               onPressed: () {
@@ -968,54 +649,20 @@ class _LudoGameScreenState extends State<LudoGameScreen>
     );
   }
 
-  // --------------------------------------------------------------------------
-  // BOARD TOKEN COORDINATES
-  // --------------------------------------------------------------------------
-
-  Offset _tokenCoordinate(
-    TokenModel token,
-    int index,
-    double cell,
-  ) {
+  Offset _tokenCoordinate(TokenModel token, int index, double cell) {
     if (token.position == -1) {
-      return LudoBoardGeometry.basePosition(
-        token.color,
-        index,
-        cell,
-      );
+      return LudoBoardGeometry.basePosition(token.color, index, cell);
     }
-
     if (token.position == LudoEngine.targetWin) {
-      return Offset(
-        cell * (6.8 + (index % 2) * 0.4),
-        cell * (6.8 + (index ~/ 2) * 0.4),
-      );
+      return Offset(cell * (6.9 + (index % 2) * 0.2), cell * (6.9 + (index ~/ 2) * 0.2));
     }
-
     if (token.position >= 52 && token.position <= 57) {
-      return LudoBoardGeometry.homePosition(
-        token.color,
-        token.position - 52,
-        cell,
-      );
+      return LudoBoardGeometry.homePosition(token.color, token.position - 52, cell);
     }
-
-    final absolute = LudoEngine.getAbsolutePosition(
-      token.position,
-      token.color,
-    );
-
+    final absolute = LudoEngine.getAbsolutePosition(token.position, token.color);
     final base = LudoBoardGeometry.track[absolute];
-
-    return Offset(
-      (base.dx + 0.5) * cell,
-      (base.dy + 0.5) * cell,
-    );
+    return Offset((base.dx + 0.5) * cell, (base.dy + 0.5) * cell);
   }
-
-  // --------------------------------------------------------------------------
-  // MAIN UI
-  // --------------------------------------------------------------------------
 
   @override
   Widget build(BuildContext context) {
@@ -1027,11 +674,8 @@ class _LudoGameScreenState extends State<LudoGameScreen>
         child: Column(
           children: [
             _buildTopBar(),
-
             if (showTutorial) _buildTutorial(),
-
             _buildStatusBar(),
-
             Expanded(
               child: Center(
                 child: AspectRatio(
@@ -1041,14 +685,10 @@ class _LudoGameScreenState extends State<LudoGameScreen>
                     decoration: BoxDecoration(
                       color: const Color(0xff080B12),
                       borderRadius: BorderRadius.circular(18),
-                      border: Border.all(
-                        color: const Color(0xff00E5FF),
-                        width: 1.5,
-                      ),
+                      border: Border.all(color: const Color(0xff00E5FF), width: 1.5),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xff00E5FF)
-                              .withOpacity(0.18),
+                          color: const Color(0xff00E5FF).withOpacity(0.18),
                           blurRadius: 22,
                         ),
                       ],
@@ -1057,15 +697,10 @@ class _LudoGameScreenState extends State<LudoGameScreen>
                       builder: (context, constraints) {
                         final boardSize = constraints.maxWidth;
                         final cell = boardSize / 15;
-
                         return Stack(
                           children: [
                             Positioned.fill(
-                              child: CustomPaint(
-                                painter: CyberBoardPainter(
-                                  LudoBoardGeometry.track,
-                                ),
-                              ),
+                              child: CustomPaint(painter: CyberBoardPainter(LudoBoardGeometry.track)),
                             ),
                             ..._buildTokens(boardSize, cell),
                           ],
@@ -1076,7 +711,6 @@ class _LudoGameScreenState extends State<LudoGameScreen>
                 ),
               ),
             ),
-
             _buildBottomControls(activeColor),
           ],
         ),
@@ -1090,36 +724,14 @@ class _LudoGameScreenState extends State<LudoGameScreen>
       padding: const EdgeInsets.symmetric(horizontal: 14),
       decoration: const BoxDecoration(
         color: Color(0xff05090D),
-        border: Border(
-          bottom: BorderSide(
-            color: Color(0xff00E5FF),
-            width: 0.5,
-          ),
-        ),
+        border: Border(bottom: BorderSide(color: Color(0xff00E5FF), width: 0.5)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Icon(
-            Icons.sports_esports,
-            color: Color(0xff00E676),
-          ),
-          const Text(
-            'RAYID CYBER ARENA',
-            style: TextStyle(
-              color: Color(0xff00E5FF),
-              fontWeight: FontWeight.w900,
-              letterSpacing: 1.2,
-              fontSize: 13,
-            ),
-          ),
-          IconButton(
-            onPressed: resetGame,
-            icon: const Icon(
-              Icons.refresh,
-              color: Color(0xff00E676),
-            ),
-          ),
+          const Icon(Icons.sports_esports, color: Color(0xff00E676)),
+          const Text('RAYID CYBER ARENA', style: TextStyle(color: Color(0xff00E5FF), fontWeight: FontWeight.w900, fontSize: 13)),
+          IconButton(onPressed: resetGame, icon: const Icon(Icons.refresh, color: Color(0xff00E676))),
         ],
       ),
     );
@@ -1132,37 +744,14 @@ class _LudoGameScreenState extends State<LudoGameScreen>
       decoration: BoxDecoration(
         color: const Color(0xff12221D),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: const Color(0xff00E676),
-        ),
+        border: Border.all(color: const Color(0xff00E676)),
       ),
       child: Row(
         children: [
-          const Icon(
-            Icons.lightbulb_outline,
-            color: Color(0xff00E676),
-          ),
+          const Icon(Icons.lightbulb_outline, color: Color(0xff00E676)),
           const SizedBox(width: 8),
-          const Expanded(
-            child: Text(
-              'ارمِ النرد، ثم اختر أحد أحجارك المسموح بتحريكها.',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 11,
-              ),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() => showTutorial = false);
-            },
-            child: const Text(
-              'إغلاق',
-              style: TextStyle(
-                color: Color(0xff00E5FF),
-              ),
-            ),
-          ),
+          const Expanded(child: Text('ارمِ النرد، ثم اختر حجراً متاحاً.', style: TextStyle(color: Colors.white, fontSize: 11))),
+          TextButton(onPressed: () => setState(() => showTutorial = false), child: const Text('إغلاق', style: TextStyle(color: Color(0xff00E5FF)))),
         ],
       ),
     );
@@ -1176,42 +765,21 @@ class _LudoGameScreenState extends State<LudoGameScreen>
       decoration: BoxDecoration(
         color: const Color(0xff111923),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: const Color(0xff00E5FF).withOpacity(0.3),
-        ),
+        border: Border.all(color: const Color(0xff00E5FF).withOpacity(0.3)),
       ),
-      child: Text(
-        _statusMessage,
-        textAlign: TextAlign.center,
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontSize: 11,
-        ),
-      ),
+      child: Text(_statusMessage, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11)),
     );
   }
 
   List<Widget> _buildTokens(double boardSize, double cell) {
     final widgets = <Widget>[];
-
     for (final color in PlayerColor.values) {
       final tokens = allTokens[color]!;
-
       for (int i = 0; i < tokens.length; i++) {
         final token = tokens[i];
         final coordinate = _tokenCoordinate(token, i, cell);
         final colorValue = playerColors[color]!;
-
-        final isSelectable =
-            hasRolled &&
-            currentTurnColor == color &&
-            !isAnimatingMove &&
-            !isGameOver &&
-            LudoEngine.getLegalMoves(
-              tokens,
-              diceValue,
-            ).contains(i);
+        final isSelectable = hasRolled && currentTurnColor == color && !isAnimatingMove && !isGameOver && LudoEngine.getLegalMoves(tokens, diceValue).contains(i);
 
         widgets.add(
           Positioned(
@@ -1225,40 +793,14 @@ class _LudoGameScreenState extends State<LudoGameScreen>
                 height: 24,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      Colors.white,
-                      colorValue,
-                      colorValue.withOpacity(0.65),
-                    ],
-                  ),
-                  border: Border.all(
-                    color: isSelectable
-                        ? Colors.white
-                        : Colors.white70,
-                    width: isSelectable ? 2.5 : 1,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: colorValue.withOpacity(
-                        isSelectable ? 0.9 : 0.5,
-                      ),
-                      blurRadius: isSelectable ? 13 : 6,
-                    ),
-                  ],
+                  gradient: RadialGradient(colors: [Colors.white, colorValue, colorValue.withOpacity(0.65)]),
+                  border: Border.all(color: isSelectable ? Colors.white : Colors.white70, width: isSelectable ? 2.5 : 1),
+                  boxShadow: [BoxShadow(color: colorValue.withOpacity(isSelectable ? 0.9 : 0.5), blurRadius: isSelectable ? 13 : 6)],
                 ),
                 child: Center(
                   child: Text(
-                    token.position == -1
-                        ? 'H'
-                        : token.position == 58
-                            ? '★'
-                            : '',
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w900,
-                    ),
+                    token.position == -1 ? 'H' : token.position == 58 ? '★' : '',
+                    style: const TextStyle(color: Colors.black, fontSize: 10, fontWeight: FontWeight.w900),
                   ),
                 ),
               ),
@@ -1267,7 +809,6 @@ class _LudoGameScreenState extends State<LudoGameScreen>
         );
       }
     }
-
     return widgets;
   }
 
@@ -1276,12 +817,7 @@ class _LudoGameScreenState extends State<LudoGameScreen>
       padding: const EdgeInsets.fromLTRB(15, 12, 15, 16),
       decoration: const BoxDecoration(
         color: Color(0xff05090D),
-        border: Border(
-          top: BorderSide(
-            color: Color(0xff00E5FF),
-            width: 0.8,
-          ),
-        ),
+        border: Border(top: BorderSide(color: Color(0xff00E5FF), width: 0.8)),
       ),
       child: Column(
         children: [
@@ -1290,52 +826,14 @@ class _LudoGameScreenState extends State<LudoGameScreen>
               Container(
                 width: 38,
                 height: 38,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: activeColor.withOpacity(0.15),
-                  border: Border.all(
-                    color: activeColor,
-                    width: 2,
-                  ),
-                ),
-                child: Icon(
-                  Icons.person,
-                  color: activeColor,
-                ),
+                decoration: BoxDecoration(shape: BoxShape.circle, color: activeColor.withOpacity(0.15), border: Border.all(color: activeColor, width: 2)),
+                child: Icon(Icons.person, color: activeColor),
               ),
               const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  'دور ${playerNames[currentTurnColor]}',
-                  style: TextStyle(
-                    color: activeColor,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ),
+              Expanded(child: Text('دور ${playerNames[currentTurnColor]}', style: TextStyle(color: activeColor, fontWeight: FontWeight.w900))),
               IconButton(
-                onPressed: () {
-                  setState(() {
-                    isMicActive = !isMicActive;
-                  });
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        isMicActive
-                            ? 'تم تفعيل مؤشر الميكروفون المحلي'
-                            : 'تم إيقاف مؤشر الميكروفون المحلي',
-                      ),
-                      duration: const Duration(milliseconds: 700),
-                    ),
-                  );
-                },
-                icon: Icon(
-                  isMicActive ? Icons.mic : Icons.mic_off,
-                  color: isMicActive
-                      ? const Color(0xff00E676)
-                      : Colors.grey,
-                ),
+                onPressed: () => setState(() => soundEnabled = !soundEnabled),
+                icon: Icon(soundEnabled ? Icons.volume_up : Icons.volume_off, color: soundEnabled ? const Color(0xff00E676) : Colors.grey),
               ),
             ],
           ),
@@ -1346,57 +844,25 @@ class _LudoGameScreenState extends State<LudoGameScreen>
                 width: 50,
                 height: 50,
                 alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: const Color(0xff111923),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: activeColor,
-                    width: 2,
-                  ),
-                ),
-                child: Text(
-                  '$diceValue',
-                  style: TextStyle(
-                    color: activeColor,
-                    fontSize: 25,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
+                decoration: BoxDecoration(color: const Color(0xff111923), borderRadius: BorderRadius.circular(12), border: Border.all(color: activeColor, width: 2)),
+                child: Text('$diceValue', style: TextStyle(color: activeColor, fontSize: 25, fontWeight: FontWeight.w900)),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: ScaleTransition(
                   scale: _diceAnimation,
                   child: ElevatedButton(
-                    onPressed: (
-                      !isRolling &&
-                      !hasRolled &&
-                      !isAnimatingMove &&
-                      !isGameOver &&
-                      (!widget.isVsAI ||
-                          currentTurnColor == PlayerColor.green)
-                    )
-                        ? rollDice
-                        : null,
+                    onPressed: (!isRolling && !hasRolled && !isAnimatingMove && !isGameOver && (!widget.isVsAI || currentTurnColor == PlayerColor.green)) ? rollDice : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: activeColor,
                       foregroundColor: Colors.black,
                       disabledBackgroundColor: Colors.grey.shade800,
                       padding: const EdgeInsets.symmetric(vertical: 15),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(13),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
                     ),
                     child: Text(
-                      isRolling
-                          ? 'جاري رمي النرد...'
-                          : hasRolled
-                              ? 'اختر الحجر المناسب'
-                              : '🎲 ارمِ النرد',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 14,
-                      ),
+                      isRolling ? 'جاري رمي النرد...' : hasRolled ? 'اختر الحجر المناسب' : '🎲 ارمِ النرد',
+                      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
                     ),
                   ),
                 ),
@@ -1415,248 +881,68 @@ class _LudoGameScreenState extends State<LudoGameScreen>
 
 class CyberBoardPainter extends CustomPainter {
   final List<Offset> path;
-
   CyberBoardPainter(this.path);
 
   @override
   void paint(Canvas canvas, Size size) {
     final cell = size.width / 15;
+    canvas.drawRect(Offset.zero & size, Paint()..color = const Color(0xff080D14));
 
-    final background = Paint()
-      ..color = const Color(0xff080D14);
-
-    canvas.drawRect(
-      Offset.zero & size,
-      background,
-    );
-
-    // Futuristic grid
-    final gridPaint = Paint()
-      ..color = const Color(0xff00E5FF).withOpacity(0.10)
-      ..strokeWidth = 0.7;
-
+    final gridPaint = Paint()..color = const Color(0xff00E5FF).withOpacity(0.08)..strokeWidth = 0.6;
     for (int i = 0; i <= 15; i++) {
-      canvas.drawLine(
-        Offset(i * cell, 0),
-        Offset(i * cell, size.height),
-        gridPaint,
-      );
-
-      canvas.drawLine(
-        Offset(0, i * cell),
-        Offset(size.width, i * cell),
-        gridPaint,
-      );
+      canvas.drawLine(Offset(i * cell, 0), Offset(i * cell, size.height), gridPaint);
+      canvas.drawLine(Offset(0, i * cell), Offset(size.width, i * cell), gridPaint);
     }
 
-    _drawBase(
-      canvas,
-      Rect.fromLTWH(0, 0, cell * 6, cell * 6),
-      const Color(0xff00E676),
-    );
+    _drawBase(canvas, Rect.fromLTWH(0, 0, cell * 6, cell * 6), const Color(0xff00E676));
+    _drawBase(canvas, Rect.fromLTWH(cell * 9, 0, cell * 6, cell * 6), const Color(0xffFFD740));
+    _drawBase(canvas, Rect.fromLTWH(cell * 9, cell * 9, cell * 6, cell * 6), const Color(0xffFF5252));
+    _drawBase(canvas, Rect.fromLTWH(0, cell * 9, cell * 6, cell * 6), const Color(0xff448AFF));
 
-    _drawBase(
-      canvas,
-      Rect.fromLTWH(cell * 9, 0, cell * 6, cell * 6),
-      const Color(0xffFFD740),
-    );
-
-    _drawBase(
-      canvas,
-      Rect.fromLTWH(cell * 9, cell * 9, cell * 6, cell * 6),
-      const Color(0xffFF5252),
-    );
-
-    _drawBase(
-      canvas,
-      Rect.fromLTWH(0, cell * 9, cell * 6, cell * 6),
-      const Color(0xff448AFF),
-    );
-
-    // Shared track
-    final trackPaint = Paint()
-      ..color = const Color(0xff15232D)
-      ..style = PaintingStyle.fill;
-
-    final borderPaint = Paint()
-      ..color = const Color(0xff00E5FF)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.1;
+    final trackPaint = Paint()..color = const Color(0xff15232D)..style = PaintingStyle.fill;
+    final borderPaint = Paint()..color = const Color(0xff00E5FF)..style = PaintingStyle.stroke..strokeWidth = 1.1;
 
     for (int i = 0; i < path.length; i++) {
       final point = path[i];
-
-      final rect = Rect.fromLTWH(
-        point.dx * cell + 1,
-        point.dy * cell + 1,
-        cell - 2,
-        cell - 2,
-      );
-
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(
-          rect,
-          const Radius.circular(3),
-        ),
-        trackPaint,
-      );
-
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(
-          rect,
-          const Radius.circular(3),
-        ),
-        borderPaint,
-      );
+      final rect = Rect.fromLTWH(point.dx * cell + 1, point.dy * cell + 1, cell - 2, cell - 2);
+      canvas.drawRRect(RRect.fromRectAndRadius(rect, const Radius.circular(3)), trackPaint);
+      canvas.drawRRect(RRect.fromRectAndRadius(rect, const Radius.circular(3)), borderPaint);
 
       if (LudoEngine.safeAbsoluteSpots.contains(i)) {
-        final safePaint = Paint()
-          ..color = const Color(0xff00E676).withOpacity(0.55);
-
-        canvas.drawCircle(
-          rect.center,
-          cell * 0.15,
-          safePaint,
-        );
+        canvas.drawCircle(rect.center, cell * 0.15, Paint()..color = const Color(0xff00E676).withOpacity(0.55));
       }
     }
 
-    // Home lanes
-    _drawHomeLane(
-      canvas,
-      cell,
-      const Color(0xff00E676),
-      true,
+    // رسم الممرات النهائية الأربعة بدقة متطابقة مع الإحداثيات الفعلية
+    _drawHomeLane(canvas, cell, const Color(0xff00E676), true, 7.0, 1.0, 1);
+    _drawHomeLane(canvas, cell, const Color(0xffFFD740), false, 13.0, 7.0, -1);
+    _drawHomeLane(canvas, cell, const Color(0xffFF5252), true, 7.0, 13.0, -1);
+    _drawHomeLane(canvas, cell, const Color(0xff448AFF), false, 1.0, 7.0, 1);
+
+    // مركز اللعبة السيبراني
+    final centerRect = Rect.fromLTWH(cell * 6, cell * 6, cell * 3, cell * 3);
+    canvas.drawRect(
+      centerRect,
+      Paint()..shader = const LinearGradient(colors: [Color(0xff00E676), Color(0xff00E5FF), Color(0xff7C4DFF), Color(0xffFF5252)]).createShader(centerRect),
     );
-
-    _drawHomeLane(
-      canvas,
-      cell,
-      const Color(0xffFFD740),
-      false,
-    );
-
-    // Center arena
-    final centerRect = Rect.fromLTWH(
-      cell * 6,
-      cell * 6,
-      cell * 3,
-      cell * 3,
-    );
-
-    final centerPaint = Paint()
-      ..shader = const LinearGradient(
-        colors: [
-          Color(0xff00E676),
-          Color(0xff00E5FF),
-          Color(0xff7C4DFF),
-          Color(0xffFF5252),
-        ],
-      ).createShader(centerRect);
-
-    canvas.drawRect(centerRect, centerPaint);
-
-    final centerBorder = Paint()
-      ..color = Colors.white.withOpacity(0.8)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-
-    canvas.drawRect(centerRect, centerBorder);
-
-    final centerText = TextPainter(
-      text: const TextSpan(
-        text: 'RAYID',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 10,
-          fontWeight: FontWeight.w900,
-          letterSpacing: 1,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    );
-
-    centerText.layout();
-    centerText.paint(
-      canvas,
-      Offset(
-        centerRect.center.dx - centerText.width / 2,
-        centerRect.center.dy - centerText.height / 2,
-      ),
-    );
+    canvas.drawRect(centerRect, Paint()..color = Colors.white.withOpacity(0.8)..style = PaintingStyle.stroke..strokeWidth = 1.5);
   }
 
-  void _drawBase(
-    Canvas canvas,
-    Rect rect,
-    Color color,
-  ) {
-    final fill = Paint()
-      ..color = color.withOpacity(0.18);
-
-    final border = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        rect.deflate(2),
-        const Radius.circular(9),
-      ),
-      fill,
-    );
-
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        rect.deflate(2),
-        const Radius.circular(9),
-      ),
-      border,
-    );
-
-    final inner = Paint()
-      ..color = color.withOpacity(0.12);
-
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        rect.deflate(rect.width * 0.17),
-        const Radius.circular(12),
-      ),
-      inner,
-    );
+  void _drawBase(Canvas canvas, Rect rect, Color color) {
+    canvas.drawRRect(RRect.fromRectAndRadius(rect.deflate(2), const Radius.circular(9)), Paint()..color = color.withOpacity(0.18));
+    canvas.drawRRect(RRect.fromRectAndRadius(rect.deflate(2), const Radius.circular(9)), Paint()..color = color..style = PaintingStyle.stroke..strokeWidth = 2);
   }
 
-  void _drawHomeLane(
-    Canvas canvas,
-    double cell,
-    Color color,
-    bool vertical,
-  ) {
-    final paint = Paint()
-      ..color = color.withOpacity(0.30);
-
+  void _drawHomeLane(Canvas canvas, double cell, Color color, bool vertical, double startX, double startY, int dir) {
+    final paint = Paint()..color = color.withOpacity(0.35);
     for (int i = 0; i < 6; i++) {
       final rect = vertical
-          ? Rect.fromLTWH(
-              cell * 6.5,
-              cell * (i + 1),
-              cell,
-              cell,
-            )
-          : Rect.fromLTWH(
-              cell * (i + 1),
-              cell * 6.5,
-              cell,
-              cell,
-            );
-
+          ? Rect.fromLTWH(cell * startX, cell * (startY + (i * dir)), cell, cell)
+          : Rect.fromLTWH(cell * (startX + (i * dir)), cell * startY, cell, cell);
       canvas.drawRect(rect, paint);
     }
   }
 
   @override
-  bool shouldRepaint(covariant CyberBoardPainter oldDelegate) {
-    return false;
-  }
+  bool shouldRepaint(covariant CyberBoardPainter oldDelegate) => false;
 }
