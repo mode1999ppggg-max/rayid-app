@@ -33,12 +33,14 @@ class LudoEngine {
   static const int targetWin = 58;
   static const int invalidMove = -2;
 
-        static const Map<PlayerColor, int> startOffsets = {
-    PlayerColor.green: 26,
-    PlayerColor.blue: 39,
-    PlayerColor.red: 0,
-    PlayerColor.yellow: 13,
+            static const Map<PlayerColor, int> startOffsets = {
+    PlayerColor.green: 0,
+    PlayerColor.yellow: 12,
+    PlayerColor.red: 24,
+    PlayerColor.blue: 36,
   };
+
+
 
 
 
