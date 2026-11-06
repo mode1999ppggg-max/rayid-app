@@ -43,7 +43,7 @@ class LudoEngine {
 
 
   static const Set<int> safeAbsoluteSpots = {
-    0, 8, 13, 21, 26, 34, 39, 47
+    0, 9, 13, 22, 26, 35, 39, 48
   };
 
   static int getAbsolutePosition(int localPosition, PlayerColor color) {
