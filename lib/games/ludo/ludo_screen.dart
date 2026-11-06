@@ -33,17 +33,20 @@ class LudoEngine {
   static const int targetWin = 58;
   static const int invalidMove = -2;
 
-      static const Map<PlayerColor, int> startOffsets = {
-    PlayerColor.green: 0,
-    PlayerColor.blue: 13,
-    PlayerColor.red: 26,
-    PlayerColor.yellow: 39,
+        static const Map<PlayerColor, int> startOffsets = {
+    PlayerColor.green: 26,
+    PlayerColor.blue: 39,
+    PlayerColor.red: 0,
+    PlayerColor.yellow: 13,
   };
 
 
 
   static const Set<int> safeAbsoluteSpots = {
-    0, 9, 13, 22, 26, 35, 39, 48
+    0, 8, 13, 21, 26, 34, 39, 47
+  };
+
+  
   };
 
   static int getAbsolutePosition(int localPosition, PlayerColor color) {
