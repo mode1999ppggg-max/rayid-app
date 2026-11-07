@@ -1139,7 +1139,7 @@ class WalletScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: const Color(0xff171020),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xff00E5FF).withOpacity(0.5)),
+                  border: Border.all(color: const Color(0xffFFD166).withOpacity(0.5)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
