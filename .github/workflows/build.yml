@@ -1,3 +1,4 @@
+
 name: Build APK Release
 
 on:
@@ -32,6 +33,54 @@ jobs:
 
       - name: Create Android Structure
         run: flutter create --template=app --platforms=android --org com.rayid --project-name rayid_app .
+
+      - name: Configure Firebase Android
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+
+          settings = Path("android/settings.gradle")
+          app_gradle = Path("android/app/build.gradle")
+          firebase_config = Path("android/app/google-services.json")
+
+          if not settings.exists() or not app_gradle.exists():
+              raise SystemExit("Android Gradle files were not generated.")
+
+          if not firebase_config.exists():
+              raise SystemExit("Firebase google-services.json is missing.")
+
+          config = json.loads(firebase_config.read_text())
+          packages = [
+              client["client_info"]["android_client_info"]["package_name"]
+              for client in config.get("client", [])
+          ]
+
+          if "com.rayid.app" not in packages:
+              raise SystemExit("Firebase package name does not match com.rayid.app.")
+
+          text = settings.read_text()
+          marker = "plugins {"
+          if marker not in text:
+              raise SystemExit("Could not find plugins block in settings.gradle.")
+
+          plugin_line = '    id "com.google.gms.google-services" version "4.4.2" apply false'
+          if "com.google.gms.google-services" not in text:
+              text = text.replace(marker, marker + "\n" + plugin_line, 1)
+              settings.write_text(text)
+
+          text = app_gradle.read_text()
+          marker = '    id "com.android.application"'
+          app_plugin = '    id "com.google.gms.google-services"'
+          if marker not in text:
+              raise SystemExit("Could not find Android application plugin.")
+
+          if app_plugin not in text:
+              text = text.replace(marker, marker + "\n" + app_plugin, 1)
+              app_gradle.write_text(text)
+
+          print("Firebase Android Gradle configuration completed.")
+          PY
 
       - name: Install dependencies
         run: flutter pub get
