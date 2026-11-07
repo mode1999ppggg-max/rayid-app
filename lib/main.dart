@@ -5,38 +5,14 @@ import 'dart:io';
 import 'dart:async';
 import 'dart:math';
 import 'games/ludo/ludo_screen.dart';
-
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  try {
-    // التأكد من تهيئة الفايربيز بشكل صريح مع منع أي انهيار
-    if (Firebase.apps.isEmpty) {
-      await Firebase.initializeApp();
-    }
-  } catch (e) {
+  runApp(const RayidApp());
+  Firebase.initializeApp().catchError((e) {
     debugPrint('Firebase init error: $e');
-  }
-
-  void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  
-  try {
-    if (Firebase.apps.isEmpty) {
-      await Firebase.initializeApp();
-    }
-  } catch (e) {
-    debugPrint('Firebase init error: $e');
-  }
-
-  runZonedGuarded(() async {
-    runApp(const RayidApp());
-  }, (error, stackTrace) {
-    debugPrint('FATAL RUNTIME ERROR: $error');
   });
 }
 
-}
 
 // ================= قاموس اللغات الشامل (Localization Map) =================
 class AppStrings {
