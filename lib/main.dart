@@ -729,57 +729,405 @@ class HomeScreen extends StatelessWidget {
                               ),
                               onPressed: () {
                                 if (userModel.points >= userModel.minPointsForRedeem) {
+// ================= RAYID PAY - PREMIUM HOME =================
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
+  static const Color bg = Color(0xff090711);
+  static const Color card = Color(0xff171225);
+  static const Color purple = Color(0xff8B5CF6);
+  static const Color gold = Color(0xffFFD166);
+
+  @override
+  Widget build(BuildContext context) {
+    final String lang = userModel.currentLanguage;
+    final bool isAr = lang == 'ar';
+
+    return AnimatedBuilder(
+      animation: userModel,
+      builder: (context, child) {
+        return Scaffold(
+          backgroundColor: bg,
+          body: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xff171027),
+                  Color(0xff090711),
+                  Color(0xff100B1C),
+                ],
+              ),
+            ),
+            child: SafeArea(
+              child: ListView(
+                padding: const EdgeInsets.all(18),
+                children: [
+                  // HEADER
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(3),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: gold, width: 2),
+                        ),
+                        child: CircleAvatar(
+                          radius: 23,
+                          backgroundColor: card,
+                          backgroundImage: userModel.profileImage != null
+                              ? FileImage(userModel.profileImage!)
+                              : null,
+                          child: userModel.profileImage == null
+                              ? const Icon(
+                                  Icons.person,
+                                  color: gold,
+                                  size: 25,
+                                )
+                              : null,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'RAYID PAY',
+                              style: TextStyle(
+                                color: gold,
+                                fontSize: 12,
+                                letterSpacing: 2,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                            const SizedBox(height: 5),
+                            Text(
+                              '${AppStrings.get(lang, 'goodMorning')}, ${userModel.userName}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(11),
+                        decoration: BoxDecoration(
+                          color: card,
+                          borderRadius: BorderRadius.circular(15),
+                          border: Border.all(
+                            color: purple.withOpacity(0.5),
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.notifications_none_rounded,
+                          color: gold,
+                          size: 22,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 28),
+
+                  // BALANCE CARD
+                  Container(
+                    padding: const EdgeInsets.all(22),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(26),
+                      gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Color(0xff55318F),
+                          Color(0xff25183F),
+                          Color(0xff171225),
+                        ],
+                      ),
+                      border: Border.all(
+                        color: gold.withOpacity(0.65),
+                        width: 1.2,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: purple.withOpacity(0.20),
+                          blurRadius: 25,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              isAr ? 'إجمالي رصيدك' : 'TOTAL BALANCE',
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.75),
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const Icon(
+                              Icons.account_balance_wallet_rounded,
+                              color: gold,
+                              size: 25,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 17),
+                        Text(
+                          '${userModel.balanceUSD.toStringAsFixed(2)} USD',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 32,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                        const SizedBox(height: 7),
+                        Text(
+                          '≈ ${userModel.balanceIQD.toStringAsFixed(0)} IQD',
+                          style: const TextStyle(
+                            color: gold,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 22),
+                        Container(
+                          height: 1,
+                          color: Colors.white.withOpacity(0.16),
+                        ),
+                        const SizedBox(height: 17),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.stars_rounded,
+                                  color: gold,
+                                  size: 23,
+                                ),
+                                const SizedBox(width: 8),
+                                Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      isAr ? 'نقاطك' : 'YOUR POINTS',
+                                      style: TextStyle(
+                                        color: Colors.white.withOpacity(0.7),
+                                        fontSize: 10,
+                                      ),
+                                    ),
+                                    Text(
+                                      '${userModel.points}',
+                                      style: const TextStyle(
+                                        color: gold,
+                                        fontSize: 19,
+                                        fontWeight: FontWeight.w900,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    userModel.points >=
+                                            userModel.minPointsForRedeem
+                                        ? gold
+                                        : Colors.white24,
+                                foregroundColor: bg,
+                                elevation: 0,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(13),
+                                ),
+                              ),
+                              onPressed: () {
+                                if (userModel.points >=
+                                    userModel.minPointsForRedeem) {
                                   userModel.redeemPoints();
-                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'تم تحويل النقاط بنجاح!' : 'Points successfully converted!'), backgroundColor: Colors.green));
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        isAr
+                                            ? 'تم تحويل النقاط بنجاح!'
+                                            : 'Points successfully converted!',
+                                      ),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
                                 } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'الحد الأدنى للاستبدال هو ${userModel.minPointsForRedeem} نقطة!' : 'Minimum limit is ${userModel.minPointsForRedeem} points!'), backgroundColor: Colors.orange));
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        isAr
+                                            ? 'الحد الأدنى للاستبدال هو ${userModel.minPointsForRedeem} نقطة!'
+                                            : 'Minimum limit is ${userModel.minPointsForRedeem} points!',
+                                      ),
+                                      backgroundColor: Colors.orange,
+                                    ),
+                                  );
                                 }
                               },
-                              child: Text(AppStrings.get(lang, 'redeem'), style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 11)),
+                              child: Text(
+                                AppStrings.get(lang, 'redeem'),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 11,
+                                ),
+                              ),
                             ),
                           ],
                         ),
                       ],
                     ),
                   ),
+
                   const SizedBox(height: 28),
+
+                  // ACTIVITY TITLE
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(AppStrings.get(lang, 'recentActivity'), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white)),
-                      const Icon(Icons.history, color: Color(0xff00E5FF), size: 18),
+                      Text(
+                        AppStrings.get(lang, 'recentActivity'),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const Icon(
+                        Icons.history_rounded,
+                        color: gold,
+                        size: 22,
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 14),
-                  ...userModel.activities.map((act) => Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(color: const Color(0xff121816), borderRadius: BorderRadius.circular(16)),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
+
+                  const SizedBox(height: 15),
+
+                  // ACTIVITY LIST
+                  if (userModel.activities.isEmpty)
+                    Container(
+                      padding: const EdgeInsets.all(22),
+                      decoration: BoxDecoration(
+                        color: card,
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: purple.withOpacity(0.25),
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          isAr ? 'لا توجد عمليات حالياً' : 'No activity yet',
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                      ),
+                    )
+                  else
+                    ...userModel.activities.map(
+                      (act) => Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.all(15),
+                        decoration: BoxDecoration(
+                          color: card,
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.07),
+                          ),
+                        ),
+                        child: Row(
                           children: [
-                            CircleAvatar(
-                              radius: 18,
-                              backgroundColor: (act['isPositive'] == true ? const Color(0xff00E676) : Colors.redAccent).withOpacity(0.15),
-                              child: Icon(act['isPositive'] == true ? Icons.arrow_downward : Icons.arrow_upward, color: act['isPositive'] == true ? const Color(0xff00E676) : Colors.redAccent, size: 16),
+                            Container(
+                              width: 42,
+                              height: 42,
+                              decoration: BoxDecoration(
+                                color: (act['isPositive'] == true
+                                        ? Colors.green
+                                        : Colors.redAccent)
+                                    .withOpacity(0.13),
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: Icon(
+                                act['isPositive'] == true
+                                    ? Icons.arrow_downward_rounded
+                                    : Icons.arrow_upward_rounded,
+                                color: act['isPositive'] == true
+                                    ? Colors.greenAccent
+                                    : Colors.redAccent,
+                                size: 20,
+                              ),
                             ),
                             const SizedBox(width: 12),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(act['title'].toString(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
-                                const SizedBox(height: 2),
-                                Text(act['time'].toString(), style: const TextStyle(color: Colors.grey, fontSize: 10)),
-                              ],
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    act['title'].toString(),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Text(
+                                    act['time'].toString(),
+                                    style: const TextStyle(
+                                      color: Colors.white54,
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Text(
+                              act['amount'].toString(),
+                              style: TextStyle(
+                                color: act['isPositive'] == true
+                                    ? Colors.greenAccent
+                                    : Colors.redAccent,
+                                fontWeight: FontWeight.w900,
+                                fontSize: 13,
+                              ),
                             ),
                           ],
                         ),
-                        Text(act['amount'].toString(), style: TextStyle(color: act['isPositive'] == true ? const Color(0xff00E676) : Colors.redAccent, fontWeight: FontWeight.w900, fontSize: 13)),
-                      ],
+                      ),
                     ),
-                  )),
+
+                  const SizedBox(height: 20),
+                  Center(
+                    child: Text(
+                      'RAYID PAY • YOUR DIGITAL WORLD',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.30),
+                        fontSize: 9,
+                        letterSpacing: 1.5,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
                 ],
               ),
             ),
