@@ -1148,7 +1148,7 @@ class WalletScreen extends StatelessWidget {
                       children: [
                         const Icon(Icons.card_giftcard, color: Color(0xffFFD166)),
                         const SizedBox(width: 8),
-                        Text(AppStrings.get(lang, 'referralProgram'), style: const TextStyle(color: Color(0xff00E5FF), fontWeight: FontWeight.bold, fontSize: 14)),
+                        Text(AppStrings.get(lang, 'referralProgram'), style: const TextStyle(color: Color(0xffFFD166), fontWeight: FontWeight.bold, fontSize: 14)),
                       ],
                     ),
                     const SizedBox(height: 8),
@@ -1159,11 +1159,11 @@ class WalletScreen extends StatelessWidget {
                       children: [
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(color: const Color(0xff0A0E0D), borderRadius: BorderRadius.circular(10)),
+                          decoration: BoxDecoration(color: const Color(0xff090711), borderRadius: BorderRadius.circular(10)),
                           child: Text(userModel.referralCode, style: const TextStyle(color: Color(0xff00E676), fontWeight: FontWeight.bold, fontSize: 13)),
                         ),
                         ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E5FF), foregroundColor: Colors.black),
+                          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xffFFD166), foregroundColor: Colors.black),
                           onPressed: () {
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'تم نسخ كود الإحالة!' : 'Referral code copied!'), backgroundColor: Colors.blue));
                           },
