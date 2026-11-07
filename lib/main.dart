@@ -1114,8 +1114,7 @@ class WalletScreen extends StatelessWidget {
             children: [
               Container(
                 padding: const EdgeInsets.all(22),
-                decoration: BoxDecoration(color: const Color(0xff121816), borderRadius: BorderRadius.circular(24), border: Border.all(color: const Color(0xff00E676))),
-                child: Column(
+               decoration: BoxDecoration(color: const Color(0xff171020), borderRadius: BorderRadius.circular(24), border: Border.all(color: const Color(0xffFFD166))),
                   children: [
                     Text(AppStrings.get(lang, 'totalBalance'), style: const TextStyle(color: Colors.grey, fontSize: 13)),
                     const SizedBox(height: 8),
