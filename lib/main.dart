@@ -557,7 +557,7 @@ class MainNavigationHub extends StatefulWidget {
 
 class MainNavigationHubState extends State<MainNavigationHub> {
   late int _currentIndex;
-  
+
   @override
   void initState() {
     super.initState();
@@ -567,6 +567,7 @@ class MainNavigationHubState extends State<MainNavigationHub> {
   @override
   Widget build(BuildContext context) {
     String lang = userModel.currentLanguage;
+
     final List<Widget> pages = [
       const HomeScreen(),
       const AdsRewardsScreen(),
@@ -578,21 +579,55 @@ class MainNavigationHubState extends State<MainNavigationHub> {
 
     return Scaffold(
       body: pages[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: const Color(0xff080C0B),
-        selectedItemColor: const Color(0xff00E676),
-        unselectedItemColor: Colors.grey[600],
-        items: [
-          BottomNavigationBarItem(icon: const Icon(Icons.home_filled), label: AppStrings.get(lang, 'home')),
-          BottomNavigationBarItem(icon: const Icon(Icons.play_circle_filled_outlined), label: AppStrings.get(lang, 'ads')),
-          BottomNavigationBarItem(icon: const Icon(Icons.account_balance_wallet_outlined), label: AppStrings.get(lang, 'wallet')),
-          BottomNavigationBarItem(icon: const Icon(Icons.sports_esports_outlined), label: AppStrings.get(lang, 'games')),
-          BottomNavigationBarItem(icon: const Icon(Icons.chat_bubble_outline), label: AppStrings.get(lang, 'chat')),
-          BottomNavigationBarItem(icon: const Icon(Icons.settings_outlined), label: AppStrings.get(lang, 'profile')),
-        ],
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          color: Color(0xff0B0712),
+          border: Border(
+            top: BorderSide(
+              color: Color(0xff6D28D9),
+              width: 1,
+            ),
+          ),
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          onTap: (index) => setState(() => _currentIndex = index),
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: const Color(0xff0B0712),
+          selectedItemColor: const Color(0xffFFD166),
+          unselectedItemColor: const Color(0xff9B8BAE),
+          selectedLabelStyle: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 11,
+          ),
+          unselectedLabelStyle: const TextStyle(fontSize: 10),
+          items: [
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.home_rounded),
+              label: AppStrings.get(lang, 'home'),
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.play_circle_fill_rounded),
+              label: AppStrings.get(lang, 'ads'),
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.account_balance_wallet_rounded),
+              label: AppStrings.get(lang, 'wallet'),
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.sports_esports_rounded),
+              label: AppStrings.get(lang, 'games'),
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.chat_bubble_rounded),
+              label: AppStrings.get(lang, 'chat'),
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.settings_rounded),
+              label: AppStrings.get(lang, 'profile'),
+            ),
+          ],
+        ),
       ),
     );
   }
