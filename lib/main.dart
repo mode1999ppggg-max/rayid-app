@@ -10,9 +10,23 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   try {
-    await Firebase.initializeApp();
+    // التأكد من تهيئة الفايربيز بشكل صريح مع منع أي انهيار
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp();
+    }
   } catch (e) {
-    debugPrint('Firebase init failed: $e');
+    debugPrint('Firebase init error: $e');
+  }
+
+  void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  try {
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp();
+    }
+  } catch (e) {
+    debugPrint('Firebase init error: $e');
   }
 
   runZonedGuarded(() async {
@@ -20,6 +34,8 @@ void main() async {
   }, (error, stackTrace) {
     debugPrint('FATAL RUNTIME ERROR: $error');
   });
+}
+
 }
 
 // ================= قاموس اللغات الشامل (Localization Map) =================
