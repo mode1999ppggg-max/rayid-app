@@ -1146,7 +1146,7 @@ class WalletScreen extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.card_giftcard, color: Color(0xff00E5FF)),
+                        const Icon(Icons.card_giftcard, color: Color(0xffFFD166)),
                         const SizedBox(width: 8),
                         Text(AppStrings.get(lang, 'referralProgram'), style: const TextStyle(color: Color(0xff00E5FF), fontWeight: FontWeight.bold, fontSize: 14)),
                       ],
