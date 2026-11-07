@@ -1115,7 +1115,9 @@ class WalletScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(22),
                decoration: BoxDecoration(color: const Color(0xff171020), borderRadius: BorderRadius.circular(24), border: Border.all(color: const Color(0xffFFD166))),
-                  children: [
+                  child: Column(
+  children: [
+                    
                     Text(AppStrings.get(lang, 'totalBalance'), style: const TextStyle(color: Colors.grey, fontSize: 13)),
                     const SizedBox(height: 8),
                     Text('${userModel.balanceIQD.toStringAsFixed(0)} IQD', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xff00E676))),
