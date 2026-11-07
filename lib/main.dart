@@ -284,8 +284,8 @@ class UserAppModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ربط حقيقي مع Firebase Auth لإنشاء الحساب (تصحيح nullptr إلى null)
-  Future<bool> signUpUser(String name, String username, String email, String phone, String password) async {
+  // ربط حقيقي مع Firebase Auth لإنشاء الحساب مع التقاط تفاصيل الخطأ
+  Future<String?> signUpUser(String name, String username, String email, String phone, String password) async {
     try {
       UserCredential credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email.trim(),
@@ -298,16 +298,21 @@ class UserAppModel extends ChangeNotifier {
         userPhone = phone;
         isLoggedIn = true;
         notifyListeners();
-        return true;
+        return null; // نجاح بدون أخطاء
       }
+    } on FirebaseAuthException catch (e) {
+      debugPrint('Firebase Auth Exception Code: ${e.code}');
+      debugPrint('Firebase Auth Exception Message: ${e.message}');
+      return e.message ?? e.code;
     } catch (e) {
       debugPrint('Firebase Sign Up Error: $e');
+      return e.toString();
     }
-    return false;
+    return 'Unknown error occurred';
   }
 
-  // ربط حقيقي مع Firebase Auth لتسجيل الدخول (تصحيح nullptr إلى null)
-  Future<bool> signInUser(String email, String password) async {
+  // ربط حقيقي مع Firebase Auth لتسجيل الدخول مع التقاط تفاصيل الخطأ
+  Future<String?> signInUser(String email, String password) async {
     try {
       UserCredential credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email.trim(),
@@ -317,12 +322,17 @@ class UserAppModel extends ChangeNotifier {
         userEmail = email;
         isLoggedIn = true;
         notifyListeners();
-        return true;
+        return null; // نجاح بدون أخطاء
       }
+    } on FirebaseAuthException catch (e) {
+      debugPrint('Firebase Auth Exception Code: ${e.code}');
+      debugPrint('Firebase Auth Exception Message: ${e.message}');
+      return e.message ?? e.code;
     } catch (e) {
       debugPrint('Firebase Sign In Error: $e');
+      return e.toString();
     }
-    return false;
+    return 'Unknown error occurred';
   }
 
   void signOutUser() async {
@@ -447,7 +457,7 @@ class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
     }
 
     setState(() => _isLoading = true);
-    bool success = false;
+    String? errorResult;
 
     if (isSigningUp) {
       if (_nameController.text.isEmpty || _usernameController.text.isEmpty || _phoneController.text.isEmpty) {
@@ -455,14 +465,14 @@ class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
         setState(() => _isLoading = false);
         return;
       }
-      success = await userModel.signUpUser(_nameController.text, _usernameController.text, _emailController.text, _phoneController.text, _passController.text);
+      errorResult = await userModel.signUpUser(_nameController.text, _usernameController.text, _emailController.text, _phoneController.text, _passController.text);
     } else {
-      success = await userModel.signInUser(_emailController.text, _passController.text);
+      errorResult = await userModel.signInUser(_emailController.text, _passController.text);
     }
 
     setState(() => _isLoading = false);
-    if (!success && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'فشل المصادقة. تأكد من صحة البيانات أو تفعيل Email/Password في لوحة فايربيز.' : 'Authentication failed. Check Firebase settings.'), backgroundColor: Colors.red));
+    if (errorResult != null && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ: $errorResult'), backgroundColor: Colors.red));
     }
   }
 
