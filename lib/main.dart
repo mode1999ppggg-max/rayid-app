@@ -5,12 +5,12 @@ import 'dart:io';
 import 'dart:async';
 import 'dart:math';
 import 'games/ludo/ludo_screen.dart';
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp();
+
   runApp(const RayidApp());
-  Firebase.initializeApp().catchError((e) {
-    debugPrint('Firebase init error: $e');
-  });
 }
 
 
