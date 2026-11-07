@@ -679,55 +679,7 @@ class HomeScreen extends StatelessWidget {
                           backgroundColor: const Color(0xff121816),
                           backgroundImage: userModel.profileImage != null ? FileImage(userModel.profileImage!) : null,
                           child: userModel.profileImage == null ? const Icon(Icons.person, color: Color(0xff00E676), size: 20) : null,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  Container(
-                    padding: const EdgeInsets.all(22),
-                    decoration: BoxDecoration(
-                      color: const Color(0xff121816).withOpacity(0.9),
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: const Color(0xff00E676).withOpacity(0.6), width: 1.5),
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.account_balance_wallet, color: Color(0xff00E676), size: 16),
-                            const SizedBox(width: 8),
-                            Text(AppStrings.get(lang, 'totalBalance'), style: const TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w600, letterSpacing: 1)),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Text('${userModel.balanceUSD.toStringAsFixed(2)} USD', style: const TextStyle(fontSize: 34, fontWeight: FontWeight.w900, color: Color(0xff00E676), letterSpacing: -0.5)),
-                        const SizedBox(height: 4),
-                        Text('≈ ${userModel.balanceIQD.toStringAsFixed(0)} IQD', style: const TextStyle(fontSize: 12, color: Color(0xff00E5FF), fontWeight: FontWeight.bold, letterSpacing: 0.5)),
-                        const SizedBox(height: 20),
-                        Divider(color: Colors.white.withOpacity(0.1), height: 1),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: const Color(0xff0A0E0D),
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(color: Colors.amber.withOpacity(0.3)),
-                              ),
-                              child: Text('🟡 ${AppStrings.get(lang, 'points')}: ${userModel.points}', style: const TextStyle(color: Colors.amberAccent, fontWeight: FontWeight.bold, fontSize: 11)),
-                            ),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: userModel.points >= userModel.minPointsForRedeem ? const Color(0xff00E676) : Colors.grey[800],
-                                foregroundColor: Colors.black,
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              ),
-                              onPressed: () {
+
                                 if (userModel.points >= userModel.minPointsForRedeem) {
 // ================= RAYID PAY - PREMIUM HOME =================
 class HomeScreen extends StatelessWidget {
