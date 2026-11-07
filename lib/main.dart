@@ -634,53 +634,7 @@ class MainNavigationHubState extends State<MainNavigationHub> {
 }
 
 // ================= 1. الواجهة الرئيسية (Cyberpunk Home) =================
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    String lang = userModel.currentLanguage;
-    return AnimatedBuilder(
-      animation: userModel,
-      builder: (context, child) {
-        return Scaffold(
-          body: Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Color(0xff0A0E0D), Color(0xff050807), Color(0xff0A0E0D)],
-              ),
-            ),
-            child: SafeArea(
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('RAYID PAY // OS', style: TextStyle(color: const Color(0xff00E5FF).withOpacity(0.7), fontSize: 10, letterSpacing: 2, fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 4),
-                          Text('${AppStrings.get(lang, 'goodMorning')}, ${userModel.userName}', style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w800)),
-                        ],
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: const Color(0xff00E676), width: 2),
-                          boxShadow: [BoxShadow(color: const Color(0xff00E676).withOpacity(0.4), blurRadius: 12, spreadRadius: 1)],
-                        ),
-                        child: CircleAvatar(
-                          radius: 20,
-                          backgroundColor: const Color(0xff121816),
-                          backgroundImage: userModel.profileImage != null ? FileImage(userModel.profileImage!) : null,
-                          child: userModel.profileImage == null ? const Icon(Icons.person, color: Color(0xff00E676), size: 20) : null,
-
-                                if (userModel.points >= userModel.minPointsForRedeem) {
+ 
 // ================= RAYID PAY - PREMIUM HOME =================
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
