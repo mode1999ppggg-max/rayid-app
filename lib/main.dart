@@ -277,8 +277,22 @@ class UserAppModel extends ChangeNotifier {
         email: email.trim(),
         password: password,
       );
+    
       if (credential.user != null) {
         userName = name;
+       await FirebaseFirestore.instance
+    .collection('users')
+    .doc(credential.user!.uid)
+    .set({
+  'uid': credential.user!.uid,
+  'name': name,
+  'username': username,
+  'email': email.trim(),
+  'phone': phone,
+  'language': currentLanguage,
+  'createdAt': FieldValue.serverTimestamp(),
+  'updatedAt': FieldValue.serverTimestamp(),
+});
         userUsername = username;
         userEmail = email;
         userPhone = phone;
