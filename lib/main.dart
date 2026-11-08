@@ -1209,7 +1209,13 @@ class WalletScreen extends StatelessWidget {
     String lang = userModel.currentLanguage;
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(color: const Color(0xff121816), borderRadius: BorderRadius.circular(18)),
+      decoration: BoxDecoration(
+  color: const Color(0xff171225),
+  borderRadius: BorderRadius.circular(18),
+  border: Border.all(
+    color: const Color(0xff8B5CF6).withOpacity(0.35),
+  ),
+),
       child: ListTile(
         leading: Icon(icon, color: iconColor, size: 28),
         title: Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
