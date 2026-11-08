@@ -420,7 +420,7 @@ colorScheme: const ColorScheme.dark(
 ),
 
             ),
-          ),
+          
           home: userModel.isLoggedIn ? const MainNavigationHub() : const AuthWrapperScreen(),
         );
       },
