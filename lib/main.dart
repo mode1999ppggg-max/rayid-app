@@ -1302,7 +1302,7 @@ class GamesScreen extends StatelessWidget {
               MaterialPageRoute(builder: (context) => const LudoLobbyScreen()),
             );
           }),
-          _gameCard(context, AppStrings.get(lang, 'gameChess'), Icons.extension, Colors.blueAccent, 30, () {}),
+          _gameCard(context, AppStrings.get(lang, 'gameChess'), Icons.extension, const Color(0xffFFD166), 30, () {}),
           _gameCard(context, AppStrings.get(lang, 'gameDomino'), Icons.apps,const Color(0xffFFD166), 20, () {}),
           _gameCard(context, AppStrings.get(lang, 'gameBackgammon'), Icons.grid_view, const Color(0xffFFD166), 20, () {}),
           _gameCard(context, AppStrings.get(lang, 'gamePool'), Icons.sports_bar, const Color(0xffFFD166), 40, () {}),
