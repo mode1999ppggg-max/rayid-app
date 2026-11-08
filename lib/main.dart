@@ -1255,7 +1255,7 @@ class WalletScreen extends StatelessWidget {
               decoration: InputDecoration(labelText: AppStrings.get(lang, 'amountIQD'), labelStyle: const TextStyle(color: Colors.grey)),
             ),
             const SizedBox(height: 6),
-            const Text('ملاحظة: هذا الطلب هو محاكاة تجريبية غير متصل بجهة دفع فعلية حالياً.', style: TextStyle(color: const Color(0xffFFD166)),
+            const Text('ملاحظة: هذا الطلب هو محاكاة تجريبية غير متصل بجهة دفع فعلية حالياً.', style: TextStyle(color: Color(0xffFFD166), fontSize: 10)),
           ],
         ),
         actions: [
