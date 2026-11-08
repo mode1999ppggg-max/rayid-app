@@ -1319,7 +1319,11 @@ class GamesScreen extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: const Color(0xff171225), borderRadius: BorderRadius.circular(20)),
+      decoration: BoxDecoration(
+  color: const Color(0xff171225),
+  borderRadius: BorderRadius.circular(20),
+  border: Border.all(color: const Color(0xff8B5CF6).withOpacity(0.35)),
+),
       child: Row(
         children: [
           Icon(icon, color: color, size: 30),
