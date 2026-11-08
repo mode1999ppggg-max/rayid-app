@@ -1235,8 +1235,8 @@ class WalletScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xff121816),
-        title: Text('${AppStrings.get(lang, 'withdrawVia')} $methodTitle', style: const TextStyle(color: Color(0xff00E676))),
+        backgroundColor: const Color(0xff171225),
+        title: Text('${AppStrings.get(lang, 'withdrawVia')} $methodTitle', style: const TextStyle(color: Color(0xffFFD166))),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
