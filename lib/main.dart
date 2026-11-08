@@ -1160,7 +1160,7 @@ class WalletScreen extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           decoration: BoxDecoration(color: const Color(0xff090711), borderRadius: BorderRadius.circular(10)),
-                          child: Text(userModel.referralCode, style: const TextStyle(color: Color(0xff00E676), fontWeight: FontWeight.bold, fontSize: 13)),
+                          child: Text(userModel.referralCode, style: const TextStyle(color: Color(0xffFFD166), fontWeight: FontWeight.bold, fontSize: 13)),
                         ),
                         ElevatedButton.icon(
                           style: ElevatedButton.styleFrom(backgroundColor: const Color(0xffFFD166), foregroundColor: Colors.black),
