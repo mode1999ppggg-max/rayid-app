@@ -1340,7 +1340,8 @@ class RobloxArenaScreen extends StatelessWidget {
               gradient: const LinearGradient(colors: [Color(0xff1A1025), Color(0xff0E1216)]),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: const Color(0xffFFD166).withOpacity(0.4), width: 1.5),
-            child: Column(
+           ),
+              child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Row(
