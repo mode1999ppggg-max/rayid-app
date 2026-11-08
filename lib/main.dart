@@ -1263,11 +1263,11 @@ class GamesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     String lang = userModel.currentLanguage;
     return Scaffold(
-      appBar: AppBar(title: Text(AppStrings.get(lang, 'cyberGames')), backgroundColor: const Color(0xff0A0E0D), automaticallyImplyLeading: false),
+      appBar: AppBar(title: Text(AppStrings.get(lang, 'cyberGames')), backgroundColor: const Color(0xff0B0712), automaticallyImplyLeading: false),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _gameCard(context, AppStrings.get(lang, 'gameLudo'), Icons.casino, Colors.greenAccent, 50, () {
+          _gameCard(context, AppStrings.get(lang, 'gameLudo'), Icons.casino, const Color(0xffFFD166), 50, () {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const LudoLobbyScreen()),
@@ -1290,7 +1290,7 @@ class GamesScreen extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: const Color(0xff121816), borderRadius: BorderRadius.circular(20)),
+      decoration: BoxDecoration(color: const Color(0xff171225), borderRadius: BorderRadius.circular(20)),
       child: Row(
         children: [
           Icon(icon, color: color, size: 30),
