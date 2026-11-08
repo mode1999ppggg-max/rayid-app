@@ -1274,7 +1274,7 @@ class GamesScreen extends StatelessWidget {
             );
           }),
           _gameCard(context, AppStrings.get(lang, 'gameChess'), Icons.extension, Colors.blueAccent, 30, () {}),
-          _gameCard(context, AppStrings.get(lang, 'gameDomino'), Icons.apps, Colors.amberAccent, 20, () {}),
+          _gameCard(context, AppStrings.get(lang, 'gameDomino'), Icons.apps,const Color(0xffFFD166), 20, () {}),
           _gameCard(context, AppStrings.get(lang, 'gameBackgammon'), Icons.grid_view, Colors.purpleAccent, 20, () {}),
           _gameCard(context, AppStrings.get(lang, 'gamePool'), Icons.sports_bar, Colors.orangeAccent, 40, () {}),
           _gameCard(context, AppStrings.get(lang, 'gameRoblox'), Icons.sports_esports, Colors.redAccent, 100, () {
