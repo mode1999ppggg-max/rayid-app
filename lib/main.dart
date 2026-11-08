@@ -1137,7 +1137,9 @@ class WalletScreen extends StatelessWidget {
     ),
   ],
 ),
+  child: Column(
   children: [
+  
                     
                     Text(AppStrings.get(lang, 'totalBalance'), style: const TextStyle(color: Colors.grey, fontSize: 13)),
                     const SizedBox(height: 8),
