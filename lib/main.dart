@@ -410,12 +410,15 @@ class RayidApp extends StatelessWidget {
             );
           },
           theme: ThemeData.dark().copyWith(
-            scaffoldBackgroundColor: const Color(0xff0A0E0D),
-            primaryColor: const Color(0xff00E676),
-            colorScheme: const ColorScheme.dark(
-              primary: Color(0xff00E676),
-              secondary: Color(0xff00E5FF),
-              surface: Color(0xff121816),
+            
+scaffoldBackgroundColor: const Color(0xff090711),
+primaryColor: const Color(0xff8B5CF6),
+colorScheme: const ColorScheme.dark(
+  primary: Color(0xff8B5CF6),
+  secondary: Color(0xffFFD166),
+  surface: Color(0xff171225),
+),
+
             ),
           ),
           home: userModel.isLoggedIn ? const MainNavigationHub() : const AuthWrapperScreen(),
