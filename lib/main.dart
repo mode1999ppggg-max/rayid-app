@@ -1068,7 +1068,7 @@ class AdsRewardsScreen extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: const Color(0xff121816), borderRadius: BorderRadius.circular(16)),
+      decoration: BoxDecoration(color: const Color(0xff171225), borderRadius: BorderRadius.circular(16)),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -1083,7 +1083,7 @@ class AdsRewardsScreen extends StatelessWidget {
             ),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xffFFD166), foregroundColor: Colors.black),
             onPressed: () {
               userModel.points += addPoints;
               userModel.addActivity('مكافأة تفاعلية', '+$addPoints pts', true);
