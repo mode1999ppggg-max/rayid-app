@@ -1052,7 +1052,7 @@ class AdsRewardsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     String lang = userModel.currentLanguage;
     return Scaffold(
-      appBar: AppBar(title: Text(AppStrings.get(lang, 'adsRewardsCenter')), backgroundColor: const Color(0xff0A0E0D), automaticallyImplyLeading: false),
+      appBar: AppBar(title: Text(AppStrings.get(lang, 'adsRewardsCenter')), backgroundColor: const Color(0xff0B0712), automaticallyImplyLeading: false),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
