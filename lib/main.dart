@@ -1220,7 +1220,7 @@ class WalletScreen extends StatelessWidget {
         leading: Icon(icon, color: iconColor, size: 28),
         title: Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
         subtitle: Text(lang == 'ar' ? 'محاكاة سحب تجريبي آمن' : 'Secure simulation payout', style: const TextStyle(color: Colors.grey, fontSize: 11)),
-        trailing: const Icon(Icons.arrow_forward_ios, color: Color(0xff00E676), size: 16),
+        trailing: const Icon(Icons.arrow_forward_ios, color: Color(0xffFFD166), size: 16),
         onTap: () => _showWithdrawDialog(context, title),
       ),
     );
