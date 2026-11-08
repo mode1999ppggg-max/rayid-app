@@ -597,7 +597,7 @@ class MainNavigationHubState extends State<MainNavigationHub> {
           onTap: (index) => setState(() => _currentIndex = index),
           type: BottomNavigationBarType.fixed,
           backgroundColor: const Color(0xff0B0712),
-          selectedItemColor: const Color(0xff090711),
+          selectedItemColor: const Color(0xffFFD166),
           unselectedItemColor: const Color(0xff9B8BAE),
           selectedLabelStyle: const TextStyle(
             fontWeight: FontWeight.bold,
@@ -1055,7 +1055,7 @@ class AdsRewardsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     String lang = userModel.currentLanguage;
     return Scaffold(
-      appBar: AppBar(title: Text(AppStrings.get(lang, 'adsRewardsCenter')), backgroundColor: const Color(0xff0B0712), automaticallyImplyLeading: false),
+      appBar: AppBar(title: Text(AppStrings.get(lang, 'adsRewardsCenter')), backgroundColor: const Color(0xff090711), automaticallyImplyLeading: false),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
