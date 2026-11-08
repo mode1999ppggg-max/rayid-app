@@ -1261,7 +1261,7 @@ class WalletScreen extends StatelessWidget {
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: Text(AppStrings.get(lang, 'cancel'), style: const TextStyle(color: Colors.grey))),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xffFFD166), foregroundColor: Colors.black),
             onPressed: () {
               if (targetController.text.isEmpty || amountController.text.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'يرجى إكمال الحقول.' : 'Please fill all fields.'), backgroundColor: Colors.red));
