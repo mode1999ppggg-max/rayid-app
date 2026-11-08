@@ -1275,9 +1275,9 @@ class GamesScreen extends StatelessWidget {
           }),
           _gameCard(context, AppStrings.get(lang, 'gameChess'), Icons.extension, Colors.blueAccent, 30, () {}),
           _gameCard(context, AppStrings.get(lang, 'gameDomino'), Icons.apps,const Color(0xffFFD166), 20, () {}),
-          _gameCard(context, AppStrings.get(lang, 'gameBackgammon'), Icons.grid_view, Colors.purpleAccent, 20, () {}),
-          _gameCard(context, AppStrings.get(lang, 'gamePool'), Icons.sports_bar, Colors.orangeAccent, 40, () {}),
-          _gameCard(context, AppStrings.get(lang, 'gameRoblox'), Icons.sports_esports, Colors.redAccent, 100, () {
+          _gameCard(context, AppStrings.get(lang, 'gameBackgammon'), Icons.grid_view, const Color(0xffFFD166), 20, () {}),
+          _gameCard(context, AppStrings.get(lang, 'gamePool'), Icons.sports_bar, const Color(0xffFFD166), 40, () {}),
+          _gameCard(context, AppStrings.get(lang, 'gameRoblox'), Icons.sports_esports, const Color(0xffFFD166), 100, () {
             Navigator.push(context, MaterialPageRoute(builder: (context) => const RobloxArenaScreen()));
           }),
         ],
@@ -1330,7 +1330,7 @@ class RobloxArenaScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('ساحة أركيد النيون (تحدي المنصات)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)), backgroundColor: const Color(0xff0A0E0D)),
+      appBar: AppBar(title: const Text('ساحة أركيد النيون (تحدي المنصات)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)), backgroundColor: const Color(0xff0B0712)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -1339,8 +1339,7 @@ class RobloxArenaScreen extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: const LinearGradient(colors: [Color(0xff1A1025), Color(0xff0E1216)]),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.redAccent.withOpacity(0.4), width: 1.5),
-            ),
+              border: Border.all(color: const Color(0xffFFD166).withOpacity(0.4), width: 1.5),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
