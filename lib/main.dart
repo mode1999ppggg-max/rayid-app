@@ -1111,14 +1111,32 @@ class WalletScreen extends StatelessWidget {
       animation: userModel,
       builder: (context, child) {
         return Scaffold(
-          appBar: AppBar(title: Text(AppStrings.get(lang, 'walletPayouts')), backgroundColor: const Color(0xff0B0712), automaticallyImplyLeading: false),
+          appBar: AppBar(title: Text(AppStrings.get(lang, 'walletPayouts')), backgroundColor: const Color(0xff090711), automaticallyImplyLeading: false),
           body: ListView(
             padding: const EdgeInsets.all(16),
             children: [
               Container(
                 padding: const EdgeInsets.all(22),
-               decoration: BoxDecoration(color: const Color(0xff171020), borderRadius: BorderRadius.circular(24), border: Border.all(color: const Color(0xffFFD166))),
-                  child: Column(
+               decoration: BoxDecoration(
+  gradient: const LinearGradient(
+    colors: [
+      Color(0xff55318F),
+      Color(0xff25183F),
+      Color(0xff171225),
+    ],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  ),
+  borderRadius: BorderRadius.circular(24),
+  border: Border.all(color: const Color(0xffFFD166), width: 1.2),
+  boxShadow: [
+    BoxShadow(
+      color: const Color(0xff8B5CF6).withOpacity(0.22),
+      blurRadius: 18,
+      spreadRadius: 2,
+    ),
+  ],
+),
   children: [
                     
                     Text(AppStrings.get(lang, 'totalBalance'), style: const TextStyle(color: Colors.grey, fontSize: 13)),
