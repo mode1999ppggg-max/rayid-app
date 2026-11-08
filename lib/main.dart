@@ -584,10 +584,10 @@ class MainNavigationHubState extends State<MainNavigationHub> {
       body: pages[_currentIndex],
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
-          color: Color(0xff0B0712),
+          color: Color(0xff090711),
           border: Border(
             top: BorderSide(
-              color: Color(0xff6D28D9),
+              color: Color(0xff8B5CF6),
               width: 1,
             ),
           ),
@@ -597,7 +597,7 @@ class MainNavigationHubState extends State<MainNavigationHub> {
           onTap: (index) => setState(() => _currentIndex = index),
           type: BottomNavigationBarType.fixed,
           backgroundColor: const Color(0xff0B0712),
-          selectedItemColor: const Color(0xffFFD166),
+          selectedItemColor: const Color(0xff090711),
           unselectedItemColor: const Color(0xff9B8BAE),
           selectedLabelStyle: const TextStyle(
             fontWeight: FontWeight.bold,
