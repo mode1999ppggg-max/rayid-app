@@ -1363,7 +1363,7 @@ class RobloxArenaScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('ساحة أركيد النيون (تحدي المنصات)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)), backgroundColor: const Color(0xff0B0712)),
+      appBar: AppBar(title: const Text('ساحة أركيد النيون (تحدي المنصات)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)), backgroundColor: const Color(0xff090711)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -1934,13 +1934,13 @@ class ChatScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xff121816),
-        title: Text(AppStrings.get(lang, 'createGroup'), style: const TextStyle(color: Color(0xff00E676))),
+        backgroundColor: const Color(0xff171225),
+        title: Text(AppStrings.get(lang, 'createGroup'), style: const TextStyle(color: Color(0xff8B5CF6))),
         content: TextField(controller: groupController, style: const TextStyle(color: Colors.white), decoration: InputDecoration(labelText: AppStrings.get(lang, 'groupName'))),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: Text(AppStrings.get(lang, 'cancel'))),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff8B5CF6), foregroundColor: Colors.black),
             onPressed: () {
               userModel.createGroup(groupController.text);
               Navigator.pop(context);
@@ -1961,10 +1961,10 @@ class ChatScreen extends StatelessWidget {
         return Scaffold(
           appBar: AppBar(
             title: Text(AppStrings.get(lang, 'communityChat')),
-            backgroundColor: const Color(0xff0A0E0D),
+            backgroundColor: const Color(0xff090711),
             automaticallyImplyLeading: false,
             actions: [
-              IconButton(icon: const Icon(Icons.group_add, color: Color(0xff00E676)), onPressed: () => _showCreateGroupDialog(context)),
+              IconButton(icon: const Icon(Icons.group_add, color: Color(0xff8B5CF6)), onPressed: () => _showCreateGroupDialog(context)),
             ],
           ),
           body: ListView(
@@ -1977,12 +1977,12 @@ class ChatScreen extends StatelessWidget {
                 var group = entry.value;
                 return Container(
                   margin: const EdgeInsets.only(bottom: 12),
-                  decoration: BoxDecoration(color: const Color(0xff121816), borderRadius: BorderRadius.circular(16)),
+                  decoration: BoxDecoration(color: const Color(0xff171225), borderRadius: BorderRadius.circular(16)),
                   child: ListTile(
-                    leading: const CircleAvatar(backgroundColor: Color(0xff00E676), child: Icon(Icons.groups, color: Colors.black)),
+                    leading: const CircleAvatar(backgroundColor: Color(0xff8B5CF6), child: Icon(Icons.groups, color: Colors.black)),
                     title: Text(group['name'].toString(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
                     subtitle: Text('${group['members']} ${AppStrings.get(lang, 'members')} • ${group['lastMsg']}', style: const TextStyle(color: Colors.grey, fontSize: 11)),
-                    trailing: const Icon(Icons.arrow_forward_ios, color: Color(0xff00E676), size: 14),
+                    trailing: const Icon(Icons.arrow_forward_ios, color: Color(0xffFFD166), size: 14),
                     onTap: () {
                       Navigator.push(context, MaterialPageRoute(builder: (context) => GroupChatRoomScreen(groupIndex: index)));
                     },
@@ -2018,7 +2018,7 @@ class _GroupChatRoomScreenState extends State<GroupChatRoomScreen> {
         var messages = group['messages'] as dynamic;
 
         return Scaffold(
-          appBar: AppBar(title: Text(group['name'].toString(), style: const TextStyle(fontSize: 16)), backgroundColor: const Color(0xff0A0E0D)),
+          appBar: AppBar(title: Text(group['name'].toString(), style: const TextStyle(fontSize: 16)), backgroundColor: const Color(0xff090711)),
           body: Column(
             children: [
               Expanded(
@@ -2035,14 +2035,14 @@ class _GroupChatRoomScreenState extends State<GroupChatRoomScreen> {
                         padding: const EdgeInsets.all(12),
                         constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
                         decoration: BoxDecoration(
-                          color: isMe ? const Color(0xff00E676).withOpacity(0.2) : const Color(0xff121816),
+                          color: isMe ? const Color(0xff00E676).withOpacity(0.2) : const Color(0xff8B5CF6),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: isMe ? const Color(0xff00E676) : Colors.grey.withOpacity(0.3)),
+                          border: Border.all(color: isMe ? const Color(0xff8B5CF6) : Colors.grey.withOpacity(0.3)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(msg['sender']!, style: TextStyle(color: isMe ? const Color(0xff00E676) : Colors.amber, fontWeight: FontWeight.bold, fontSize: 11)),
+                            Text(msg['sender']!, style: TextStyle(color: isMe ? const Color(0xff8B5CF6) : Colors.amber, fontWeight: FontWeight.bold, fontSize: 11)),
                             const SizedBox(height: 4),
                             Text(msg['text']!, style: const TextStyle(color: Colors.white, fontSize: 13)),
                             const SizedBox(height: 4),
@@ -2056,7 +2056,7 @@ class _GroupChatRoomScreenState extends State<GroupChatRoomScreen> {
               ),
               Container(
                 padding: const EdgeInsets.all(12),
-                color: const Color(0xff080C0B),
+                color: const Color(0xff090711),
                 child: Row(
                   children: [
                     Expanded(
@@ -2066,17 +2066,16 @@ class _GroupChatRoomScreenState extends State<GroupChatRoomScreen> {
                         decoration: InputDecoration(
                           hintText: AppStrings.get(lang, 'typeMessage'),
                           filled: true,
-                          fillColor: const Color(0xff121816),
+                          fillColor: const Color(0xff171225),
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
                         ),
                       ),
                     ),
                     const SizedBox(width: 8),
                     CircleAvatar(
-                      backgroundColor: const Color(0xff00E676),
+                      backgroundColor: const Color(0xff8B5CF6),
                       child: IconButton(
-                        icon: const Icon(Icons.send, color: Colors.black, size: 18),
-                        onPressed: () {
+                        icon: const Icon(Icons.send, color: Color(0xffFFD166)
                           userModel.addMessageToGroup(widget.groupIndex, _msgController.text);
                           _msgController.clear();
                         },
