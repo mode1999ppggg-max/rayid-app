@@ -2206,16 +2206,39 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
   Future<void> _pickProfileImage() async {
     final XFile? picked = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 85,
-      maxWidth: 1000,
-    );
+  Future<void> _pickProfileImage() async {
+  final XFile? picked = await ImagePicker().pickImage(
+    source: ImageSource.gallery,
+    imageQuality: 85,
+    maxWidth: 1000,
+  );
 
-    if (picked != null && mounted) {
-      setState(() {
-        _selectedImage = File(picked.path);
-      });
-    }
+  if (picked == null || !mounted) return;
+
+  final CroppedFile? croppedFile = await ImageCropper().cropImage(
+    sourcePath: picked.path,
+    aspectRatio: const CropAspectRatio(
+      ratioX: 1,
+      ratioY: 1,
+    ),
+    compressQuality: 85,
+    uiSettings: [
+      AndroidUiSettings(
+        toolbarTitle: 'Crop profile photo',
+        toolbarColor: const Color(0xff090711),
+        toolbarWidgetColor: const Color(0xffFFD166),
+        activeControlsWidgetColor: const Color(0xff8B5CF6),
+        initAspectRatio: CropAspectRatioPreset.square,
+        lockAspectRatio: true,
+      ),
+    ],
+  );
+
+  if (croppedFile != null && mounted) {
+    setState(() {
+      _selectedImage = File(croppedFile.path);
+    });
+  }
   }
   void _saveProfile() async {
     await userModel.updateProfile(
