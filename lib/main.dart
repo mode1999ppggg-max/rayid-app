@@ -2231,7 +2231,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           TextField(controller: _phoneController, style: const TextStyle(color: Colors.white), decoration: InputDecoration(labelText: AppStrings.get(lang, 'phone'), filled: true, fillColor: const Color(0xff121816))),
           const SizedBox(height: 24),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black, minimumSize: const Size(double.infinity, 50)),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff8B5CF6), foregroundColor: const Color(0xffFFD166), minimumSize: const Size(double.infinity, 50)),
             onPressed: _saveProfile,
             child: Text(AppStrings.get(lang, 'saveChanges'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
           ),
