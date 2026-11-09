@@ -2218,7 +2218,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     String lang = userModel.currentLanguage;
     return Scaffold(
-      appBar: AppBar(title: Text(AppStrings.get(lang, 'manageProfile')), backgroundColor: const Color(0xff0A0E0D)),
+      appBar: AppBar(title: Text(AppStrings.get(lang, 'manageProfile')), backgroundColor: const Color(0xff090711)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
