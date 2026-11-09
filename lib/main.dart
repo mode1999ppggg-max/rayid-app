@@ -2179,6 +2179,7 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
+ File? _selectedImage;
   late final TextEditingController _nameController;
   late final TextEditingController _usernameController;
   late final TextEditingController _emailController;
