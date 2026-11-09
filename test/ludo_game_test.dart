@@ -31,15 +31,43 @@ void main() {
     });
 
     test('5. Safe positions prevent captures', () {
-      final allTokens = {
-        PlayerColor.green: [TokenModel(id: 0, color: PlayerColor.green, position: 0)],
-        PlayerColor.yellow: [TokenModel(id: 0, color: PlayerColor.yellow, position: 5)],
-      };
-      // الخانة 0 خانة آمنة مطلقة (Absolute Spot 0)
-      bool captured = LudoEngine.processCaptures(PlayerColor.yellow, 0, allTokens);
-      expect(captured, isFalse);
-    });
+  final allTokens = {
+    PlayerColor.green: [
+      TokenModel(id: 0, color: PlayerColor.green, position: 0),
+    ],
+    PlayerColor.yellow: [
+      TokenModel(id: 0, color: PlayerColor.yellow, position: 11),
+    ],
+  };
 
+  final captured = LudoEngine.processCaptures(
+    PlayerColor.green,
+    0,
+    allTokens,
+  );
+
+  expect(captured, isFalse);
+});
+
+test('6. Unsafe positions allow captures', () {
+  final allTokens = {
+    PlayerColor.green: [
+      TokenModel(id: 0, color: PlayerColor.green, position: 1),
+    ],
+    PlayerColor.yellow: [
+      TokenModel(id: 0, color: PlayerColor.yellow, position: 12),
+    ],
+  };
+
+  final captured = LudoEngine.processCaptures(
+    PlayerColor.green,
+    0,
+    allTokens,
+  );
+
+  expect(captured, isTrue);
+  expect(allTokens[PlayerColor.yellow]![0].position, equals(-1));
+});
     test('6. Winning condition detection works correctly', () {
       final winningTokens = List.generate(4, (i) => TokenModel(id: i, color: PlayerColor.green, position: LudoEngine.targetWin));
       expect(LudoEngine.hasWon(winningTokens), isTrue);
