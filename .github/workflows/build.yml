@@ -1,4 +1,3 @@
-
 name: Build APK Release
 
 on:
@@ -39,13 +38,14 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           import json
+          import re
 
-          settings = Path("android/settings.gradle")
-          app_gradle = Path("android/app/build.gradle")
+          settings = Path("android/settings.gradle.kts")
+          app_gradle = Path("android/app/build.gradle.kts")
           firebase_config = Path("android/app/google-services.json")
 
           if not settings.exists() or not app_gradle.exists():
-              raise SystemExit("Android Gradle files were not generated.")
+              raise SystemExit("Android Kotlin Gradle files were not generated.")
 
           if not firebase_config.exists():
               raise SystemExit("Firebase google-services.json is missing.")
@@ -60,26 +60,54 @@ jobs:
               raise SystemExit("Firebase package name does not match com.rayid.app.")
 
           text = settings.read_text()
-          marker = "plugins {"
-          if marker not in text:
-              raise SystemExit("Could not find plugins block in settings.gradle.")
 
-          plugin_line = '    id "com.google.gms.google-services" version "4.4.2" apply false'
+          plugin_line = '    id("com.google.gms.google-services") version "4.4.2" apply false'
+
           if "com.google.gms.google-services" not in text:
-              text = text.replace(marker, marker + "\n" + plugin_line, 1)
+              if "plugins {" not in text:
+                  raise SystemExit("Could not find plugins block in settings.gradle.kts.")
+              text = text.replace("plugins {", "plugins {\n" + plugin_line, 1)
               settings.write_text(text)
 
           text = app_gradle.read_text()
-          marker = '    id "com.android.application"'
-          app_plugin = '    id "com.google.gms.google-services"'
-          if marker not in text:
-              raise SystemExit("Could not find Android application plugin.")
 
-          if app_plugin not in text:
-              text = text.replace(marker, marker + "\n" + app_plugin, 1)
-              app_gradle.write_text(text)
+          app_plugin = '    id("com.google.gms.google-services")'
 
-          print("Firebase Android Gradle configuration completed.")
+          if "com.google.gms.google-services" not in text:
+              if "plugins {" not in text:
+                  raise SystemExit("Could not find plugins block in app Gradle file.")
+              text = text.replace("plugins {", "plugins {\n" + app_plugin, 1)
+
+          text = re.sub(
+              r'namespace\s*=\s*"[^"]+"',
+              'namespace = "com.rayid.app"',
+              text,
+              count=1
+          )
+
+          text = re.sub(
+              r'applicationId\s*=\s*"[^"]+"',
+              'applicationId = "com.rayid.app"',
+              text,
+              count=1
+          )
+
+          app_gradle.write_text(text)
+
+          kotlin_old = Path("android/app/src/main/kotlin/com/rayid/rayid_app/MainActivity.kt")
+          kotlin_new = Path("android/app/src/main/kotlin/com/rayid/app/MainActivity.kt")
+
+          if kotlin_old.exists():
+              kotlin_new.parent.mkdir(parents=True, exist_ok=True)
+              kotlin_text = kotlin_old.read_text()
+              kotlin_text = kotlin_text.replace(
+                  "package com.rayid.rayid_app",
+                  "package com.rayid.app"
+              )
+              kotlin_new.write_text(kotlin_text)
+              kotlin_old.unlink()
+
+          print("Firebase and Android package configuration completed.")
           PY
 
       - name: Install dependencies
