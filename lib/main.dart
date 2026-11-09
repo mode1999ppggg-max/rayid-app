@@ -2203,7 +2203,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _phoneController.dispose();
     super.dispose();
   }
+  Future<void> _pickProfileImage() async {
+    final XFile? picked = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85,
+      maxWidth: 1000,
+    );
 
+    if (picked != null && mounted) {
+      setState(() {
+        _selectedImage = File(picked.path);
+      });
+    }
+  }
   void _saveProfile() async {
     await userModel.updateProfile(
       name: _nameController.text,
