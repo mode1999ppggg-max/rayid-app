@@ -112,7 +112,17 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
-
+      - name: Verify Firebase Android Configuration
+        run: |
+          cd android
+          ./gradlew :app:processReleaseGoogleServices
+          cd ..
+          if [ ! -f android/app/build/generated/res/google-services/release/values/values.xml ]; then
+            echo "Firebase values.xml was not generated!"
+            exit 1
+          fi
+          grep -q "google_app_id" android/app/build/generated/res/google-services/release/values/values.xml
+          echo "Firebase Android configuration verified successfully."
       - name: Build APK Release
         run: flutter build apk --release
 
