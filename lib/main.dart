@@ -2042,7 +2042,7 @@ class _GroupChatRoomScreenState extends State<GroupChatRoomScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(msg['sender']!, style: TextStyle(color: isMe ? const Color(0xff8B5CF6) : Colors.amber, fontWeight: FontWeight.bold, fontSize: 11)),
+                            Text(msg['sender']!, style: TextStyle(color: isMe ? const Color(0xffFFD166) : Colors.amber, fontWeight: FontWeight.bold, fontSize: 11)),
                             const SizedBox(height: 4),
                             Text(msg['text']!, style: const TextStyle(color: Colors.white, fontSize: 13)),
                             const SizedBox(height: 4),
