@@ -1,3 +1,4 @@
+
 name: Build APK Release
 
 on:
@@ -33,6 +34,64 @@ jobs:
       - name: Create Android Structure
         run: flutter create --template=app --platforms=android --org com.rayid --project-name rayid_app .
 
+      - name: Configure Image Cropper Android
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          manifest = Path("android/app/src/main/AndroidManifest.xml")
+          if not manifest.exists():
+              raise SystemExit("AndroidManifest.xml was not generated.")
+
+          text = manifest.read_text()
+          activity = '''
+                  <activity
+                      android:name="com.yalantis.ucrop.UCropActivity"
+                      android:screenOrientation="portrait"
+                      android:theme="@style/Ucrop.CropTheme"
+                      android:exported="false" />
+          '''
+
+          if "com.yalantis.ucrop.UCropActivity" not in text:
+              if "</application>" not in text:
+                  raise SystemExit("Could not find application tag.")
+              text = text.replace("</application>", activity + "\n    </application>")
+              manifest.write_text(text)
+
+          values = Path("android/app/src/main/res/values")
+          values.mkdir(parents=True, exist_ok=True)
+          styles = values / "styles.xml"
+
+          if styles.exists():
+              content = styles.read_text()
+              if 'name="Ucrop.CropTheme"' not in content:
+                  content = content.replace(
+                      "</resources>",
+                      '    <style name="Ucrop.CropTheme" parent="Theme.AppCompat.Light.NoActionBar"/>\n</resources>'
+                  )
+                  styles.write_text(content)
+          else:
+              styles.write_text(
+                  '<?xml version="1.0" encoding="utf-8"?>\n'
+                  '<resources>\n'
+                  '    <style name="Ucrop.CropTheme" parent="Theme.AppCompat.Light.NoActionBar"/>\n'
+                  '</resources>\n'
+              )
+
+          values35 = Path("android/app/src/main/res/values-v35")
+          values35.mkdir(parents=True, exist_ok=True)
+          (values35 / "styles.xml").write_text(
+              '<?xml version="1.0" encoding="utf-8"?>\n'
+              '<resources>\n'
+              '    <style name="Ucrop.CropTheme" parent="Theme.AppCompat.Light.NoActionBar">\n'
+              '        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>\n'
+              '    </style>\n'
+              '</resources>\n'
+          )
+
+          print("Image cropper Android configuration completed.")
+          PY
+
       - name: Configure Firebase Android
         run: |
           python3 - <<'PY'
@@ -60,7 +119,6 @@ jobs:
               raise SystemExit("Firebase package name does not match com.rayid.app.")
 
           text = settings.read_text()
-
           plugin_line = '    id("com.google.gms.google-services") version "4.4.2" apply false'
 
           if "com.google.gms.google-services" not in text:
@@ -70,7 +128,6 @@ jobs:
               settings.write_text(text)
 
           text = app_gradle.read_text()
-
           app_plugin = '    id("com.google.gms.google-services")'
 
           if "com.google.gms.google-services" not in text:
@@ -112,7 +169,6 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
-      
 
       - name: Verify Firebase Android Configuration
         run: |
@@ -122,9 +178,9 @@ jobs:
           cd ..
 
       - name: Build APK Release
-        run: flutter build apk --release    
-      - name: Build APK Release
+        run: flutter build apk --release
 
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: rayid-app-release
