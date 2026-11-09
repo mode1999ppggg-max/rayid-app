@@ -2109,7 +2109,7 @@ class SettingsScreen extends StatelessWidget {
       animation: userModel,
       builder: (context, child) {
         return Scaffold(
-          appBar: AppBar(title: Text(AppStrings.get(lang, 'settings')), backgroundColor: const Color(0xff0A0E0D), automaticallyImplyLeading: false),
+          appBar: AppBar(title: Text(AppStrings.get(lang, 'settings')), backgroundColor: const Color(0xff090711), automaticallyImplyLeading: false),
           body: ListView(
             padding: const EdgeInsets.all(16),
             children: [
@@ -2118,17 +2118,17 @@ class SettingsScreen extends StatelessWidget {
                   radius: 42,
                   backgroundColor: const Color(0xff121816),
                   backgroundImage: userModel.profileImage != null ? FileImage(userModel.profileImage!) : null,
-                  child: userModel.profileImage == null ? const Icon(Icons.person, size: 42, color: Color(0xff00E676)) : null,
+                  child: userModel.profileImage == null ? const Icon(Icons.person, size: 42, color: Color(0xff171225)) : null,
                 ),
               ),
               const SizedBox(height: 12),
               Center(child: Text(userModel.userName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18))),
-              Center(child: Text('@${userModel.userUsername}', style: const TextStyle(color: Color(0xff00E5FF), fontSize: 13))),
+              Center(child: Text('@${userModel.userUsername}', style: const TextStyle(color: Color(0xffFFD166), fontSize: 13))),
               const SizedBox(height: 24),
               ListTile(
                 tileColor: const Color(0xff121816),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                leading: const Icon(Icons.manage_accounts, color: Color(0xff00E676)),
+                leading: const Icon(Icons.manage_accounts, color: Color(0xff8B5CF6)),
                 title: Text(AppStrings.get(lang, 'manageProfile'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
                 onTap: () {
