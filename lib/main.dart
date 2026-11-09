@@ -2188,6 +2188,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void initState() {
     super.initState();
+    _selectedImage = userModel.profileImage;
     _nameController = TextEditingController(text: userModel.userName);
     _usernameController = TextEditingController(text: userModel.userUsername);
     _emailController = TextEditingController(text: userModel.userEmail);
