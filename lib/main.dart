@@ -2238,6 +2238,41 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+                   Center(
+            child: Stack(
+              children: [
+                CircleAvatar(
+                  radius: 55,
+                  backgroundColor: const Color(0xff171225),
+                  backgroundImage: _selectedImage != null
+                      ? FileImage(_selectedImage!)
+                      : null,
+                  child: _selectedImage == null
+                      ? const Icon(
+                          Icons.person,
+                          size: 55,
+                          color: Color(0xffFFD166),
+                        )
+                      : null,
+                ),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: CircleAvatar(
+                    backgroundColor: const Color(0xffFFD166),
+                    child: IconButton(
+                      onPressed: _pickProfileImage,
+                      icon: const Icon(
+                        Icons.camera_alt,
+                        color: Color(0xff090711),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
           TextField(controller: _nameController, style: const TextStyle(color: Colors.white), decoration: InputDecoration(labelText: AppStrings.get(lang, 'fullName'), filled: true, fillColor: const Color(0xff171225))),
           const SizedBox(height: 14),
           TextField(controller: _usernameController, style: const TextStyle(color: Colors.white), decoration: InputDecoration(labelText: AppStrings.get(lang, 'username'), filled: true, fillColor: const Color(0xff171225))),
