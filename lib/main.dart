@@ -2116,9 +2116,9 @@ class SettingsScreen extends StatelessWidget {
               Center(
                 child: CircleAvatar(
                   radius: 42,
-                  backgroundColor: const Color(0xff121816),
+                  backgroundColor: const Color(0xff171225),
                   backgroundImage: userModel.profileImage != null ? FileImage(userModel.profileImage!) : null,
-                  child: userModel.profileImage == null ? const Icon(Icons.person, size: 42, color: Color(0xff171225)) : null,
+                  child: userModel.profileImage == null ? const Icon(Icons.person, size: 42, color: Color(0xff8B5CF6)) : null,
                 ),
               ),
               const SizedBox(height: 12),
@@ -2126,7 +2126,7 @@ class SettingsScreen extends StatelessWidget {
               Center(child: Text('@${userModel.userUsername}', style: const TextStyle(color: Color(0xffFFD166), fontSize: 13))),
               const SizedBox(height: 24),
               ListTile(
-                tileColor: const Color(0xff121816),
+                tileColor: const Color(0xff171225),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 leading: const Icon(Icons.manage_accounts, color: Color(0xff8B5CF6)),
                 title: Text(AppStrings.get(lang, 'manageProfile'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
@@ -2137,13 +2137,13 @@ class SettingsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               ListTile(
-                tileColor: const Color(0xff121816),
+                tileColor: const Color(0xff171225),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                leading: const Icon(Icons.language, color: Color(0xff00E5FF)),
+                leading: const Icon(Icons.language, color: Color(0xffFFD166)),
                 title: Text(AppStrings.get(lang, 'appLanguage'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                 trailing: DropdownButton<String>(
                   value: userModel.currentLanguage,
-                  dropdownColor: const Color(0xff121816),
+                  dropdownColor: const Color(0xff171225),
                   underline: const SizedBox(),
                   items: const [
                     DropdownMenuItem(value: 'ar', child: Text('العربية', style: TextStyle(color: Colors.white))),
