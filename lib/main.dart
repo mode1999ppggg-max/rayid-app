@@ -6,6 +6,7 @@ import 'dart:io';
 import 'dart:async';
 import 'dart:math';
 import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'games/ludo/ludo_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
