@@ -11,11 +11,31 @@ import 'games/ludo/ludo_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp();
-
-  runApp(const RayidApp());
+  try {
+    await Firebase.initializeApp().timeout(
+      const Duration(seconds: 20),
+    );
+    runApp(const RayidApp());
+  } catch (e) {
+    runApp(
+      MaterialApp(
+        home: Scaffold(
+          backgroundColor: const Color(0xff090711),
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Text(
+                'Firebase startup error:\n$e',
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
-
 
 // ================= قاموس اللغات الشامل (Localization Map) =================
 class AppStrings {
