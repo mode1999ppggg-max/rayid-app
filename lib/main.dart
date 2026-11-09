@@ -2222,6 +2222,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       username: _usernameController.text,
       email: _emailController.text,
       phone: _phoneController.text,
+  image: _selectedImage,
     );
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Profile updated successfully!'), backgroundColor: Colors.green));
