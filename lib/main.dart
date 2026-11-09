@@ -2204,8 +2204,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _phoneController.dispose();
     super.dispose();
   }
-  Future<void> _pickProfileImage() async {
-    final XFile? picked = await ImagePicker().pickImage(
+  
   Future<void> _pickProfileImage() async {
   final XFile? picked = await ImagePicker().pickImage(
     source: ImageSource.gallery,
