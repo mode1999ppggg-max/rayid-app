@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:io';
 import 'dart:async';
 import 'dart:math';
+import 'package:image_picker/image_picker.dart';
 import 'games/ludo/ludo_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
