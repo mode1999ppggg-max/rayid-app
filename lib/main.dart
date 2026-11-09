@@ -12,8 +12,17 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
-    await Firebase.initializeApp().timeout(
-      const Duration(seconds: 20),
+    await Firebase.initializeApp(
+  options: const FirebaseOptions(
+    apiKey: 'AIzaSyBG47Gf-eqG4ntdlRPeWLCX_IMt2Ko7ZBU',
+    appId: '1:980811949086:android:d9426f8c37ac299f923a0f',
+    messagingSenderId: '980811949086',
+    projectId: 'ridepay-9bf93',
+    storageBucket: 'ridepay-9bf93.firebasestorage.app',
+  ),
+).timeout(
+  const Duration(seconds: 20),
+);
     );
     runApp(const RayidApp());
   } catch (e) {
