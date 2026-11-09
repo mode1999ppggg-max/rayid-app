@@ -112,8 +112,12 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
-      - name: Verify Firebase Android Configuration
+            - name: Verify Firebase Android Configuration
         run: |
+          cd android
+          echo "Checking Google Services Gradle plugin..."
+          ./gradlew :app:tasks --all | grep -i "googleServices" || true
+          cd ..
           cd android
           ./gradlew :app:processReleaseGoogleServices
           cd ..
