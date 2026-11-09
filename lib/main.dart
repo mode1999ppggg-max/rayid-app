@@ -2072,21 +2072,32 @@ class _GroupChatRoomScreenState extends State<GroupChatRoomScreen> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    CircleAvatar(
+                                        CircleAvatar(
                       backgroundColor: const Color(0xff8B5CF6),
                       child: IconButton(
-  icon: const Icon(
-    Icons.send,
-    color: Color(0xffFFD166),
-  ),
-  onPressed: () {
-    userModel.addMessageToGroup(
-      widget.groupIndex,
-      _msgController.text,
+                        icon: const Icon(
+                          Icons.send,
+                          color: Color(0xffFFD166),
+                        ),
+                        onPressed: () {
+                          userModel.addMessageToGroup(
+                            widget.groupIndex,
+                            _msgController.text,
+                          );
+                          _msgController.clear();
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
-    _msgController.clear();
-  },
-),
+  }
+}
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
