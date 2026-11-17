@@ -584,7 +584,45 @@ class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ: $errorResult'), backgroundColor: Colors.red));
     }
   }
-
+  Widget _buildAuthField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    TextInputType keyboardType = TextInputType.text,
+    bool obscureText = false,
+  }) {
+    return TextField(
+      controller: controller,
+      keyboardType: keyboardType,
+      obscureText: obscureText,
+      style: const TextStyle(color: Colors.white),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: Colors.white70),
+        prefixIcon: Icon(icon, color: const Color(0xffFFD166)),
+        filled: true,
+        fillColor: const Color(0xff171225),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 18,
+          vertical: 18,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(
+            color: Color(0xff493078),
+            width: 1,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(
+            color: Color(0xff8B5CF6),
+            width: 2,
+          ),
+        ),
+      ),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     String lang = userModel.currentLanguage;
@@ -783,7 +821,9 @@ return Scaffold(
     ),
   ),
 );
-// ================= مركز التنقل السفلي =================
+  }
+}
+    // ================= مركز التنقل السفلي =================
 class MainNavigationHub extends StatefulWidget {
   final int initialIndex;
   const MainNavigationHub({super.key, this.initialIndex = 0});
