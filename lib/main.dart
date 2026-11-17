@@ -940,32 +940,17 @@ class HomeScreen extends StatelessWidget {
                                 ),
                               ),
                               onPressed: () {
-                                if (userModel.points >=
-                                    userModel.minPointsForRedeem) {
-                                  userModel.redeemPoints();
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        isAr
-                                            ? 'تم تحويل النقاط بنجاح!'
-                                            : 'Points successfully converted!',
-                                      ),
-                                      backgroundColor: Colors.green,
-                                    ),
-                                  );
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        isAr
-                                            ? 'الحد الأدنى للاستبدال هو ${userModel.minPointsForRedeem} نقطة!'
-                                            : 'Minimum limit is ${userModel.minPointsForRedeem} points!',
-                                      ),
-                                      backgroundColor: Colors.orange,
-                                    ),
-                                  );
-                                }
-                              },
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(
+        userModel.currentLanguage == 'ar'
+            ? 'النقاط تُستخدم داخل متجر RAYID فقط ولا يمكن تحويلها إلى أموال.'
+            : 'Points can only be used in the RAYID Store and cannot be converted to cash.',
+      ),
+      backgroundColor: Colors.orange,
+    ),
+  );
+},
                               child: Text(
                                 AppStrings.get(lang, 'redeem'),
                                 style: const TextStyle(
