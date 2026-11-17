@@ -288,6 +288,49 @@ int points = 0;
     notifyListeners();
   }
 
+  Future<String?> loadCurrentUserProfile() async {
+    final firebaseUser = FirebaseAuth.instance.currentUser;
+
+    if (firebaseUser == null) {
+      isLoggedIn = false;
+      notifyListeners();
+      return null;
+    }
+
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(firebaseUser.uid)
+          .get();
+
+      if (!snapshot.exists) {
+        return 'لم يتم العثور على بيانات الحساب.';
+      }
+
+      final data = snapshot.data() ?? {};
+
+      userName = data['name'] as String? ??
+          firebaseUser.displayName ??
+          '';
+      userUsername = data['username'] as String? ?? '';
+      userEmail = data['email'] as String? ??
+          firebaseUser.email ??
+          '';
+      userPhone = data['phone'] as String? ?? '';
+
+      final savedLanguage = data['language'] as String?;
+      if (savedLanguage == 'ar' || savedLanguage == 'en') {
+        currentLanguage = savedLanguage!;
+      }
+
+      isLoggedIn = true;
+      notifyListeners();
+      return null;
+    } catch (e) {
+      return 'تعذر تحميل بيانات الحساب: $e';
+    }
+  }
+
   Future<String?> signUpUser(String name, String username, String email, String phone, String password) async {
     try {
       UserCredential credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
