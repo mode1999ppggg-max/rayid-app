@@ -264,15 +264,7 @@ int points = 0;
   bool redeemPoints() {
   return false;
 }
-      balanceUSD += addedUSD;
-      points = points % 200; 
-
-      addActivity('استبدال نقاط ترفيهية', '+$addedUSD دولار (${redeemedUnits * 200} نقطة)', true);
-      notifyListeners();
-      return true;
-    }
-    return false;
-  }
+      
 
   bool joinGameTournament(int entryFeePoints, String gameTitle) {
     if (points >= entryFeePoints) {
