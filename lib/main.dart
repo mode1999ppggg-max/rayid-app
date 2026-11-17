@@ -464,14 +464,48 @@ Future<String?> signInUser(String email, String password) async {
     notifyListeners();
   }
 
-  Future<void> updateProfile({String? name, String? username, String? email, String? phone, File? image}) async {
-    if (name != null) userName = name;
-    if (username != null) userUsername = username;
-    if (email != null) userEmail = email;
-    if (phone != null) userPhone = phone;
-    if (image != null) profileImage = image;
-    await Future.delayed(const Duration(milliseconds: 400));
-    notifyListeners();
+  Future<void> updateProfile({
+  String? name,
+  String? username,
+  String? email,
+  String? phone,
+  File? image,
+}) async {
+  final firebaseUser = FirebaseAuth.instance.currentUser;
+
+  if (firebaseUser == null) {
+    throw Exception('يجب تسجيل الدخول أولاً');
+  }
+
+  final Map<String, dynamic> updates = {
+    'updatedAt': FieldValue.serverTimestamp(),
+  };
+
+  if (name != null) {
+    updates['name'] = name.trim();
+  }
+
+  if (username != null) {
+    updates['username'] = username.trim();
+  }
+
+  if (phone != null) {
+    updates['phone'] = phone.trim();
+  }
+
+  await FirebaseFirestore.instance
+      .collection('users')
+      .doc(firebaseUser.uid)
+      .update(updates);
+
+  if (name != null) userName = name.trim();
+  if (username != null) userUsername = username.trim();
+  if (phone != null) userPhone = phone.trim();
+
+  // الصورة تبقى محلية مؤقتاً إلى أن نربط Firebase Storage.
+  if (image != null) profileImage = image;
+
+  notifyListeners();
   }
 
   void processWithdrawal(String method, String details, double amountIQD) {
