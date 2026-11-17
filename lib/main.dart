@@ -191,7 +191,6 @@ class UserAppModel extends ChangeNotifier {
   double balanceUSD = 0.0;
 double get balanceIQD => balanceUSD * 1320;
 int points = 0;
-  final int minPointsForRedeem = 3000;
   late String referralCode;
   int referralCount = 3;
   int highestGameScore = 0;
