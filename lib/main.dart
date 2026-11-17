@@ -591,36 +591,49 @@ class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
     TextInputType keyboardType = TextInputType.text,
     bool obscureText = false,
   }) {
-    return TextField(
+        return TextField(
       controller: controller,
       keyboardType: keyboardType,
       obscureText: obscureText,
-      style: const TextStyle(color: Colors.white),
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 15,
+        fontWeight: FontWeight.w500,
+      ),
+      cursorColor: const Color(0xffFFD166),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: Colors.white70),
-        prefixIcon: Icon(icon, color: const Color(0xffFFD166)),
+        labelStyle: const TextStyle(
+          color: Colors.white70,
+          fontSize: 14,
+        ),
+        prefixIcon: Icon(
+          icon,
+          color: const Color(0xffFFD166),
+          size: 22,
+        ),
         filled: true,
-        fillColor: const Color(0xff171225),
+        fillColor: const Color(0xff211832),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 18,
-          vertical: 18,
+          vertical: 20,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(
-            color: Color(0xff493078),
+          borderSide: BorderSide(
+            color: const Color(0xff8B5CF6).withOpacity(0.45),
             width: 1,
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(
-            color: Color(0xff8B5CF6),
-            width: 2,
+            color: Color(0xffFFD166),
+            width: 1.6,
           ),
         ),
       ),
+    );
     );
   }
   @override
