@@ -925,10 +925,7 @@ class HomeScreen extends StatelessWidget {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor:
                                     userModel.points >=
-                                            userModel.minPointsForRedeem
-                                        ? gold
-                                        : Colors.white24,
-                                foregroundColor: bg,
+                                            backgroundColor: gold,
                                 elevation: 0,
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 16,
