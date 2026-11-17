@@ -588,80 +588,201 @@ class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
   @override
   Widget build(BuildContext context) {
     String lang = userModel.currentLanguage;
-    return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Center(
-                  child: Text('RAYID PAY', style: TextStyle(fontSize: 36, fontWeight: FontWeight.w900, letterSpacing: 3, color: Color(0xff00E676))),
-                ),
-                const SizedBox(height: 8),
-                Center(child: Text(isSigningUp ? (lang == 'ar' ? 'إنشاء حساب جديد' : 'Create Account') : (lang == 'ar' ? 'تسجيل الدخول إلى حسابك' : 'Sign In to Your Dashboard'), style: const TextStyle(color: Colors.grey, fontSize: 13))),
-                const SizedBox(height: 30),
+    
+return Scaffold(
+  backgroundColor: const Color(0xff090711),
+  body: Container(
+    decoration: const BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          Color(0xff21143A),
+          Color(0xff090711),
+          Color(0xff090711),
+        ],
+      ),
+    ),
+    child: SafeArea(
+      child: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 25),
 
-                if (isSigningUp) ...[
-                  TextField(
-                    controller: _nameController,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: InputDecoration(labelText: AppStrings.get(lang, 'fullName'), filled: true, fillColor: const Color(0xff121816), border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none)),
+              const Center(
+                child: Icon(
+                  Icons.diamond_rounded,
+                  size: 58,
+                  color: Color(0xffFFD166),
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              const Center(
+                child: Text(
+                  'RAYID PAY',
+                  style: TextStyle(
+                    fontSize: 36,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 3,
+                    color: Color(0xffFFD166),
                   ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: _usernameController,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: InputDecoration(labelText: AppStrings.get(lang, 'username'), filled: true, fillColor: const Color(0xff121816), border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none)),
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              Center(
+                child: Text(
+                  isSigningUp
+                      ? (lang == 'ar'
+                          ? 'إنشاء حساب جديد'
+                          : 'Create Account')
+                      : (lang == 'ar'
+                          ? 'تسجيل الدخول إلى حسابك'
+                          : 'Sign In to Your Dashboard'),
+                  style: const TextStyle(
+                    color: Color(0xffC4B5FD),
+                    fontSize: 15,
                   ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: _phoneController,
-                    keyboardType: TextInputType.phone,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: InputDecoration(labelText: AppStrings.get(lang, 'phone'), filled: true, fillColor: const Color(0xff121816), border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none)),
+                ),
+              ),
+
+              const SizedBox(height: 35),
+
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: const Color(0xff171225),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: const Color(0xff8B5CF6).withOpacity(0.5),
                   ),
-                  const SizedBox(height: 16),
-                ],
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xff8B5CF6)
+                          .withOpacity(0.12),
+                      blurRadius: 25,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    if (isSigningUp) ...[
+                      _buildAuthField(
+                        controller: _nameController,
+                        label: AppStrings.get(lang, 'fullName'),
+                        icon: Icons.person_outline,
+                      ),
+                      const SizedBox(height: 16),
+                      _buildAuthField(
+                        controller: _usernameController,
+                        label: AppStrings.get(lang, 'username'),
+                        icon: Icons.alternate_email,
+                      ),
+                      const SizedBox(height: 16),
+                      _buildAuthField(
+                        controller: _phoneController,
+                        label: AppStrings.get(lang, 'phone'),
+                        icon: Icons.phone_outlined,
+                        keyboardType: TextInputType.phone,
+                      ),
+                      const SizedBox(height: 16),
+                    ],
 
-                TextField(
-                  controller: _emailController,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(labelText: AppStrings.get(lang, 'email'), filled: true, fillColor: const Color(0xff121816), border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none)),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: _passController,
-                  obscureText: true,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(labelText: AppStrings.get(lang, 'password'), filled: true, fillColor: const Color(0xff121816), border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none)),
-                ),
-                const SizedBox(height: 24),
+                    _buildAuthField(
+                      controller: _emailController,
+                      label: AppStrings.get(lang, 'email'),
+                      icon: Icons.email_outlined,
+                      keyboardType: TextInputType.emailAddress,
+                    ),
 
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff00E676), foregroundColor: Colors.black, minimumSize: const Size(double.infinity, 54), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
-                  onPressed: _isLoading ? null : _submitAuth,
-                  child: _isLoading 
-                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.black, strokeWidth: 2))
-                    : Text(isSigningUp ? AppStrings.get(lang, 'createAccount') : AppStrings.get(lang, 'signIn'), style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
-                ),
-                const SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
-                TextButton(
-                  onPressed: () => setState(() => isSigningUp = !isSigningUp),
-                  child: Text(isSigningUp ? (lang == 'ar' ? 'لديك حساب بالفعل؟ تسجيل الدخول' : 'Already have an account? Sign In') : (lang == 'ar' ? 'ليس لديك حساب؟ إنشاء حساب جديد' : 'Need an account? Create one'), style: const TextStyle(color: Color(0xff00E676))),
+                    _buildAuthField(
+                      controller: _passController,
+                      label: AppStrings.get(lang, 'password'),
+                      icon: Icons.lock_outline,
+                      obscureText: true,
+                    ),
+
+                    const SizedBox(height: 25),
+
+                    SizedBox(
+                      width: double.infinity,
+                      height: 55,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xff8B5CF6),
+                          foregroundColor: Colors.white,
+                          elevation: 5,
+                          shadowColor: const Color(0xffFFD166),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        onPressed:
+                            _isLoading ? null : _submitAuth,
+                        child: _isLoading
+                            ? const SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                  color: Color(0xffFFD166),
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : Text(
+                                isSigningUp
+                                    ? AppStrings.get(
+                                        lang, 'createAccount')
+                                    : AppStrings.get(
+                                        lang, 'signIn'),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 17,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+
+              const SizedBox(height: 20),
+
+              TextButton(
+                onPressed: () {
+                  setState(() => isSigningUp = !isSigningUp);
+                },
+                child: Text(
+                  isSigningUp
+                      ? (lang == 'ar'
+                          ? 'لديك حساب بالفعل؟ تسجيل الدخول'
+                          : 'Already have an account? Sign In')
+                      : (lang == 'ar'
+                          ? 'ليس لديك حساب؟ إنشاء حساب جديد'
+                          : 'Need an account? Create one'),
+                  style: const TextStyle(
+                    color: Color(0xffFFD166),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 15),
+            ],
           ),
         ),
       ),
-    );
-  }
-}
-
+    ),
+  ),
+);
 // ================= مركز التنقل السفلي =================
 class MainNavigationHub extends StatefulWidget {
   final int initialIndex;
