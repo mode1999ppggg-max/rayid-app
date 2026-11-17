@@ -23,7 +23,7 @@ Future<void> main() async {
 ).timeout(
   const Duration(seconds: 20),
 );
-
+await userModel.loadCurrentUserProfile();
     runApp(const RayidApp());
   } catch (e) {
     runApp(
