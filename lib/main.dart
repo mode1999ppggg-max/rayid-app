@@ -267,10 +267,8 @@ int points = 0;
   }
 
   bool redeemPoints() {
-    if (points >= minPointsForRedeem) {
-      int redeemedUnits = points ~/ 200; 
-      double addedUSD = redeemedUnits * 0.10; 
-      
+  return false;
+}
       balanceUSD += addedUSD;
       points = points % 200; 
 
