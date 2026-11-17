@@ -634,7 +634,6 @@ class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
         ),
       ),
     );
-    );
   }
   @override
   Widget build(BuildContext context) {
