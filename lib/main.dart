@@ -733,18 +733,30 @@ return Scaffold(
 
               Container(
                 padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: const Color(0xff171225),
+                                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xff2B1B45),
+                      Color(0xff120D20),
+                      Color(0xff211632),
+                    ],
+                  ),
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
-                    color: const Color(0xff8B5CF6).withOpacity(0.5),
+                    color: const Color(0xffFFD166).withOpacity(0.45),
+                    width: 1.2,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xff8B5CF6)
-                          .withOpacity(0.12),
-                      blurRadius: 25,
+                      color: const Color(0xff8B5CF6).withOpacity(0.22),
+                      blurRadius: 28,
                       spreadRadius: 2,
+                    ),
+                    BoxShadow(
+                      color: const Color(0xffFFD166).withOpacity(0.08),
+                      blurRadius: 18,
                     ),
                   ],
                 ),
