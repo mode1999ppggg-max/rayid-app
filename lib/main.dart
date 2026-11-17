@@ -189,8 +189,10 @@ class UserAppModel extends ChangeNotifier {
   String userPhone = '+964 770 000 0000';
   File? profileImage;
 
-  double balanceUSD = 14895.72;
-  double get balanceIQD => balanceUSD * 1320;
+  double balanceUSD = 0.0;
+double get balanceIQD => balanceUSD * 1320;
+
+int points = 0;
   
   int points = 1240; 
   final int minPointsForRedeem = 3000;
