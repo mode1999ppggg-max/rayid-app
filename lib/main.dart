@@ -180,7 +180,7 @@ class AppStrings {
 
 // ================= نموذج البيانات المركزي (UserAppModel) =================
 class UserAppModel extends ChangeNotifier {
-  bool isLoggedIn = false;
+  bool isLoggedIn = FirebaseAuth.instance.currentUser != null;
   String currentLanguage = 'ar';
 
   String userName = 'محمد فريد';
