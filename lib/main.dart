@@ -923,9 +923,7 @@ class HomeScreen extends StatelessWidget {
                             ),
                             ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    userModel.points >=
-                                            backgroundColor: gold,
+                              backgroundColor: gold,
                                 elevation: 0,
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 16,
