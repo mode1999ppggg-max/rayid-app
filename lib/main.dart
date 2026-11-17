@@ -648,17 +648,49 @@ return Scaffold(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 25),
+              
+              const SizedBox(height: 18),
 
-              const Center(
-                child: Icon(
-                  Icons.diamond_rounded,
-                  size: 58,
-                  color: Color(0xffFFD166),
+              Center(
+                child: Container(
+                  width: 108,
+                  height: 108,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Color(0xff8B5CF6),
+                        Color(0xff21143A),
+                        Color(0xff090711),
+                      ],
+                    ),
+                    border: Border.all(
+                      color: const Color(0xffFFD166),
+                      width: 1.5,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xff8B5CF6).withOpacity(0.45),
+                        blurRadius: 30,
+                        spreadRadius: 4,
+                      ),
+                      BoxShadow(
+                        color: const Color(0xffFFD166).withOpacity(0.15),
+                        blurRadius: 18,
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.diamond_rounded,
+                    size: 58,
+                    color: Color(0xffFFD166),
+                  ),
                 ),
               ),
 
-              const SizedBox(height: 12),
+              const SizedBox(height: 20),
 
               const Center(
                 child: Text(
@@ -668,11 +700,18 @@ return Scaffold(
                     fontWeight: FontWeight.w900,
                     letterSpacing: 3,
                     color: Color(0xffFFD166),
+                    shadows: [
+                      Shadow(
+                        color: Color(0xff8B5CF6),
+                        blurRadius: 18,
+                      ),
+                    ],
                   ),
                 ),
               ),
 
-              const SizedBox(height: 10),
+              const SizedBox(height: 20),
+
 
               Center(
                 child: Text(
