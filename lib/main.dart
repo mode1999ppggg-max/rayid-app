@@ -1470,7 +1470,7 @@ Widget _gameCard(
     ),
   );
 }
-
+}
 
 class RobloxArenaScreen extends StatelessWidget {
   const RobloxArenaScreen({super.key});
