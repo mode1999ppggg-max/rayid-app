@@ -1407,48 +1407,70 @@ class GamesScreen extends StatelessWidget {
     );
   }
 
-  Widget _gameCard(BuildContext context, String title, IconData icon, Color color, int entryFee, VoidCallback onTap) {
-    String lang = userModel.currentLanguage;
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-  color: const Color(0xff171225),
-  borderRadius: BorderRadius.circular(20),
-  border: Border.all(color: const Color(0xff8B5CF6).withOpacity(0.35)),
-),
-      child: Row(
-        children: [
-          Icon(icon, color: color, size: 30),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
-                const SizedBox(height: 4),
-                Text('🎟️ رهان الدخول: $entryFee نقطة', style: const TextStyle(color: Colors.grey, fontSize: 11)),
-              ],
-            ),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: color, foregroundColor: Colors.black),
-            onPressed: () {
-              bool joined = userModel.joinGameTournament(entryFee, title);
-              if (joined) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'تم خصم $entryFee نقطة رهان. بالتوفيق!' : 'Bet deducted!'), backgroundColor: Colors.green));
-                onTap();
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'عذراً، نقاطك لا تكفي لدخول الرهان!' : 'Insufficient points!'), backgroundColor: Colors.red));
-              }
-            },
-            child: Text(AppStrings.get(lang, 'play'), style: const TextStyle(fontWeight: FontWeight.bold)),
-          ),
-        ],
+  
+Widget _gameCard(
+  BuildContext context,
+  String title,
+  IconData icon,
+  Color color,
+  int _entryFee,
+  VoidCallback onTap,
+) {
+  String lang = userModel.currentLanguage;
+
+  return Container(
+    margin: const EdgeInsets.only(bottom: 14),
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: const Color(0xff171225),
+      borderRadius: BorderRadius.circular(20),
+      border: Border.all(
+        color: const Color(0xff8B5CF6).withOpacity(0.35),
       ),
-    );
-  }
+    ),
+    child: Row(
+      children: [
+        Icon(icon, color: color, size: 30),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                lang == 'ar' ? '🎮 لعب مجاني' : '🎮 Free to play',
+                style: const TextStyle(
+                  color: Colors.greenAccent,
+                  fontSize: 11,
+                ),
+              ),
+            ],
+          ),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: color,
+            foregroundColor: Colors.black,
+          ),
+          onPressed: onTap,
+          child: Text(
+            AppStrings.get(lang, 'play'),
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+      ],
+    ),
+  );
 }
+
 
 class RobloxArenaScreen extends StatelessWidget {
   const RobloxArenaScreen({super.key});
