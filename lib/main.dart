@@ -339,25 +339,78 @@ class UserAppModel extends ChangeNotifier {
     return 'Unknown error occurred';
   }
 
-  Future<String?> signInUser(String email, String password) async {
-    try {
-      UserCredential credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email.trim(),
-        password: password,
-      );
-      if (credential.user != null) {
-        userEmail = email;
-        isLoggedIn = true;
-        notifyListeners();
-        return null;
-      }
-    } on FirebaseAuthException catch (e) {
-      return e.message ?? e.code;
-    } catch (e) {
-      return e.toString();
+  
+Future<String?> signInUser(String email, String password) async {
+  try {
+    final credential =
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+      email: email.trim(),
+      password: password,
+    );
+
+    final firebaseUser = credential.user;
+    if (firebaseUser == null) {
+      return 'تعذر التحقق من الحساب.';
     }
-    return 'Unknown error occurred';
+
+    final userRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(firebaseUser.uid);
+
+    final snapshot = await userRef.get();
+
+    if (snapshot.exists) {
+      final data = snapshot.data() ?? {};
+
+      final savedName = data['name'] as String?;
+      userName = savedName?.trim().isNotEmpty == true
+          ? savedName!.trim()
+          : (firebaseUser.displayName ??
+              firebaseUser.email?.split('@').first ?? '');
+
+      userUsername = data['username'] as String? ?? '';
+      userEmail = data['email'] as String? ??
+          firebaseUser.email ?? email.trim();
+      userPhone = data['phone'] as String? ?? '';
+
+      final savedLanguage = data['language'] as String?;
+      if (savedLanguage == 'ar' || savedLanguage == 'en') {
+        currentLanguage = savedLanguage!;
+      }
+    } else {
+      final fallbackName = firebaseUser.displayName ??
+          firebaseUser.email?.split('@').first ?? '';
+
+      await userRef.set({
+        'uid': firebaseUser.uid,
+        'name': fallbackName,
+        'username': '',
+        'email': firebaseUser.email ?? email.trim(),
+        'phone': '',
+        'language': currentLanguage,
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      userName = fallbackName;
+      userUsername = '';
+      userEmail = firebaseUser.email ?? email.trim();
+      userPhone = '';
+    }
+
+    isLoggedIn = true;
+    notifyListeners();
+    return null;
+
+  } on FirebaseAuthException catch (e) {
+    return e.message ?? e.code;
+  } on FirebaseException catch (e) {
+    return 'تعذر تحميل بيانات الحساب: ${e.message ?? e.code}';
+  } catch (e) {
+    return e.toString();
   }
+}
+
 
   void signOutUser() async {
     try {
