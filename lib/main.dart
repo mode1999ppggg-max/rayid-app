@@ -192,6 +192,7 @@ class UserAppModel extends ChangeNotifier {
   String userPhone = '+964 770 000 0000';
   File? profileImage;
  String? profileImageUrl;
+ String? profileImageBase64;
   double balanceUSD = 0.0;
 double get balanceIQD => balanceUSD * 1320;
 int points = 0;
