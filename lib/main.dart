@@ -531,7 +531,10 @@ Future<String> uploadProfileImage(File image, String uid) async {
   if (phone != null) {
     updates['phone'] = phone.trim();
   }
-
+  if (image != null) {
+    updates['photoUrl'] =
+        await uploadProfileImage(image, firebaseUser.uid);
+  }
   await FirebaseFirestore.instance
       .collection('users')
       .doc(firebaseUser.uid)
