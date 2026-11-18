@@ -1467,7 +1467,6 @@ class AdsRewardsScreen extends StatelessWidget {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xffFFD166), foregroundColor: Colors.black),
             onPressed: () {
-   onPressed: () {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       content: Text(
