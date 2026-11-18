@@ -2663,19 +2663,36 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
   }
   void _saveProfile() async {
+  try {
     await userModel.updateProfile(
       name: _nameController.text,
       username: _usernameController.text,
       email: _emailController.text,
       phone: _phoneController.text,
-  image: _selectedImage,
+      image: _selectedImage,
     );
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Profile updated successfully!'), backgroundColor: Colors.green));
-      Navigator.pop(context);
-    }
-  }
 
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Profile updated successfully!'),
+        backgroundColor: Colors.green,
+      ),
+    );
+
+    Navigator.pop(context);
+  } catch (e) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('فشل حفظ التعديلات: $e'),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+  }
   @override
   Widget build(BuildContext context) {
     String lang = userModel.currentLanguage;
