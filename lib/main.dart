@@ -664,6 +664,61 @@ class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ: $errorResult'), backgroundColor: Colors.red));
     }
   }
+ 
+  Future<void> _resetPassword() async {
+    final email = _emailController.text.trim();
+    final lang = userModel.currentLanguage;
+
+    if (email.isEmpty || !email.contains('@')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            lang == 'ar'
+                ? 'أدخل بريدك الإلكتروني الصحيح أولاً.'
+                : 'Enter a valid email address first.',
+          ),
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(
+        email: email,
+      );
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            lang == 'ar'
+                ? 'تم إرسال رابط استعادة كلمة المرور إلى بريدك.'
+                : 'Password reset link sent to your email.',
+          ),
+        ),
+      );
+    } on FirebaseAuthException {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            lang == 'ar'
+                ? 'تعذر إرسال الرابط. تحقق من البريد وحاول مجدداً.'
+                : 'Could not send the link. Check your email and try again.',
+          ),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
   Widget _buildAuthField({
     required TextEditingController controller,
     required String label,
