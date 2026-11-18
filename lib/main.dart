@@ -1477,7 +1477,6 @@ class AdsRewardsScreen extends StatelessWidget {
     ),
   );
 },
-            },
             child: Text(AppStrings.get(lang, 'watchNow'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
           ),
         ],
