@@ -2697,7 +2697,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     ? MemoryImage(base64Decode(userModel.profileImageBase64!))
         as ImageProvider<Object>?
     : null),
-                  child: _selectedImage == null
+                  child: _selectedImage == null &&
+        (userModel.profileImageBase64 == null ||
+            userModel.profileImageBase64!.isEmpty)
                       ? const Icon(
                           Icons.person,
                           size: 55,
