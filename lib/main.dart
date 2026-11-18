@@ -2547,7 +2547,12 @@ class SettingsScreen extends StatelessWidget {
                 child: CircleAvatar(
                   radius: 42,
                   backgroundColor: const Color(0xff171225),
-                  backgroundImage: userModel.profileImage != null ? FileImage(userModel.profileImage!) : null,
+                  backgroundImage: userModel.profileImage != null
+    ? FileImage(userModel.profileImage!)
+    : (userModel.profileImageBase64 != null &&
+            userModel.profileImageBase64!.isNotEmpty
+        ? MemoryImage(base64Decode(userModel.profileImageBase64!))
+        : null),
                   child: userModel.profileImage == null ? const Icon(Icons.person, size: 42, color: Color(0xff8B5CF6)) : null,
                 ),
               ),
