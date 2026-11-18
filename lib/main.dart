@@ -1103,7 +1103,7 @@ class HomeScreen extends StatelessWidget {
                           radius: 23,
                           backgroundColor: card,
                           backgroundImage: userModel.profileImage != null
-    ? FileImage(userModel.profileImage!)
+    ? FileImage(userModel.profileImage!) as ImageProvider<Object>?
     : (userModel.profileImageBase64 != null &&
             userModel.profileImageBase64!.isNotEmpty
         ? MemoryImage(base64Decode(userModel.profileImageBase64!))
