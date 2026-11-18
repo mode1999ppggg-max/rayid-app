@@ -2640,7 +2640,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       ratioX: 1,
       ratioY: 1,
     ),
-    compressQuality: 85,
+    compressQuality: 45,
     uiSettings: [
       AndroidUiSettings(
         toolbarTitle: 'Crop profile photo',
