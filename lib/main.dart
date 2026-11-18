@@ -534,7 +534,7 @@ Future<String> uploadProfileImage(File image, String uid) async {
     updates['phone'] = phone.trim();
   }
   if (image != null) {
-    updates['photoUrl'] =
+    updates['photoBase64'] =
         await uploadProfileImage(image, firebaseUser.uid);
   }
   await FirebaseFirestore.instance
