@@ -190,6 +190,7 @@ class UserAppModel extends ChangeNotifier {
   String userEmail = 'mohammed@rayid.pay';
   String userPhone = '+964 770 000 0000';
   File? profileImage;
+ String? profileImageUrl;
   double balanceUSD = 0.0;
 double get balanceIQD => balanceUSD * 1320;
 int points = 0;
