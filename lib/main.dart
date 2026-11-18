@@ -2574,11 +2574,12 @@ class SettingsScreen extends StatelessWidget {
                 title: Text(AppStrings.get(lang, 'manageProfile'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const EditProfileScreen()));
+               Navigator.push(context, MaterialPageRoute(builder: (context) => const EditProfileScreen()));
                 },
               ),
-              const SizedBox(height: 10),
-              ListTile(
+              const SizedBox(height: 10),   
+        
+                ListTile(
                 tileColor: const Color(0xff171225),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 leading: const Icon(Icons.language, color: Color(0xffFFD166)),
