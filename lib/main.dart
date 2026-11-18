@@ -347,7 +347,7 @@ int points = 0;
           firebaseUser.email ??
           '';
       userPhone = data['phone'] as String? ?? '';
-
+profileImageUrl = data['photoUrl'] as String?;
       final savedLanguage = data['language'] as String?;
       if (savedLanguage == 'ar' || savedLanguage == 'en') {
         currentLanguage = savedLanguage!;
