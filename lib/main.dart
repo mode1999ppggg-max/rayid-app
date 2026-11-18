@@ -2692,9 +2692,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   backgroundColor: const Color(0xff171225),
                   backgroundImage: _selectedImage != null
                  ? FileImage(_selectedImage!) as ImageProvider<Object>?
-: (userModel.profileImageUrl != null &&
-        userModel.profileImageUrl!.isNotEmpty
-    ? NetworkImage(userModel.profileImageUrl!)
+: (userModel.profileImageBase64 != null &&
+        userModel.profileImageBase64!.isNotEmpty
+    ? MemoryImage(base64Decode(userModel.profileImageBase64!))
         as ImageProvider<Object>?
     : null),
                   child: _selectedImage == null
