@@ -344,7 +344,7 @@ int points = 0;
       if (savedLanguage == 'ar' || savedLanguage == 'en') {
         currentLanguage = savedLanguage!;
       }
-
+      await loadPointsFromServer();
       isLoggedIn = true;
       notifyListeners();
       return null;
