@@ -1467,9 +1467,17 @@ class AdsRewardsScreen extends StatelessWidget {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xffFFD166), foregroundColor: Colors.black),
             onPressed: () {
-  userModel.points += addPoints;
-userModel.addActivity('مكافأة تفاعلية', '+$addPoints pts', true);
-ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang == 'ar' ? 'تمت إضافة 4 نقاط تفاعلية بنجاح!' : '4 interactive points added!'), backgroundColor: Colors.green));
+   onPressed: () {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(
+        lang == 'ar'
+            ? 'جاري تجهيز نظام الإعلانات'
+            : 'The ads system is being prepared',
+      ),
+    ),
+  );
+},
             },
             child: Text(AppStrings.get(lang, 'watchNow'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
           ),
