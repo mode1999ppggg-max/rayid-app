@@ -496,15 +496,15 @@ Future<String?> signInUser(String email, String password) async {
   }
 
 Future<String> uploadProfileImage(File image, String uid) async {
-  final storageRef = FirebaseStorage.instance
-      .ref()
-      .child('profile_images/$uid.jpg');
+  final bytes = await image.readAsBytes();
+  final encodedImage = base64Encode(bytes);
 
-  await storageRef.putFile(image);
+  if (encodedImage.length > 700000) {
+    throw Exception('حجم الصورة كبير، اختر صورة أصغر');
+  }
 
-  return await storageRef.getDownloadURL();
+  return encodedImage;
 }
-
   Future<void> updateProfile({
   String? name,
   String? username,
