@@ -2562,7 +2562,8 @@ class SettingsScreen extends StatelessWidget {
         color: Color(0xff8B5CF6),
       )
     : null,
-              ),
+       ),
+                ),
               const SizedBox(height: 12),
               Center(child: Text(userModel.userName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18))),
               Center(child: Text('@${userModel.userUsername}', style: const TextStyle(color: Color(0xffFFD166), fontSize: 13))),
