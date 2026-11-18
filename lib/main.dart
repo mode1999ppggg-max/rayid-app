@@ -2553,8 +2553,15 @@ class SettingsScreen extends StatelessWidget {
             userModel.profileImageBase64!.isNotEmpty
         ? MemoryImage(base64Decode(userModel.profileImageBase64!))
         : null),
-                  child: userModel.profileImage == null ? const Icon(Icons.person, size: 42, color: Color(0xff8B5CF6)) : null,
-                ),
+                  child: userModel.profileImage == null &&
+        (userModel.profileImageBase64 == null ||
+            userModel.profileImageBase64!.isEmpty)
+    ? const Icon(
+        Icons.person,
+        size: 42,
+        color: Color(0xff8B5CF6),
+      )
+    : null,
               ),
               const SizedBox(height: 12),
               Center(child: Text(userModel.userName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18))),
