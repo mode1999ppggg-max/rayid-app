@@ -493,6 +493,16 @@ Future<String?> signInUser(String email, String password) async {
     notifyListeners();
   }
 
+Future<String> uploadProfileImage(File image, String uid) async {
+  final storageRef = FirebaseStorage.instance
+      .ref()
+      .child('profile_images/$uid.jpg');
+
+  await storageRef.putFile(image);
+
+  return await storageRef.getDownloadURL();
+}
+
   Future<void> updateProfile({
   String? name,
   String? username,
