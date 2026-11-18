@@ -546,9 +546,10 @@ Future<String> uploadProfileImage(File image, String uid) async {
   if (name != null) userName = name.trim();
   if (username != null) userUsername = username.trim();
   if (phone != null) userPhone = phone.trim();
-
-  // الصورة تبقى محلية مؤقتاً إلى أن نربط Firebase Storage.
-  if (image != null) profileImage = image;
+  if (image != null) {
+  profileImageBase64 = updates['photoBase64'] as String?;
+  profileImage = image;
+  }
 
   notifyListeners();
   }
