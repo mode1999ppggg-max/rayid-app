@@ -2548,7 +2548,7 @@ class SettingsScreen extends StatelessWidget {
                   radius: 42,
                   backgroundColor: const Color(0xff171225),
                   backgroundImage: userModel.profileImage != null
-    ? FileImage(userModel.profileImage!)
+   ? FileImage(userModel.profileImage!) as ImageProvider<Object>? 
     : (userModel.profileImageBase64 != null &&
             userModel.profileImageBase64!.isNotEmpty
         ? MemoryImage(base64Decode(userModel.profileImageBase64!))
