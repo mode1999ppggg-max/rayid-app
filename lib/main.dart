@@ -199,9 +199,9 @@ int points = 0;
   UserAppModel() {
     referralCode = 'RAYID-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
   }
-  Future<void> loadPointsFromServer() async {}
-  supportMessages = [
-      final firebaseUser = FirebaseAuth.instance.currentUser;
+  
+  Future<void> loadPointsFromServer() async {
+    final firebaseUser = FirebaseAuth.instance.currentUser;
     if (firebaseUser == null) return;
 
     try {
@@ -221,8 +221,15 @@ int points = 0;
       debugPrint('Points loading error: $e');
     }
   }
-  {'sender': 'support', 'text': 'مرحباً بك في دعم RAYID PAY. كيف يمكننا خدمتك اليوم؟', 'time': 'الآن'}
+
+  var supportMessages = [
+    {
+      'sender': 'support',
+      'text': 'مرحباً بك في دعم RAYID PAY. كيف يمكننا خدمتك اليوم؟',
+      'time': 'الآن'
+    }
   ];
+
 
   var chatGroups = [
     {
