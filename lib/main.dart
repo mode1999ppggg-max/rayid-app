@@ -448,7 +448,7 @@ Future<String?> signInUser(String email, String password) async {
       userEmail = firebaseUser.email ?? email.trim();
       userPhone = '';
     }
-
+    await loadPointsFromServer();
     isLoggedIn = true;
     notifyListeners();
     return null;
