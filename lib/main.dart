@@ -947,6 +947,23 @@ return Scaffold(
                       obscureText: true,
                     ),
 
+                 
+if (!isSigningUp) ...[
+  Align(
+    alignment: Alignment.centerRight,
+    child: TextButton(
+      onPressed: _isLoading ? null : _resetPassword,
+      child: Text(
+        lang == 'ar' ? 'نسيت كلمة المرور؟' : 'Forgot Password?',
+        style: const TextStyle(
+          color: Color(0xffFFD166),
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ),
+  ),
+],
+
                     const SizedBox(height: 25),
 
                     SizedBox(
