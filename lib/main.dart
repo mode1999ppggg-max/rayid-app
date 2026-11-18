@@ -1103,15 +1103,20 @@ class HomeScreen extends StatelessWidget {
                           radius: 23,
                           backgroundColor: card,
                           backgroundImage: userModel.profileImage != null
-                              ? FileImage(userModel.profileImage!)
-                              : null,
-                          child: userModel.profileImage == null
-                              ? const Icon(
-                                  Icons.person,
-                                  color: gold,
-                                  size: 25,
-                                )
-                              : null,
+    ? FileImage(userModel.profileImage!)
+    : (userModel.profileImageBase64 != null &&
+            userModel.profileImageBase64!.isNotEmpty
+        ? MemoryImage(base64Decode(userModel.profileImageBase64!))
+        : null),
+child: userModel.profileImage == null &&
+        (userModel.profileImageBase64 == null ||
+            userModel.profileImageBase64!.isEmpty)
+    ? const Icon(
+        Icons.person,
+        color: gold,
+        size: 25,
+      )
+    : null,
                         ),
                       ),
                       const SizedBox(width: 12),
