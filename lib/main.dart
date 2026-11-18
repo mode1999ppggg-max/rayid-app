@@ -2688,11 +2688,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   radius: 55,
                   backgroundColor: const Color(0xff171225),
                   backgroundImage: _selectedImage != null
-    ? FileImage(_selectedImage!)
-    : (userModel.profileImageUrl != null &&
-            userModel.profileImageUrl!.isNotEmpty
-        ? NetworkImage(userModel.profileImageUrl!)
-        : null),
+                 ? FileImage(_selectedImage!) as ImageProvider<Object>?
+: (userModel.profileImageUrl != null &&
+        userModel.profileImageUrl!.isNotEmpty
+    ? NetworkImage(userModel.profileImageUrl!)
+        as ImageProvider<Object>?
+    : null),
                   child: _selectedImage == null
                       ? const Icon(
                           Icons.person,
