@@ -747,7 +747,7 @@ Future<void> _requestPasswordResetOtp() async {
         .call({'email': email});
 
     _otpResetEmail = email;
-
+setState(() => _showOtpField = true);
     if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
