@@ -364,7 +364,7 @@ exports.completePasswordReset = onCall(
       await auth.updateUser(uid, {
         password: newPassword
       });
-
+      await auth.revokeRefreshTokens(uid);
       return {
         success: true,
         message: "تم تغيير كلمة المرور بنجاح"
