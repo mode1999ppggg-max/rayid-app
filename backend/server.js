@@ -32,6 +32,7 @@ const OTP_MAX_ATTEMPTS = 5;
 const OTP_MAX_PER_HOUR = 5;
 const IP_MAX_PER_HOUR = 30;
 const GRANT_LIFETIME_MS = 5 * 60 * 1000;
+const GRANT_PROCESSING_MS = 60 * 1000;
 
 function requiredEnv(name) {
   const value = process.env[name];
@@ -63,16 +64,22 @@ let serviceAccount;
 
 try {
   if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
-    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+    const parsed = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+
+    serviceAccount = {
+      projectId: parsed.projectId || parsed.project_id,
+      clientEmail: parsed.clientEmail || parsed.client_email,
+      privateKey: parsed.privateKey || parsed.private_key
+    };
   } else {
     serviceAccount = {
       projectId: requiredEnv("FIREBASE_PROJECT_ID"),
       clientEmail: requiredEnv("FIREBASE_CLIENT_EMAIL"),
-      privateKey: requiredEnv("FIREBASE_PRIVATE_KEY").replace(/\\n/g, "\n")
+      privateKey: requiredEnv("FIREBASE_PRIVATE_KEY")
     };
   }
-} catch (error) {
-  throw new Error(`Firebase service account configuration is invalid: ${error.message}`);
+} catch {
+  throw new Error("Firebase service account configuration is invalid");
 }
 
 if (
@@ -84,8 +91,10 @@ if (
   !serviceAccount.clientEmail ||
   !serviceAccount.privateKey
 ) {
-  throw new Error("Firebase service account is missing projectId, clientEmail, or privateKey");
+  throw new Error("Firebase service account fields are missing");
 }
+
+serviceAccount.privateKey = serviceAccount.privateKey.replace(/\\n/g, "\n");
 
 if (!getApps().length) {
   initializeApp({
@@ -104,11 +113,9 @@ function hashValue(value) {
 }
 
 function safeEqualHex(firstHex, secondHex) {
-  if (typeof firstHex !== "string" || typeof secondHex !== "string") {
-    return false;
-  }
-
   if (
+    typeof firstHex !== "string" ||
+    typeof secondHex !== "string" ||
     !/^[a-f0-9]{64}$/i.test(firstHex) ||
     !/^[a-f0-9]{64}$/i.test(secondHex)
   ) {
@@ -118,8 +125,7 @@ function safeEqualHex(firstHex, secondHex) {
   const first = Buffer.from(firstHex, "hex");
   const second = Buffer.from(secondHex, "hex");
 
-  return first.length === second.length &&
-    crypto.timingSafeEqual(first, second);
+  return crypto.timingSafeEqual(first, second);
 }
 
 function httpError(status, message) {
@@ -146,9 +152,7 @@ function normalizeEmail(email) {
 }
 
 function generateOtp() {
-  return crypto.randomInt(0, 1000000)
-    .toString()
-    .padStart(6, "0");
+  return crypto.randomInt(0, 1000000).toString().padStart(6, "0");
 }
 
 async function sendOtpEmail(email, otp) {
@@ -169,7 +173,7 @@ async function sendOtpEmail(email, otp) {
   });
 
   if (!response.ok) {
-    throw new Error(`Email provider returned HTTP ${response.status}`);
+    throw new Error("Email delivery failed");
   }
 }
 
@@ -234,12 +238,11 @@ app.post(
       const emailStart = emailData.windowStart?.toMillis?.() || 0;
       const ipStart = ipData.windowStart?.toMillis?.() || 0;
 
-      const emailWindowActive = now - emailStart < 60 * 60 * 1000;
-      const ipWindowActive = now - ipStart < 60 * 60 * 1000;
+      const emailActive = now - emailStart < 60 * 60 * 1000;
+      const ipActive = now - ipStart < 60 * 60 * 1000;
 
-      const emailCount = emailWindowActive ? (emailData.count || 0) : 0;
-      const ipCount = ipWindowActive ? (ipData.count || 0) : 0;
-
+      const emailCount = emailActive ? (emailData.count || 0) : 0;
+      const ipCount = ipActive ? (ipData.count || 0) : 0;
       const lastSent = emailData.lastSentAt?.toMillis?.() || 0;
 
       if (
@@ -252,17 +255,13 @@ app.post(
 
       transaction.set(emailRateRef, {
         count: emailCount + 1,
-        windowStart: Timestamp.fromMillis(
-          emailCount === 0 ? now : emailStart
-        ),
+        windowStart: Timestamp.fromMillis(emailCount === 0 ? now : emailStart),
         lastSentAt: Timestamp.fromMillis(now)
       });
 
       transaction.set(ipRateRef, {
         count: ipCount + 1,
-        windowStart: Timestamp.fromMillis(
-          ipCount === 0 ? now : ipStart
-        )
+        windowStart: Timestamp.fromMillis(ipCount === 0 ? now : ipStart)
       });
 
       if (userRecord) {
@@ -285,13 +284,10 @@ app.post(
     try {
       await sendOtpEmail(email, otp);
       return res.status(200).json(genericResponse);
-    } catch (error) {
+    } catch {
       const snapshot = await otpRef.get();
 
-      if (
-        snapshot.exists &&
-        snapshot.data().challengeId === challengeId
-      ) {
+      if (snapshot.exists && snapshot.data().challengeId === challengeId) {
         await otpRef.delete();
       }
 
@@ -341,10 +337,7 @@ app.post(
         return "expired";
       }
 
-      if (
-        !Number.isInteger(data.attempts) ||
-        data.attempts >= OTP_MAX_ATTEMPTS
-      ) {
+      if (!Number.isInteger(data.attempts) || data.attempts >= OTP_MAX_ATTEMPTS) {
         transaction.delete(otpRef);
         return "locked";
       }
@@ -357,16 +350,14 @@ app.post(
           return "locked";
         }
 
-        transaction.update(otpRef, {
-          attempts: nextAttempts
-        });
-
+        transaction.update(otpRef, { attempts: nextAttempts });
         return "wrong";
       }
 
       transaction.create(grantRef, {
         uid: data.uid,
         emailHash,
+        status: "pending",
         createdAt: Timestamp.fromMillis(now),
         expiresAt: Timestamp.fromMillis(now + GRANT_LIFETIME_MS)
       });
@@ -429,9 +420,11 @@ app.post(
     const emailHash = hashValue(`email:${email}`);
     const grantHash = hashValue(`grant:${resetToken}`);
     const grantRef = db.collection("passwordResetGrants").doc(grantHash);
-    const now = Date.now();
 
-    // استهلاك التصريح داخل معاملة ذرّية لمنع إعادة استخدامه.
+    const now = Date.now();
+    const claimId = crypto.randomUUID();
+
+    // حجز التصريح مؤقتاً لمنع الطلبات المتزامنة
     const uid = await db.runTransaction(async (transaction) => {
       const snapshot = await transaction.get(grantRef);
 
@@ -448,44 +441,91 @@ app.post(
         return null;
       }
 
-      transaction.delete(grantRef);
+      const processingUntil = grant.processingUntil?.toMillis?.() || 0;
+
+      if (
+        grant.status === "processing" &&
+        processingUntil > now
+      ) {
+        return null;
+      }
+
+      if (grant.status !== "pending" && grant.status !== "processing") {
+        return null;
+      }
+
+      transaction.update(grantRef, {
+        status: "processing",
+        claimId,
+        processingUntil: Timestamp.fromMillis(now + GRANT_PROCESSING_MS)
+      });
+
       return grant.uid;
     });
 
     if (!uid) {
       return res.status(403).json({
         success: false,
-        message: "التصريح غير صالح أو منتهي"
+        message: "التصريح غير صالح أو مستخدم حالياً"
       });
     }
-
-    const user = await auth.getUser(uid);
-
-    if (!user.email || user.email.toLowerCase() !== email) {
-      return res.status(403).json({
-        success: false,
-        message: "تعذر التحقق من الحساب"
-      });
-    }
-
-    await auth.updateUser(uid, {
-      password: newPassword
-    });
-
-    let sessionsRevoked = true;
 
     try {
-      await auth.revokeRefreshTokens(uid);
-    } catch (error) {
-      sessionsRevoked = false;
-      console.error("RAYID password changed; session revocation failed");
-    }
+      const user = await auth.getUser(uid);
 
-    return res.status(200).json({
-      success: true,
-      message: "تم تغيير كلمة المرور بنجاح",
-      sessionsRevoked
-    });
+      if (!user.email || user.email.toLowerCase() !== email) {
+        throw httpError(403, "تعذر التحقق من الحساب");
+      }
+
+      await auth.updateUser(uid, {
+        password: newPassword
+      });
+
+      // حذف التصريح بعد نجاح تغيير كلمة المرور
+      await db.runTransaction(async (transaction) => {
+        const snapshot = await transaction.get(grantRef);
+
+        if (
+          snapshot.exists &&
+          snapshot.data().claimId === claimId
+        ) {
+          transaction.delete(grantRef);
+        }
+      });
+
+      let sessionsRevoked = true;
+
+      try {
+        await auth.revokeRefreshTokens(uid);
+      } catch {
+        sessionsRevoked = false;
+        console.error("RAYID password changed; session revocation failed");
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "تم تغيير كلمة المرور بنجاح",
+        sessionsRevoked
+      });
+    } catch (error) {
+      // إعادة التصريح إلى الحالة السابقة إذا فشل التحديث
+      await db.runTransaction(async (transaction) => {
+        const snapshot = await transaction.get(grantRef);
+
+        if (
+          snapshot.exists &&
+          snapshot.data().claimId === claimId
+        ) {
+          transaction.update(grantRef, {
+            status: "pending",
+            claimId: null,
+            processingUntil: null
+          });
+        }
+      });
+
+      throw error;
+    }
   })
 );
 
