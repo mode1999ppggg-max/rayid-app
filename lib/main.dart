@@ -638,7 +638,8 @@ class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
   final _phoneController = TextEditingController();
  final _otpController = TextEditingController();
   bool _isLoading = false;
-String? _otpResetEmail;
+bool _showOtpField = false;
+  String? _otpResetEmail;
 String? _otpResetToken;
   void _submitAuth() async {
     String lang = userModel.currentLanguage;
