@@ -1085,7 +1085,7 @@ if (!isSigningUp) ...[
   Align(
     alignment: Alignment.centerRight,
     child: TextButton(
-      onPressed: _isLoading ? null : _resetPassword,
+      onPressed: _isLoading ? null : _requestPasswordResetOtp,
       child: Text(
         lang == 'ar' ? 'نسيت كلمة المرور؟' : 'Forgot Password?',
         style: const TextStyle(
