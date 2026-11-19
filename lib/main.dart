@@ -1099,6 +1099,25 @@ if (!isSigningUp) ...[
   ),
 ],
 
+                 if (_showOtpField && !isSigningUp) ...[
+  const SizedBox(height: 12),
+  TextField(
+    controller: _otpController,
+    keyboardType: TextInputType.number,
+    maxLength: 6,
+    style: const TextStyle(color: Colors.white),
+    decoration: InputDecoration(
+      labelText: lang == 'ar' ? 'رمز التحقق' : 'Verification code',
+      labelStyle: const TextStyle(color: Color(0xffFFD166)),
+      counterText: '',
+      filled: true,
+      fillColor: const Color(0xff171225),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    ),
+  ),
+],
                     const SizedBox(height: 25),
 
                     SizedBox(
