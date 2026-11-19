@@ -811,6 +811,47 @@ Future<void> _requestPasswordResetOtp() async {
     return false;
   }
  }
+ Future<bool> _completePasswordReset(String newPassword) async {
+  final email = _otpResetEmail;
+  final resetToken = _otpResetToken;
+
+  if (email == null ||
+      email.isEmpty ||
+      resetToken == null ||
+      resetToken.isEmpty) {
+    return false;
+  }
+
+  if (newPassword.length < 8 || newPassword.length > 128) {
+    return false;
+  }
+
+  try {
+    final result = await FirebaseFunctions.instance
+        .httpsCallable('completePasswordReset')
+        .call({
+      'email': email,
+      'resetToken': resetToken,
+      'newPassword': newPassword,
+    });
+
+    final data = Map<String, dynamic>.from(result.data);
+
+    if (data['success'] == true) {
+      _otpResetToken = null;
+      _otpResetEmail = null;
+      return true;
+    }
+
+    return false;
+  } on FirebaseFunctionsException catch (e) {
+    debugPrint('Password reset error: ${e.message}');
+    return false;
+  } catch (e) {
+    debugPrint('Password reset error: $e');
+    return false;
+  }
+ }
   Widget _buildAuthField({
     required TextEditingController controller,
     required String label,
