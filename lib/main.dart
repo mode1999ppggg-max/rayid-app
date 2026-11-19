@@ -1097,6 +1097,33 @@ if (!isSigningUp) ...[
       ),
     ),
   ),
+  const SizedBox(height: 12),
+
+  SizedBox(
+    width: double.infinity,
+    height: 50,
+    child: ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xffFFD166),
+        foregroundColor: const Color(0xff171225),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      onPressed: () async {
+        await _verifyPasswordResetOtp(
+          _otpController.text.trim(),
+        );
+      },
+      child: Text(
+        lang == 'ar' ? 'تحقق من الرمز' : 'Verify Code',
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
+        ),
+      ),
+    ),
+  ),
 ],
 
                  if (_showOtpField && !isSigningUp) ...[
