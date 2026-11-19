@@ -5,39 +5,41 @@ const express = require("express");
 const helmet = require("helmet");
 const crypto = require("crypto");
 
-const {
-  initializeApp,
-  cert,
-  getApps
-} = require("firebase-admin/app");
-
-const {
-  getFirestore,
-  Timestamp
-} = require("firebase-admin/firestore");
-
+const { initializeApp, cert, getApps } = require("firebase-admin/app");
+const { getFirestore, Timestamp } = require("firebase-admin/firestore");
 const { getAuth } = require("firebase-admin/auth");
 
 const app = express();
 
 app.disable("x-powered-by");
 app.set("trust proxy", 1);
-
 app.use(helmet());
-app.use(express.json({ limit: "10kb" }));
+app.use(express.json({ limit: "10kb", strict: true }));
 
-const PORT = process.env.PORT || 3000;
+app.use((req, res, next) => {
+  if (req.path.startsWith("/auth/")) {
+    res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
+    res.set("Pragma", "no-cache");
+  }
+  next();
+});
 
-const OTP_LIFETIME = 60 * 1000;
-const RESEND_COOLDOWN = 60 * 1000;
+const PORT = Number.parseInt(process.env.PORT || "3000", 10);
+
+const OTP_LIFETIME_MS = 60 * 1000;
+const RESEND_COOLDOWN_MS = 60 * 1000;
 const OTP_MAX_ATTEMPTS = 5;
 const OTP_MAX_PER_HOUR = 5;
 const IP_MAX_PER_HOUR = 30;
-const GRANT_LIFETIME = 5 * 60 * 1000;
+const GRANT_LIFETIME_MS = 5 * 60 * 1000;
 
 function requiredEnv(name) {
   const value = process.env[name];
-  if (!value) throw new Error(`Missing environment variable: ${name}`);
+
+  if (typeof value !== "string" || value.trim() === "") {
+    throw new Error(`Missing environment variable: ${name}`);
+  }
+
   return value;
 }
 
@@ -45,22 +47,44 @@ const OTP_HMAC_SECRET = requiredEnv("OTP_HMAC_SECRET");
 const RESEND_API_KEY = requiredEnv("RESEND_API_KEY");
 const RESEND_FROM_EMAIL = requiredEnv("RESEND_FROM_EMAIL");
 
-if (OTP_HMAC_SECRET.length < 32) {
-  throw new Error("OTP_HMAC_SECRET must be at least 32 characters");
+if (Buffer.byteLength(OTP_HMAC_SECRET, "utf8") < 32) {
+  throw new Error("OTP_HMAC_SECRET must contain at least 32 bytes");
+}
+
+if (!/^\S+@\S+\.\S+$/.test(RESEND_FROM_EMAIL)) {
+  throw new Error("RESEND_FROM_EMAIL must be a valid email address");
+}
+
+if (!Number.isInteger(PORT) || PORT < 1 || PORT > 65535) {
+  throw new Error("PORT is invalid");
 }
 
 let serviceAccount;
 
-if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
-  serviceAccount = JSON.parse(
-    process.env.FIREBASE_SERVICE_ACCOUNT_JSON
-  );
-} else {
-  serviceAccount = {
-    projectId: requiredEnv("FIREBASE_PROJECT_ID"),
-    clientEmail: requiredEnv("FIREBASE_CLIENT_EMAIL"),
-    privateKey: requiredEnv("FIREBASE_PRIVATE_KEY").replace(/\\n/g, "\n")
-  };
+try {
+  if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
+    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+  } else {
+    serviceAccount = {
+      projectId: requiredEnv("FIREBASE_PROJECT_ID"),
+      clientEmail: requiredEnv("FIREBASE_CLIENT_EMAIL"),
+      privateKey: requiredEnv("FIREBASE_PRIVATE_KEY").replace(/\\n/g, "\n")
+    };
+  }
+} catch (error) {
+  throw new Error(`Firebase service account configuration is invalid: ${error.message}`);
+}
+
+if (
+  !serviceAccount ||
+  typeof serviceAccount.projectId !== "string" ||
+  typeof serviceAccount.clientEmail !== "string" ||
+  typeof serviceAccount.privateKey !== "string" ||
+  !serviceAccount.projectId ||
+  !serviceAccount.clientEmail ||
+  !serviceAccount.privateKey
+) {
+  throw new Error("Firebase service account is missing projectId, clientEmail, or privateKey");
 }
 
 if (!getApps().length) {
@@ -79,19 +103,34 @@ function hashValue(value) {
     .digest("hex");
 }
 
-function safeEqual(a, b) {
-  const first = Buffer.from(a, "hex");
-  const second = Buffer.from(b, "hex");
+function safeEqualHex(firstHex, secondHex) {
+  if (typeof firstHex !== "string" || typeof secondHex !== "string") {
+    return false;
+  }
+
+  if (
+    !/^[a-f0-9]{64}$/i.test(firstHex) ||
+    !/^[a-f0-9]{64}$/i.test(secondHex)
+  ) {
+    return false;
+  }
+
+  const first = Buffer.from(firstHex, "hex");
+  const second = Buffer.from(secondHex, "hex");
 
   return first.length === second.length &&
     crypto.timingSafeEqual(first, second);
 }
 
+function httpError(status, message) {
+  const error = new Error(message);
+  error.status = status;
+  return error;
+}
+
 function normalizeEmail(email) {
   if (typeof email !== "string") {
-    const error = new Error("البريد الإلكتروني غير صالح");
-    error.status = 400;
-    throw error;
+    throw httpError(400, "البريد الإلكتروني غير صالح");
   }
 
   const value = email.trim().toLowerCase();
@@ -100,9 +139,7 @@ function normalizeEmail(email) {
     value.length > 254 ||
     !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
   ) {
-    const error = new Error("البريد الإلكتروني غير صالح");
-    error.status = 400;
-    throw error;
+    throw httpError(400, "البريد الإلكتروني غير صالح");
   }
 
   return value;
@@ -132,7 +169,7 @@ async function sendOtpEmail(email, otp) {
   });
 
   if (!response.ok) {
-    throw new Error("Email delivery failed");
+    throw new Error(`Email provider returned HTTP ${response.status}`);
   }
 }
 
@@ -158,7 +195,7 @@ app.post(
     const email = normalizeEmail(req.body?.email);
     const emailHash = hashValue(`email:${email}`);
 
-    const ip = req.ip || "unknown";
+    const ip = req.ip || req.socket.remoteAddress || "unknown";
     const ipHash = hashValue(`ip:${ip}`);
 
     const otpRef = db.collection("passwordResetOtps").doc(emailHash);
@@ -185,9 +222,11 @@ app.post(
       }
     }
 
-    const rateResult = await db.runTransaction(async (transaction) => {
-      const emailSnapshot = await transaction.get(emailRateRef);
-      const ipSnapshot = await transaction.get(ipRateRef);
+    const allowed = await db.runTransaction(async (transaction) => {
+      const [emailSnapshot, ipSnapshot] = await Promise.all([
+        transaction.get(emailRateRef),
+        transaction.get(ipRateRef)
+      ]);
 
       const emailData = emailSnapshot.exists ? emailSnapshot.data() : {};
       const ipData = ipSnapshot.exists ? ipSnapshot.data() : {};
@@ -195,20 +234,18 @@ app.post(
       const emailStart = emailData.windowStart?.toMillis?.() || 0;
       const ipStart = ipData.windowStart?.toMillis?.() || 0;
 
-      const emailCount = now - emailStart < 60 * 60 * 1000
-        ? (emailData.count || 0)
-        : 0;
+      const emailWindowActive = now - emailStart < 60 * 60 * 1000;
+      const ipWindowActive = now - ipStart < 60 * 60 * 1000;
 
-      const ipCount = now - ipStart < 60 * 60 * 1000
-        ? (ipData.count || 0)
-        : 0;
+      const emailCount = emailWindowActive ? (emailData.count || 0) : 0;
+      const ipCount = ipWindowActive ? (ipData.count || 0) : 0;
 
       const lastSent = emailData.lastSentAt?.toMillis?.() || 0;
 
       if (
         emailCount >= OTP_MAX_PER_HOUR ||
         ipCount >= IP_MAX_PER_HOUR ||
-        now - lastSent < RESEND_COOLDOWN
+        now - lastSent < RESEND_COOLDOWN_MS
       ) {
         return false;
       }
@@ -234,14 +271,14 @@ app.post(
           otpHash,
           challengeId,
           attempts: 0,
-          expiresAt: Timestamp.fromMillis(now + OTP_LIFETIME)
+          expiresAt: Timestamp.fromMillis(now + OTP_LIFETIME_MS)
         });
       }
 
       return true;
     });
 
-    if (!rateResult || !userRecord) {
+    if (!allowed || !userRecord) {
       return res.status(200).json(genericResponse);
     }
 
@@ -257,6 +294,8 @@ app.post(
       ) {
         await otpRef.delete();
       }
+
+      console.error("RAYID email delivery failed");
 
       return res.status(503).json({
         success: false,
@@ -297,17 +336,20 @@ app.post(
 
       const data = snapshot.data();
 
-      if (data.expiresAt.toMillis() <= now) {
+      if (!data.expiresAt || data.expiresAt.toMillis() <= now) {
         transaction.delete(otpRef);
         return "expired";
       }
 
-      if (data.attempts >= OTP_MAX_ATTEMPTS) {
+      if (
+        !Number.isInteger(data.attempts) ||
+        data.attempts >= OTP_MAX_ATTEMPTS
+      ) {
         transaction.delete(otpRef);
         return "locked";
       }
 
-      if (!safeEqual(submittedHash, data.otpHash)) {
+      if (!safeEqualHex(submittedHash, data.otpHash)) {
         const nextAttempts = data.attempts + 1;
 
         if (nextAttempts >= OTP_MAX_ATTEMPTS) {
@@ -325,10 +367,12 @@ app.post(
       transaction.create(grantRef, {
         uid: data.uid,
         emailHash,
-        expiresAt: Timestamp.fromMillis(now + GRANT_LIFETIME)
+        createdAt: Timestamp.fromMillis(now),
+        expiresAt: Timestamp.fromMillis(now + GRANT_LIFETIME_MS)
       });
 
       transaction.delete(otpRef);
+
       return "verified";
     });
 
@@ -385,7 +429,9 @@ app.post(
     const emailHash = hashValue(`email:${email}`);
     const grantHash = hashValue(`grant:${resetToken}`);
     const grantRef = db.collection("passwordResetGrants").doc(grantHash);
+    const now = Date.now();
 
+    // استهلاك التصريح داخل معاملة ذرّية لمنع إعادة استخدامه.
     const uid = await db.runTransaction(async (transaction) => {
       const snapshot = await transaction.get(grantRef);
 
@@ -395,7 +441,8 @@ app.post(
 
       if (
         grant.emailHash !== emailHash ||
-        grant.expiresAt.toMillis() <= Date.now()
+        !grant.expiresAt ||
+        grant.expiresAt.toMillis() <= now
       ) {
         transaction.delete(grantRef);
         return null;
@@ -414,7 +461,7 @@ app.post(
 
     const user = await auth.getUser(uid);
 
-    if (user.email?.toLowerCase() !== email) {
+    if (!user.email || user.email.toLowerCase() !== email) {
       return res.status(403).json({
         success: false,
         message: "تعذر التحقق من الحساب"
@@ -425,22 +472,38 @@ app.post(
       password: newPassword
     });
 
-    await auth.revokeRefreshTokens(uid);
+    let sessionsRevoked = true;
+
+    try {
+      await auth.revokeRefreshTokens(uid);
+    } catch (error) {
+      sessionsRevoked = false;
+      console.error("RAYID password changed; session revocation failed");
+    }
 
     return res.status(200).json({
       success: true,
-      message: "تم تغيير كلمة المرور بنجاح"
+      message: "تم تغيير كلمة المرور بنجاح",
+      sessionsRevoked
     });
   })
 );
 
+// المسارات غير الموجودة
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "المسار غير موجود"
+  });
+});
+
 // معالجة الأخطاء
 app.use((error, req, res, next) => {
-  console.error("RAYID API error:", error.message);
+  const status = Number.isInteger(error.status) ? error.status : 500;
 
-  const status = Number.isInteger(error.status)
-    ? error.status
-    : 500;
+  if (status >= 500) {
+    console.error("RAYID API request failed");
+  }
 
   res.status(status).json({
     success: false,
