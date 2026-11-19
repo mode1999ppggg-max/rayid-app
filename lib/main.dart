@@ -636,6 +636,7 @@ class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
   final _nameController = TextEditingController();
   final _usernameController = TextEditingController();
   final _phoneController = TextEditingController();
+ final _otpController = TextEditingController();
   bool _isLoading = false;
 String? _otpResetEmail;
 String? _otpResetToken;
