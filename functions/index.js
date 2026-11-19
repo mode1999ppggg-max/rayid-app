@@ -21,14 +21,13 @@ function requireUser(request) {
 // قراءة رصيد النقاط من الخادم فقط
 exports.getMyPoints = onCall(async (request) => {
   const uid = requireUser(request);
-
-  const userRef = db.collection("users").doc(uid);
- // إنشاء رمز تحقق عشوائي من 6 أرقام
+// إنشاء رمز تحقق عشوائي من 6 أرقام
 function generateOtp() {
   return crypto.randomInt(0, 1000000)
     .toString()
     .padStart(6, "0");
 }
+  const userRef = db.collection("users").doc(uid);
   const snapshot = await userRef.get();
 
   if (!snapshot.exists) {
