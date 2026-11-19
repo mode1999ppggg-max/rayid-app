@@ -720,6 +720,61 @@ String? _otpResetToken;
     }
   }
 
+Future<void> _requestPasswordResetOtp() async {
+  final email = _emailController.text.trim();
+  final lang = userModel.currentLanguage;
+
+  if (email.isEmpty || !email.contains('@')) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          lang == 'ar'
+              ? 'أدخل بريدك الإلكتروني الصحيح أولاً.'
+              : 'Enter a valid email address first.',
+        ),
+      ),
+    );
+    return;
+  }
+
+  setState(() => _isLoading = true);
+
+  try {
+    await FirebaseFunctions.instance
+        .httpsCallable('requestPasswordResetOtp')
+        .call({'email': email});
+
+    _otpResetEmail = email;
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          lang == 'ar'
+              ? 'إذا كان البريد مسجلاً، فستصلك تعليمات التحقق.'
+              : 'If the email is registered, verification instructions will arrive.',
+        ),
+      ),
+    );
+  } catch (_) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          lang == 'ar'
+              ? 'تعذر طلب رمز التحقق حالياً.'
+              : 'Could not request a verification code.',
+        ),
+      ),
+    );
+  } finally {
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
+  }
+} 
   Widget _buildAuthField({
     required TextEditingController controller,
     required String label,
