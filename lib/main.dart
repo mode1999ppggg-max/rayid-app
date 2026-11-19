@@ -775,6 +775,42 @@ Future<void> _requestPasswordResetOtp() async {
     }
   }
 } 
+ Future<bool> _verifyPasswordResetOtp(String otp) async {
+  final email = _otpResetEmail;
+
+  if (email == null || email.isEmpty) {
+    return false;
+  }
+
+  if (!RegExp(r'^\d{6}$').hasMatch(otp.trim())) {
+    return false;
+  }
+
+  try {
+    final result = await FirebaseFunctions.instance
+        .httpsCallable('verifyPasswordResetOtp')
+        .call({
+      'email': email,
+      'otp': otp.trim(),
+    });
+
+    final data = Map<String, dynamic>.from(result.data);
+
+    if (data['success'] == true &&
+        data['resetToken'] is String) {
+      _otpResetToken = data['resetToken'];
+      return true;
+    }
+
+    return false;
+  } on FirebaseFunctionsException catch (e) {
+    debugPrint('OTP verification error: ${e.message}');
+    return false;
+  } catch (e) {
+    debugPrint('OTP verification error: $e');
+    return false;
+  }
+ }
   Widget _buildAuthField({
     required TextEditingController controller,
     required String label,
