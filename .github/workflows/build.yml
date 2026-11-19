@@ -17,11 +17,17 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Setup Node.js
+
+            - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          - name: Check Functions JavaScript
+
+      - name: Check Functions JavaScript
+        run: |
+          cd functions
+          npm install
+          node --check index.js
         run: |
           cd functions
           npm install
