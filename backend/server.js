@@ -191,6 +191,15 @@ app.get("/health", (req, res) => {
     status: "healthy"
   });
 });
+// فحص اتصال Firestore
+app.get("/health/firestore", asyncRoute(async (req, res) => {
+  await db.collection("_healthChecks").limit(1).get();
+
+  res.status(200).json({
+    success: true,
+    firestore: "connected"
+  });
+}));
 
 // طلب رمز استعادة كلمة المرور
 app.post(
