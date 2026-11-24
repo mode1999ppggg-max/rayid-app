@@ -804,12 +804,20 @@ setState(() => _showOtpField = true);
   }
 
   try {
-    final result = await FirebaseFunctions.instance
-        .httpsCallable('verifyPasswordResetOtp')
-        .call({
-      'email': email,
-      'otp': otp.trim(),
-    });
+    final response = await http.post(
+  Uri.parse(
+    'https://site--rayid-pay-backend--ty622yc4dpnn.code.run/auth/verify-password-reset-otp',
+  ),
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: jsonEncode({
+    'email': email,
+    'otp': otp.trim(),
+  }),
+);
+
+final data = jsonDecode(response.body);
 
     final data = Map<String, dynamic>.from(result.data);
 
