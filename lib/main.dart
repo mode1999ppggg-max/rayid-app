@@ -742,10 +742,25 @@ Future<void> _requestPasswordResetOtp() async {
   setState(() => _isLoading = true);
 
   try {
-    await FirebaseFunctions.instance
-        .httpsCallable('requestPasswordResetOtp')
-        .call({'email': email});
+final response = await http.post(
+  Uri.parse(
+    'https://site--rayid-pay-backend--ty622yc4dpnn.code.run/auth/request-password-reset-otp',
+  ),
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: jsonEncode({
+    'email': email,
+  }),
+);
 
+final data = jsonDecode(response.body);
+
+if (response.statusCode != 200 || data['success'] != true) {
+  throw Exception(
+    data['message'] ?? 'Failed to request OTP',
+  );
+}
     _otpResetEmail = email;
 setState(() => _showOtpField = true);
     if (!mounted) return;
