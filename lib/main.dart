@@ -2060,22 +2060,21 @@ class GamesScreen extends StatelessWidget {
       appBar: AppBar(title: Text(AppStrings.get(lang, 'cyberGames')), backgroundColor: const Color(0xff090711), automaticallyImplyLeading: false),
       body: ListView(
         padding: const EdgeInsets.all(16),
-        children: [
-         GameCard(
-  title: AppStrings.get(lang, 'gameLudo'),
-  icon: Icons.casino,
-  color: const Color(0xffFFD166),
-  lang: lang,
-  onTap: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const LudoLobbyScreen(),
-    );
-  },
-), 
-    },
-        ),
+                children: [
+          GameCard(
+            title: AppStrings.get(lang, 'gameLudo'),
+            icon: Icons.casino,
+            color: const Color(0xffFFD166),
+            lang: lang,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const LudoLobbyScreen(),
+                ),
+              );
+            },
+          ),
         ],
       ),
     );
