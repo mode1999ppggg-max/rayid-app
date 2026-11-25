@@ -1296,7 +1296,77 @@ if (_showPasswordResetFields) ...[
     ),
   ),
 ],
-                    const SizedBox(height: 25),
+                    if (_showPasswordResetFields) ...[
+  const SizedBox(height: 16),
+  SizedBox(
+    width: double.infinity,
+    height: 50,
+    child: ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xffFFD166),
+        foregroundColor: const Color(0xff171225),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      onPressed: _isLoading
+          ? null
+          : () async {
+              final newPassword = _newPasswordController.text;
+              final confirmPassword =
+                  _confirmPasswordController.text;
+
+              if (newPassword.length < 8 ||
+                  newPassword.length > 128) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'كلمة المرور يجب أن تكون بين 8 و128 حرفاً',
+                    ),
+                  ),
+                );
+                return;
+              }
+
+              if (newPassword != confirmPassword) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('كلمتا المرور غير متطابقتين'),
+                  ),
+                );
+                return;
+              }
+
+              setState(() => _isLoading = true);
+
+              final success =
+                  await _completePasswordReset(newPassword);
+
+              if (!mounted) return;
+
+              setState(() => _isLoading = false);
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    success
+                        ? 'تم تغيير كلمة المرور بنجاح'
+                        : 'تعذر تغيير كلمة المرور، حاول مرة أخرى',
+                  ),
+                ),
+              );
+            },
+      child: const Text(
+        'تغيير كلمة المرور',
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
+        ),
+      ),
+    ),
+  ),
+],
+const SizedBox(height: 25),
 
                     SizedBox(
                       width: double.infinity,
