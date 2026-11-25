@@ -2061,24 +2061,20 @@ class GamesScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _gameCard(context, AppStrings.get(lang, 'gameLudo'), Icons.casino, const Color(0xffFFD166), 50, () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const LudoLobbyScreen()),
-            );
-          }),
-          _gameCard(context, AppStrings.get(lang, 'gameChess'), Icons.extension, const Color(0xffFFD166), 30, () {}),
-          _gameCard(context, AppStrings.get(lang, 'gameDomino'), Icons.apps,const Color(0xffFFD166), 20, () {}),
-          _gameCard(context, AppStrings.get(lang, 'gameBackgammon'), Icons.grid_view, const Color(0xffFFD166), 20, () {}),
-          _gameCard(context, AppStrings.get(lang, 'gamePool'), Icons.sports_bar, const Color(0xffFFD166), 40, () {}),
-          _gameCard(context, AppStrings.get(lang, 'gameRoblox'), Icons.sports_esports, const Color(0xffFFD166), 100, () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const RobloxArenaScreen()));
-          }),
-        ],
+         GameCard(
+  title: AppStrings.get(lang, 'gameLudo'),
+  icon: Icons.casino,
+  color: const Color(0xffFFD166),
+  lang: lang,
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const LudoLobbyScreen(),
       ),
     );
-  }
-}
+  },
+), 
   class RobloxArenaScreen extends StatelessWidget {
   const RobloxArenaScreen({super.key});
 
