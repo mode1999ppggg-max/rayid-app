@@ -1219,7 +1219,17 @@ if (_showOtpField && !isSigningUp) ...[
 
         if (!mounted) return;
 
-        setState(() => _isLoading = false);
+        setState(() {
+  _isLoading = false;
+  _otpHasError = !verified;
+  _otpVerified = verified;
+
+  if (verified) {
+    _showPasswordResetFields = true;
+  } else {
+    _otpShakeCount++;
+  }
+});
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
