@@ -637,8 +637,11 @@ class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
   final _usernameController = TextEditingController();
   final _phoneController = TextEditingController();
  final _otpController = TextEditingController();
+ final _newPasswordController = TextEditingController();
+final _confirmPasswordController = TextEditingController();
   bool _isLoading = false;
 bool _showOtpField = false;
+bool _showPasswordResetFields = false;
   String? _otpResetEmail;
 String? _otpResetToken;
   void _submitAuth() async {
