@@ -1188,6 +1188,16 @@ if (_showOtpField && !isSigningUp) ...[
   ),
 ),
   const SizedBox(height: 12),
+if (_otpHasError) ...[
+  const SizedBox(height: 8),
+  const Text(
+    'رمز التحقق غير صحيح، حاول مرة أخرى',
+    style: TextStyle(
+      color: Colors.red,
+      fontSize: 13,
+    ),
+  ),
+],
   SizedBox(
     width: double.infinity,
     height: 50,
