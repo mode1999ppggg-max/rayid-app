@@ -1132,11 +1132,31 @@ if (!isSigningUp) ...[
 
 if (_showOtpField && !isSigningUp) ...[
   const SizedBox(height: 12),
-  TextField(
+  TweenAnimationBuilder<double>(
+  key: ValueKey(_otpShakeCount),
+  tween: Tween<double>(begin: 0, end: 1),
+  duration: const Duration(milliseconds: 450),
+  builder: (context, value, child) {
+    final shake = sin(value * pi * 6) * (1 - value) * 9;
+
+    return Transform.translate(
+      offset: Offset(shake, 0),
+      child: child,
+    );
+  },
+  child: TextField(
     controller: _otpController,
     keyboardType: TextInputType.number,
     maxLength: 6,
     style: const TextStyle(color: Colors.white),
+    onChanged: (_) {
+      if (_otpHasError || _otpVerified) {
+        setState(() {
+          _otpHasError = false;
+          _otpVerified = false;
+        });
+      }
+    },
     decoration: InputDecoration(
       labelText: lang == 'ar' ? 'رمز التحقق' : 'Verification code',
       labelStyle: const TextStyle(color: Color(0xffFFD166)),
@@ -1146,8 +1166,27 @@ if (_showOtpField && !isSigningUp) ...[
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
       ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(
+          color: _otpHasError
+              ? Colors.red
+              : (_otpVerified ? Colors.green : Colors.transparent),
+          width: 1.5,
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(
+          color: _otpHasError
+              ? Colors.red
+              : (_otpVerified ? Colors.green : const Color(0xff8B5CF6)),
+          width: 2,
+        ),
+      ),
     ),
   ),
+),
   const SizedBox(height: 12),
   SizedBox(
     width: double.infinity,
