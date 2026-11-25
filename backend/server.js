@@ -155,6 +155,7 @@ function generateOtp() {
   return crypto.randomInt(0, 1000000).toString().padStart(6, "0");
 }
 
+
 async function sendOtpEmail(email, otp) {
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -172,10 +173,21 @@ async function sendOtpEmail(email, otp) {
     })
   });
 
+  const result = await response.json();
+
   if (!response.ok) {
+    console.error("Resend API error:", {
+      status: response.status,
+      message: result.message,
+      name: result.name
+    });
+
     throw new Error("Email delivery failed");
   }
+
+  console.log("RAYID email accepted by Resend:", result.id);
 }
+
 
 function asyncRoute(handler) {
   return (req, res, next) => {
