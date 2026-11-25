@@ -819,18 +819,14 @@ setState(() => _showOtpField = true);
 
 final data = jsonDecode(response.body);
 
-    final data = Map<String, dynamic>.from(result.data);
-
-    if (data['success'] == true &&
-        data['resetToken'] is String) {
-      _otpResetToken = data['resetToken'];
-      return true;
-    }
-
-    return false;
-  } on FirebaseFunctionsException catch (e) {
-    debugPrint('OTP verification error: ${e.message}');
-    return false;
+if (response.statusCode == 200 &&
+    data is Map &&
+    data['success'] == true &&
+    data['resetToken'] is String) {
+  _otpResetToken = data['resetToken'];
+  return true;
+}
+  return false;
   } catch (e) {
     debugPrint('OTP verification error: $e');
     return false;
@@ -852,31 +848,37 @@ final data = jsonDecode(response.body);
   }
 
   try {
-    final result = await FirebaseFunctions.instance
-        .httpsCallable('completePasswordReset')
-        .call({
-      'email': email,
-      'resetToken': resetToken,
-      'newPassword': newPassword,
-    });
+    final response = await http.post(
+  Uri.parse(
+    'https://site--rayid-pay-backend--ty622yc4dpnn.code.run/auth/complete-password-reset',
+  ),
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: jsonEncode({
+    'email': email,
+    'resetToken': resetToken,
+    'newPassword': newPassword,
+  }),
+);
 
-    final data = Map<String, dynamic>.from(result.data);
+final data = jsonDecode(response.body);
 
-    if (data['success'] == true) {
-      _otpResetToken = null;
-      _otpResetEmail = null;
-      return true;
-    }
+if (response.statusCode == 200 &&
+    data is Map &&
+    data['success'] == true) {
+  _otpResetToken = null;
+  _otpResetEmail = null;
+  return true;
+}
 
-    return false;
-  } on FirebaseFunctionsException catch (e) {
-    debugPrint('Password reset error: ${e.message}');
-    return false;
-  } catch (e) {
-    debugPrint('Password reset error: $e');
-    return false;
+return false;
+} catch (e) {
+  debugPrint('Password reset error: $e');
+  return false;
   }
- }
+      
+  }
   Widget _buildAuthField({
     required TextEditingController controller,
     required String label,
