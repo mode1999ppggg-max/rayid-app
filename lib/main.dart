@@ -2071,13 +2071,20 @@ class GamesScreen extends StatelessWidget {
       context,
       MaterialPageRoute(
         builder: (context) => const LudoLobbyScreen(),
-      ),
     );
   },
 ), 
-  class RobloxArenaScreen extends StatelessWidget {
-  const RobloxArenaScreen({super.key});
+    },
+        ),
+        ],
+      ),
+    );
+  }
+}
 
+class RobloxArenaScreen extends StatelessWidget {
+  const RobloxArenaScreen({super.key});
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
