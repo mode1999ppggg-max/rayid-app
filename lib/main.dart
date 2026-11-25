@@ -1337,21 +1337,7 @@ if (_showPasswordResetFields) ...[
                 return;
               }
 
-              setState(() {
-  _isLoading = false;
-
-  if (success) {
-    _showOtpField = false;
-    _showPasswordResetFields = false;
-    _otpHasError = false;
-    _otpVerified = false;
-
-    _otpController.clear();
-    _newPasswordController.clear();
-    _confirmPasswordController.clear();
-  }
-});
-
+              
               final success =
                   await _completePasswordReset(newPassword);
 
