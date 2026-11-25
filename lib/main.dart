@@ -1261,7 +1261,42 @@ if (_otpHasError) ...[
     ),
   ),
 ],
-  const SizedBox(height: 25),
+if (_showPasswordResetFields) ...[
+  const SizedBox(height: 16),
+
+  TextField(
+    controller: _newPasswordController,
+    obscureText: true,
+    style: const TextStyle(color: Colors.white),
+    decoration: InputDecoration(
+      labelText: 'كلمة المرور الجديدة',
+      labelStyle: const TextStyle(color: Color(0xffFFD166)),
+      filled: true,
+      fillColor: const Color(0xff171225),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    ),
+  ),
+
+  const SizedBox(height: 12),
+
+  TextField(
+    controller: _confirmPasswordController,
+    obscureText: true,
+    style: const TextStyle(color: Colors.white),
+    decoration: InputDecoration(
+      labelText: 'تأكيد كلمة المرور الجديدة',
+      labelStyle: const TextStyle(color: Color(0xffFFD166)),
+      filled: true,
+      fillColor: const Color(0xff171225),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    ),
+  ),
+],
+                    const SizedBox(height: 25),
 
                     SizedBox(
                       width: double.infinity,
