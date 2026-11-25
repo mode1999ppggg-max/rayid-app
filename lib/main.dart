@@ -1349,7 +1349,7 @@ class MainNavigationHubState extends State<MainNavigationHub> {
       const HomeScreen(),
       const AdsRewardsScreen(),
       const WalletScreen(),
-      const GamesScreen(),
+      GamesScreen(lang: lang),
       const ChatScreen(),
       const SettingsScreen(),
     ];
