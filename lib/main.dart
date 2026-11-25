@@ -1155,12 +1155,37 @@ if (_showOtpField && !isSigningUp) ...[
         ),
       ),
       onPressed: _isLoading
-          ? null
-          : () async {
-              await _verifyPasswordResetOtp(
-                _otpController.text.trim(),
-              );
-            },
+    ? null
+    : () async {
+        final otp = _otpController.text.trim();
+
+        if (!RegExp(r'^\d{6}$').hasMatch(otp)) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('أدخل رمز التحقق المكوّن من 6 أرقام'),
+            ),
+          );
+          return;
+        }
+
+        setState(() => _isLoading = true);
+
+        final verified = await _verifyPasswordResetOtp(otp);
+
+        if (!mounted) return;
+
+        setState(() => _isLoading = false);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              verified
+                  ? 'تم التحقق من الرمز بنجاح'
+                  : 'الرمز غير صحيح أو انتهت صلاحيته',
+            ),
+          ),
+        );
+      },
       child: Text(
         lang == 'ar' ? 'تحقق من الرمز' : 'Verify Code',
         style: const TextStyle(
