@@ -2078,7 +2078,8 @@ class GamesScreen extends StatelessWidget {
       ),
     );
   }
-class RobloxArenaScreen extends StatelessWidget {
+}
+  class RobloxArenaScreen extends StatelessWidget {
   const RobloxArenaScreen({super.key});
 
   @override
