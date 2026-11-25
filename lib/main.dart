@@ -14,6 +14,7 @@ import 'games/ludo/ludo_screen.dart';
 import 'core/localization/app_strings.dart';
 import 'features/games/virtual_world/presentation/widgets/cyber_grid_painter.dart';
 import 'features/games/presentation/widgets/game_card.dart';
+import 'features/games/presentation/screens/games_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
