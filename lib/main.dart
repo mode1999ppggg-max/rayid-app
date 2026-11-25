@@ -642,7 +642,6 @@ final _confirmPasswordController = TextEditingController();
   bool _isLoading = false;
 bool _showOtpField = false;
 bool _showPasswordResetFields = false;
-bool _showPasswordResetFields = false;
 bool _otpHasError = false;
 int _otpShakeCount = 0;
 bool _otpVerified = false;
