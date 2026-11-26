@@ -3,14 +3,17 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:cloud_functions/cloud_functions.dart';
+import 'package:http/http.dart' as http;
 import 'dart:io';
 import 'dart:convert';
 import 'dart:async';
 import 'dart:math';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
-import 'games/ludo/ludo_screen.dart';
+import 'core/localization/app_strings.dart';
+import 'features/games/virtual_world/presentation/widgets/cyber_grid_painter.dart';
+import 'features/games/presentation/screens/games_screen.dart';
+import 'features/ads_rewards/presentation/ads_rewards_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -46,138 +49,6 @@ await userModel.loadCurrentUserProfile();
         ),
       ),
     );
-  }
-}
-
-// ================= قاموس اللغات الشامل (Localization Map) =================
-class AppStrings {
-  static const Map<String, Map<String, String>> localizedValues = {
-    'ar': {
-      'appName': 'RAYID PAY',
-      'home': 'الرئيسية',
-      'ads': 'الإعلانات',
-      'wallet': 'المحفظة',
-      'games': 'الألعاب',
-      'chat': 'الدردشة',
-      'profile': 'الإعدادات',
-      'goodMorning': 'مرحباً بك',
-      'totalBalance': 'إجمالي الرصيد المتاح',
-      'portfolioValue': 'قيمة المحفظة',
-      'points': 'النقاط',
-      'redeem': 'استبدال',
-      'recentActivity': 'الأنشطة الأخيرة',
-      'adsRewardsCenter': 'مركز الإعلانات والمكافآت التفاعلية',
-      'walletPayouts': 'المحفظة وأرباح المنصة (محاكاة)',
-      'cyberGames': 'منصة الألعاب الترفيهية',
-      'communityChat': 'دردشة ومجموعات المجتمع',
-      'settings': 'الإعدادات والحساب',
-      'manageProfile': 'إدارة الملف الشخصي',
-      'liveSupport': 'الدعم الفني المباشر',
-      'privacyPolicy': 'سياسة الخصوصية',
-      'appLanguage': 'لغة التطبيق',
-      'logOut': 'تسجيل الخروج',
-      'saveChanges': 'حفظ التعديلات',
-      'deleteAccount': 'حذف الحساب نهائياً',
-      'cancel': 'إلغاء',
-      'confirm': 'تأكيد',
-      'close': 'إغلاق',
-      'createAccount': 'إنشاء الحساب',
-      'signIn': 'تسجيل الدخول',
-      'fullName': 'الاسم الكامل',
-      'username': 'اسم المستخدم',
-      'phone': 'رقم الهاتف',
-      'email': 'البريد الإلكتروني',
-      'password': 'كلمة المرور',
-      'activeGroups': 'المجموعات النشطة',
-      'createGroup': 'إنشاء مجموعة جديدة',
-      'groupName': 'اسم المجموعة',
-      'create': 'إنشاء',
-      'members': 'عضو',
-      'typeMessage': 'اكتب رسالتك...',
-      'typeIssue': 'اكتب مشكلتك هنا...',
-      'availablePayouts': 'طرق السحب المتاحة (محاكاة تجريبية)',
-      'referralProgram': 'نظام إحالة الأصدقاء (ادعُ واربح)',
-      'referralDesc': 'شارك كود الإحالة الخاص بك واكسب نقاطاً إضافية عن كل صديق!',
-      'share': 'مشاركة',
-      'withdrawVia': 'السحب عبر',
-      'amountIQD': 'المبلغ (د.ع)',
-      'unlimitedAd': 'مكافأة تفاعلية غير محدودة',
-      'featuredAd': 'إعلان ترويجي مميز',
-      'reward': 'المكافأة',
-      'watchNow': 'تفاعل الآن',
-      'gameLudo': 'بطولة لودو السيبرانية',
-      'gameChess': 'أساتذة الشطرنج',
-      'gamePool': 'بلياردو (8 Ball Pool)',
-      'gameDomino': 'نادي الدومينو',
-      'gameBackgammon': 'لعبة الطاولة',
-      'gameRoblox': 'ساحة أركيد النيون (تحدي المنصات)',
-      'play': 'العب',
-    },
-    'en': {
-      'appName': 'RAYID PAY',
-      'home': 'Home',
-      'ads': 'Ads',
-      'wallet': 'Wallet',
-      'games': 'Games',
-      'chat': 'Chat',
-      'profile': 'Profile',
-      'goodMorning': 'Good Morning',
-      'totalBalance': 'Total Balance',
-      'portfolioValue': 'Portfolio Value',
-      'points': 'Points',
-      'redeem': 'Redeem',
-      'recentActivity': 'Recent Activity',
-      'adsRewardsCenter': 'Interactive Ads & Rewards Center',
-      'walletPayouts': 'Wallet & Payouts (Simulation)',
-      'cyberGames': 'Cyber Games Arcade',
-      'communityChat': 'Community & Chat Groups',
-      'settings': 'Profile & Settings',
-      'manageProfile': 'Manage Profile',
-      'liveSupport': 'Live Support',
-      'privacyPolicy': 'Privacy Policy',
-      'appLanguage': 'App Language',
-      'logOut': 'Log Out',
-      'saveChanges': 'Save Changes',
-      'deleteAccount': 'Delete Account Permanently',
-      'cancel': 'Cancel',
-      'confirm': 'Confirm',
-      'close': 'Close',
-      'createAccount': 'Create Account',
-      'signIn': 'Sign In',
-      'fullName': 'Full Name',
-      'username': 'Username',
-      'phone': 'Phone Number',
-      'email': 'Email Address',
-      'password': 'Password',
-      'activeGroups': 'Active Groups',
-      'createGroup': 'Create New Group',
-      'groupName': 'Group Name',
-      'create': 'Create',
-      'members': 'members',
-      'typeMessage': 'Type your message...',
-      'typeIssue': 'Type your issue here...',
-      'availablePayouts': 'Available Payout Methods (Simulation)',
-      'referralProgram': 'Referral Program (Invite & Earn)',
-      'referralDesc': 'Share your code and earn bonus points for every friend who registers!',
-      'share': 'Share',
-      'withdrawVia': 'Withdraw via',
-      'amountIQD': 'Amount (IQD)',
-      'unlimitedAd': 'Unlimited Interactive Reward',
-      'featuredAd': 'Featured Promotional Ad',
-      'reward': 'Reward',
-      'watchNow': 'Interact Now',
-      'gameLudo': 'Ludo Tournament',
-      'gameChess': 'Chess Masters',
-      'gamePool': '8 Ball Pool',
-      'gameDomino': 'Domino Club',
-      'gameBackgammon': 'Backgammon',
-      'gameRoblox': 'Neon Arcade Arena (Platform Challenge)',
-      'play': 'Play',
-    }
-  };
-
-  static String get(String lang, String key) {
-    return localizedValues[lang]?[key] ?? localizedValues['en']?[key] ?? key;
   }
 }
 
@@ -637,8 +508,14 @@ class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
   final _usernameController = TextEditingController();
   final _phoneController = TextEditingController();
  final _otpController = TextEditingController();
+ final _newPasswordController = TextEditingController();
+final _confirmPasswordController = TextEditingController();
   bool _isLoading = false;
 bool _showOtpField = false;
+bool _showPasswordResetFields = false;
+bool _otpHasError = false;
+int _otpShakeCount = 0;
+bool _otpVerified = false;
   String? _otpResetEmail;
 String? _otpResetToken;
   void _submitAuth() async {
@@ -742,10 +619,25 @@ Future<void> _requestPasswordResetOtp() async {
   setState(() => _isLoading = true);
 
   try {
-    await FirebaseFunctions.instance
-        .httpsCallable('requestPasswordResetOtp')
-        .call({'email': email});
+final response = await http.post(
+  Uri.parse(
+    'https://site--rayid-pay-backend--ty622yc4dpnn.code.run/auth/request-password-reset-otp',
+  ),
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: jsonEncode({
+    'email': email,
+  }),
+);
 
+final data = jsonDecode(response.body);
+
+if (response.statusCode != 200 || data['success'] != true) {
+  throw Exception(
+    data['message'] ?? 'Failed to request OTP',
+  );
+}
     _otpResetEmail = email;
 setState(() => _showOtpField = true);
     if (!mounted) return;
@@ -789,25 +681,29 @@ setState(() => _showOtpField = true);
   }
 
   try {
-    final result = await FirebaseFunctions.instance
-        .httpsCallable('verifyPasswordResetOtp')
-        .call({
-      'email': email,
-      'otp': otp.trim(),
-    });
+    final response = await http.post(
+  Uri.parse(
+    'https://site--rayid-pay-backend--ty622yc4dpnn.code.run/auth/verify-password-reset-otp',
+  ),
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: jsonEncode({
+    'email': email,
+    'otp': otp.trim(),
+  }),
+);
 
-    final data = Map<String, dynamic>.from(result.data);
+final data = jsonDecode(response.body);
 
-    if (data['success'] == true &&
-        data['resetToken'] is String) {
-      _otpResetToken = data['resetToken'];
-      return true;
-    }
-
-    return false;
-  } on FirebaseFunctionsException catch (e) {
-    debugPrint('OTP verification error: ${e.message}');
-    return false;
+if (response.statusCode == 200 &&
+    data is Map &&
+    data['success'] == true &&
+    data['resetToken'] is String) {
+  _otpResetToken = data['resetToken'];
+  return true;
+}
+  return false;
   } catch (e) {
     debugPrint('OTP verification error: $e');
     return false;
@@ -829,31 +725,37 @@ setState(() => _showOtpField = true);
   }
 
   try {
-    final result = await FirebaseFunctions.instance
-        .httpsCallable('completePasswordReset')
-        .call({
-      'email': email,
-      'resetToken': resetToken,
-      'newPassword': newPassword,
-    });
+    final response = await http.post(
+  Uri.parse(
+    'https://site--rayid-pay-backend--ty622yc4dpnn.code.run/auth/complete-password-reset',
+  ),
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: jsonEncode({
+    'email': email,
+    'resetToken': resetToken,
+    'newPassword': newPassword,
+  }),
+);
 
-    final data = Map<String, dynamic>.from(result.data);
+final data = jsonDecode(response.body);
 
-    if (data['success'] == true) {
-      _otpResetToken = null;
-      _otpResetEmail = null;
-      return true;
-    }
+if (response.statusCode == 200 &&
+    data is Map &&
+    data['success'] == true) {
+  _otpResetToken = null;
+  _otpResetEmail = null;
+  return true;
+}
 
-    return false;
-  } on FirebaseFunctionsException catch (e) {
-    debugPrint('Password reset error: ${e.message}');
-    return false;
-  } catch (e) {
-    debugPrint('Password reset error: $e');
-    return false;
+return false;
+} catch (e) {
+  debugPrint('Password reset error: $e');
+  return false;
   }
- }
+      
+  }
   Widget _buildAuthField({
     required TextEditingController controller,
     required String label,
@@ -1101,11 +1003,31 @@ if (!isSigningUp) ...[
 
 if (_showOtpField && !isSigningUp) ...[
   const SizedBox(height: 12),
-  TextField(
+  TweenAnimationBuilder<double>(
+  key: ValueKey(_otpShakeCount),
+  tween: Tween<double>(begin: 0, end: 1),
+  duration: const Duration(milliseconds: 450),
+  builder: (context, value, child) {
+    final shake = sin(value * pi * 6) * (1 - value) * 9;
+
+    return Transform.translate(
+      offset: Offset(shake, 0),
+      child: child,
+    );
+  },
+  child: TextField(
     controller: _otpController,
     keyboardType: TextInputType.number,
     maxLength: 6,
     style: const TextStyle(color: Colors.white),
+    onChanged: (_) {
+      if (_otpHasError || _otpVerified) {
+        setState(() {
+          _otpHasError = false;
+          _otpVerified = false;
+        });
+      }
+    },
     decoration: InputDecoration(
       labelText: lang == 'ar' ? 'رمز التحقق' : 'Verification code',
       labelStyle: const TextStyle(color: Color(0xffFFD166)),
@@ -1115,9 +1037,138 @@ if (_showOtpField && !isSigningUp) ...[
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
       ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(
+          color: _otpHasError
+              ? Colors.red
+              : (_otpVerified ? Colors.green : Colors.transparent),
+          width: 1.5,
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(
+          color: _otpHasError
+              ? Colors.red
+              : (_otpVerified ? Colors.green : const Color(0xff8B5CF6)),
+          width: 2,
+        ),
+      ),
     ),
   ),
+),
   const SizedBox(height: 12),
+if (_otpHasError) ...[
+  const SizedBox(height: 8),
+  const Text(
+    'رمز التحقق غير صحيح، حاول مرة أخرى',
+    style: TextStyle(
+      color: Colors.red,
+      fontSize: 13,
+    ),
+  ),
+],
+  SizedBox(
+    width: double.infinity,
+    height: 50,
+    child: ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xffFFD166),
+        foregroundColor: const Color(0xff171225),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      onPressed: _isLoading
+    ? null
+    : () async {
+        final otp = _otpController.text.trim();
+
+        if (!RegExp(r'^\d{6}$').hasMatch(otp)) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('أدخل رمز التحقق المكوّن من 6 أرقام'),
+            ),
+          );
+          return;
+        }
+
+        setState(() => _isLoading = true);
+
+        final verified = await _verifyPasswordResetOtp(otp);
+
+        if (!mounted) return;
+
+        setState(() {
+  _isLoading = false;
+  _otpHasError = !verified;
+  _otpVerified = verified;
+
+  if (verified) {
+    _showPasswordResetFields = true;
+  } else {
+    _otpShakeCount++;
+  }
+});
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              verified
+                  ? 'تم التحقق من الرمز بنجاح'
+                  : 'الرمز غير صحيح أو انتهت صلاحيته',
+            ),
+          ),
+        );
+      },
+      child: Text(
+        lang == 'ar' ? 'تحقق من الرمز' : 'Verify Code',
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
+        ),
+      ),
+    ),
+  ),
+],
+if (_showPasswordResetFields) ...[
+  const SizedBox(height: 16),
+
+  TextField(
+    controller: _newPasswordController,
+    obscureText: true,
+    style: const TextStyle(color: Colors.white),
+    decoration: InputDecoration(
+      labelText: 'كلمة المرور الجديدة',
+      labelStyle: const TextStyle(color: Color(0xffFFD166)),
+      filled: true,
+      fillColor: const Color(0xff171225),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    ),
+  ),
+
+  const SizedBox(height: 12),
+
+  TextField(
+    controller: _confirmPasswordController,
+    obscureText: true,
+    style: const TextStyle(color: Colors.white),
+    decoration: InputDecoration(
+      labelText: 'تأكيد كلمة المرور الجديدة',
+      labelStyle: const TextStyle(color: Color(0xffFFD166)),
+      filled: true,
+      fillColor: const Color(0xff171225),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    ),
+  ),
+],
+                    if (_showPasswordResetFields) ...[
+  const SizedBox(height: 16),
   SizedBox(
     width: double.infinity,
     height: 50,
@@ -1132,13 +1183,65 @@ if (_showOtpField && !isSigningUp) ...[
       onPressed: _isLoading
           ? null
           : () async {
-              await _verifyPasswordResetOtp(
-                _otpController.text.trim(),
+              final newPassword = _newPasswordController.text;
+              final confirmPassword =
+                  _confirmPasswordController.text;
+
+              if (newPassword.length < 8 ||
+                  newPassword.length > 128) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'كلمة المرور يجب أن تكون بين 8 و128 حرفاً',
+                    ),
+                  ),
+                );
+                return;
+              }
+
+              if (newPassword != confirmPassword) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('كلمتا المرور غير متطابقتين'),
+                  ),
+                );
+                return;
+              }
+
+              
+              final success =
+                  await _completePasswordReset(newPassword);
+
+              if (!mounted) return;
+
+              setState(() {
+  _isLoading = false;
+
+  if (success) {
+    _showOtpField = false;
+    _showPasswordResetFields = false;
+    _otpHasError = false;
+    _otpVerified = false;
+
+    _otpController.clear();
+    _newPasswordController.clear();
+    _confirmPasswordController.clear();
+  }
+});
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    success
+                        ? 'تم تغيير كلمة المرور بنجاح'
+                        : 'تعذر تغيير كلمة المرور، حاول مرة أخرى',
+                  ),
+                ),
               );
             },
-      child: Text(
-        lang == 'ar' ? 'تحقق من الرمز' : 'Verify Code',
-        style: const TextStyle(
+      child: const Text(
+        'تغيير كلمة المرور',
+        style: TextStyle(
           fontWeight: FontWeight.bold,
           fontSize: 16,
         ),
@@ -1146,7 +1249,7 @@ if (_showOtpField && !isSigningUp) ...[
     ),
   ),
 ],
-  const SizedBox(height: 25),
+const SizedBox(height: 25),
 
                     SizedBox(
                       width: double.infinity,
@@ -1244,9 +1347,9 @@ class MainNavigationHubState extends State<MainNavigationHub> {
 
     final List<Widget> pages = [
       const HomeScreen(),
-      const AdsRewardsScreen(),
+      AdsRewardsScreen(lang: lang),
       const WalletScreen(),
-      const GamesScreen(),
+      GamesScreen(lang: lang),
       const ChatScreen(),
       const SettingsScreen(),
     ];
@@ -1703,65 +1806,6 @@ child: userModel.profileImage == null &&
   }
 }
 
-// ================= 2. مركز الإعلانات والمكافآت التفاعلية =================
-class AdsRewardsScreen extends StatelessWidget {
-  const AdsRewardsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    String lang = userModel.currentLanguage;
-    return Scaffold(
-      appBar: AppBar(title: Text(AppStrings.get(lang, 'adsRewardsCenter')), backgroundColor: const Color(0xff090711), automaticallyImplyLeading: false),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _buildAdTile(context, AppStrings.get(lang, 'unlimitedAd'), AppStrings.get(lang, 'reward'), 4),
-          _buildAdTile(context, AppStrings.get(lang, 'featuredAd'), AppStrings.get(lang, 'reward'), 4),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAdTile(BuildContext context, String title, String rewardText, int addPoints) {
-    String lang = userModel.currentLanguage;
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: const Color(0xff171225), borderRadius: BorderRadius.circular(16)),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
-                const SizedBox(height: 4),
-                Text('$rewardText: +4 Points (تفاعل تجريبي)', style: const TextStyle(color: Colors.grey, fontSize: 11)),
-              ],
-            ),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xffFFD166), foregroundColor: Colors.black),
-            onPressed: () {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(
-        lang == 'ar'
-            ? 'جاري تجهيز نظام الإعلانات'
-            : 'The ads system is being prepared',
-      ),
-    ),
-  );
-},
-            child: Text(AppStrings.get(lang, 'watchNow'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 // ================= 3. المحفظة والسحب والإحالة =================
 class WalletScreen extends StatelessWidget {
   const WalletScreen({super.key});
@@ -1947,103 +1991,10 @@ class WalletScreen extends StatelessWidget {
 }
 
 // ================= 4. الألعاب والدردشة =================
-class GamesScreen extends StatelessWidget {
-  const GamesScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    String lang = userModel.currentLanguage;
-    return Scaffold(
-      appBar: AppBar(title: Text(AppStrings.get(lang, 'cyberGames')), backgroundColor: const Color(0xff090711), automaticallyImplyLeading: false),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _gameCard(context, AppStrings.get(lang, 'gameLudo'), Icons.casino, const Color(0xffFFD166), 50, () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const LudoLobbyScreen()),
-            );
-          }),
-          _gameCard(context, AppStrings.get(lang, 'gameChess'), Icons.extension, const Color(0xffFFD166), 30, () {}),
-          _gameCard(context, AppStrings.get(lang, 'gameDomino'), Icons.apps,const Color(0xffFFD166), 20, () {}),
-          _gameCard(context, AppStrings.get(lang, 'gameBackgammon'), Icons.grid_view, const Color(0xffFFD166), 20, () {}),
-          _gameCard(context, AppStrings.get(lang, 'gamePool'), Icons.sports_bar, const Color(0xffFFD166), 40, () {}),
-          _gameCard(context, AppStrings.get(lang, 'gameRoblox'), Icons.sports_esports, const Color(0xffFFD166), 100, () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const RobloxArenaScreen()));
-          }),
-        ],
-      ),
-    );
-  }
-
-  
-Widget _gameCard(
-  BuildContext context,
-  String title,
-  IconData icon,
-  Color color,
-  int _entryFee,
-  VoidCallback onTap,
-) {
-  String lang = userModel.currentLanguage;
-
-  return Container(
-    margin: const EdgeInsets.only(bottom: 14),
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      color: const Color(0xff171225),
-      borderRadius: BorderRadius.circular(20),
-      border: Border.all(
-        color: const Color(0xff8B5CF6).withOpacity(0.35),
-      ),
-    ),
-    child: Row(
-      children: [
-        Icon(icon, color: color, size: 30),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                lang == 'ar' ? '🎮 لعب مجاني' : '🎮 Free to play',
-                style: const TextStyle(
-                  color: Colors.greenAccent,
-                  fontSize: 11,
-                ),
-              ),
-            ],
-          ),
-        ),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: color,
-            foregroundColor: Colors.black,
-          ),
-          onPressed: onTap,
-          child: Text(
-            AppStrings.get(lang, 'play'),
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ),
-      ],
-    ),
-  );
-}
-}
 
 class RobloxArenaScreen extends StatelessWidget {
   const RobloxArenaScreen({super.key});
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -2589,26 +2540,6 @@ class _Roblox3DPlatformerGameScreenState extends State<Roblox3DPlatformerGameScr
     );
   }
 }
-
-class CyberGridPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xff00E5FF).withOpacity(0.15)
-      ..strokeWidth = 1.2;
-
-    for (double i = 0; i < size.width; i += 32) {
-      canvas.drawLine(Offset(i, 0), Offset(i, size.height), paint);
-    }
-    for (double j = 0; j < size.height; j += 32) {
-      canvas.drawLine(Offset(0, j), Offset(size.width, j), paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
 

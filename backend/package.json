@@ -1,0 +1,20 @@
+
+{
+  "name": "rayid-pay-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "RAYID PAY HTTP backend for password recovery",
+  "main": "server.js",
+  "engines": {
+    "node": ">=20 <23"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "firebase-admin": "^13.0.0",
+    "helmet": "^8.0.0"
+  }
+}
