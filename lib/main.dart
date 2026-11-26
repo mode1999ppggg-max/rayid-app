@@ -1347,7 +1347,7 @@ class MainNavigationHubState extends State<MainNavigationHub> {
 
     final List<Widget> pages = [
       const HomeScreen(),
-      const AdsRewardsScreen(),
+      AdsRewardsScreen(lang: lang),
       const WalletScreen(),
       GamesScreen(lang: lang),
       const ChatScreen(),
