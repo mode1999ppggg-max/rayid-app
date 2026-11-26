@@ -10,10 +10,8 @@ import 'dart:async';
 import 'dart:math';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
-import 'games/ludo/ludo_screen.dart';
 import 'core/localization/app_strings.dart';
 import 'features/games/virtual_world/presentation/widgets/cyber_grid_painter.dart';
-import 'features/games/presentation/widgets/game_card.dart';
 import 'features/games/presentation/screens/games_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -2051,36 +2049,6 @@ class WalletScreen extends StatelessWidget {
 }
 
 // ================= 4. الألعاب والدردشة =================
-class GamesScreen extends StatelessWidget {
-  const GamesScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    String lang = userModel.currentLanguage;
-    return Scaffold(
-      appBar: AppBar(title: Text(AppStrings.get(lang, 'cyberGames')), backgroundColor: const Color(0xff090711), automaticallyImplyLeading: false),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-                children: [
-          GameCard(
-            title: AppStrings.get(lang, 'gameLudo'),
-            icon: Icons.casino,
-            color: const Color(0xffFFD166),
-            lang: lang,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const LudoLobbyScreen(),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class RobloxArenaScreen extends StatelessWidget {
   const RobloxArenaScreen({super.key});
